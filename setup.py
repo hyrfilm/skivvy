@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
     name='skivvy',
     packages=['skivvy'],
-    version='0.1',
+    version='0.11',
     description='A simple tool for testing JSON/HTTP APIs',
     author='Jonas Holmer',
     author_email='jonas.holmer@gmail.com',
