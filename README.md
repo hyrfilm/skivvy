@@ -11,10 +11,17 @@ things few things it can do it does well.
 ## try it out
 #### installing
 * install through PIP
-```mkdir skivvy```
-``pip install skivvy``
+```sh
+mkdir skivvy
+pip install skivvy
+```
 * download some examples
-```curl https://github.com/hyrfilm/skivvy/raw/master/skivvy_examples.zip -o skivvy_examples.zip```
-``tar xf skivvy_examples.zip``
-```cd skivvy_examples```
-* run the examples: ```skivvy run cfg/example.json```
+```sh
+curl https://github.com/hyrfilm/skivvy/raw/master/skivvy_examples.zip -o skivvy_examples.zip
+tar xf skivvy_examples.zip
+cd skivvy_examples
+```
+* run:
+```sh
+skivvy run cfg/example.json
+```
