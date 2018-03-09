@@ -5,7 +5,7 @@ A simple tool for testing JSON/HTTP APIs
 #### installing
 ``pip install skivvy``
 #### examples
-* download an [](example config)
+* download some [https://github.com/hyrfilm/skivvy/blob/master/skivvy_examples.zip](examples)
 * unzip: ```tar xf skivvy_examples.zip```
 * run the examples: ```skivvy run cfg/example.json```
 
