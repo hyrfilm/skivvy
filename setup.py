@@ -1,8 +1,8 @@
-from distutils.core import setup
+from setuptools import setup, find_packages
 
 setup(
     name='skivvy',
-    packages=['skivvy', 'skivvy.util'],
+    packages=find_packages(exclude=["*.json"]),
     version='0.12',
     description='A simple tool for testing JSON/HTTP APIs',
     author='Jonas Holmer',
@@ -16,5 +16,7 @@ setup(
                  'Topic :: Software Development :: Testing',
                  'Programming Language :: Python'],
     install_requires=['pyopenssl', 'requests', 'docopt'],
-    scripts=['skivvy.skivvy']
+    entry_points={
+        "console_scripts": ['skivvy = skivvy.skivvy:run_skivvy']
+    }
 )

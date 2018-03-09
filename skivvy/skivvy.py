@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """skivvy 0.12
 
 Usage:
@@ -128,7 +127,7 @@ def summary(failures, num_tests):
         return True
 
 
-if __name__ == "__main__":
+def run_skivvy():
     result = run()
     if not result:
         exit(1)
