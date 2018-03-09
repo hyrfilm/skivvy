@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""skivvy v0.11
+"""skivvy 0.12
 
 Usage:
     skivvy.py run <cfg_file>
@@ -93,7 +93,7 @@ def dump_response_headers(headers_to_write, r):
 
 
 def run():
-    arguments = docopt(__doc__, version='skivvy 0.11')
+    arguments = docopt(__doc__, version='skivvy 0.12')
     conf = read_config(arguments.get("<cfg_file>"))
     tests = file_util.list_files(conf.tests, conf.ext)
     failures = 0

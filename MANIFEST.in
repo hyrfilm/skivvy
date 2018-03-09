@@ -1,0 +1,4 @@
+include README.md
+include LICENSE.txt
+recursive-include skivvy/cfg .json
+recursive-include skivvy/examples .json

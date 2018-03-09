@@ -2,8 +2,8 @@ from distutils.core import setup
 
 setup(
     name='skivvy',
-    packages=['skivvy'],
-    version='0.11',
+    packages=['skivvy', 'skivvy.util'],
+    version='0.12',
     description='A simple tool for testing JSON/HTTP APIs',
     author='Jonas Holmer',
     author_email='jonas.holmer@gmail.com',
@@ -16,6 +16,5 @@ setup(
                  'Topic :: Software Development :: Testing',
                  'Programming Language :: Python'],
     install_requires=['pyopenssl', 'requests', 'docopt'],
-    data_files=[('config', 'cfg/*.json'),
-                ('examples', 'examples/*.json')]
+    scripts=['skivvy.skivvy']
 )
