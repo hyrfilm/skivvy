@@ -1,0 +1,136 @@
+#!/usr/bin/env python
+"""skivvy v0.1
+
+Usage:
+    skivvy.py run <cfg_file>
+    skivvy.py [-t] run <cfg_file>
+    skivvy.py run <cfg/example.json> (run examples)
+
+Options:
+  -h --help         Show this screen.
+  -v --version      Show version.
+  -t                Keep temporary files (if any)
+"""
+
+import json
+import logging
+from urlparse import urljoin
+from docopt import docopt
+from skivvy_config import read_config
+from util import file_util, http_util, dict_util
+from util import log_util
+from verify import verify
+
+STATUS_OK = "OK"
+STATUS_FAILED = "FAILED"
+
+_logger = log_util.get_logger(__name__, level=logging.DEBUG)
+
+
+def configure_testcase(test_dict, conf_dict):
+    testcase = dict(conf_dict)
+    testcase.update(test_dict)
+    return testcase
+
+
+def configure_logging(testcase):
+    log_level = testcase.get("log_level", None)
+    if log_level:
+        _logger.setLevel(log_level)
+
+
+def override_default_headers(default_headers, more_headers):
+    d = dict(default_headers)
+    d.update(more_headers)
+    return d
+
+
+def run_test(filename, conf):
+    testcase = configure_testcase(file_util.parse_json(filename), conf.as_dict())
+
+    configure_logging(testcase)
+
+    # TODO: should be in a config somewhere
+    base_url = testcase.get("base_url", "")
+    url = testcase.get("url")
+    url = urljoin(base_url, url)
+    method = testcase.get("method", "get")
+    expected_status = testcase.get("status", 200)
+    expected_response = testcase.get("response", {})
+    data = testcase.get("body", None)
+    headers = testcase.get("headers", {})
+    headers_to_write = testcase.get("write_headers", {})
+    headers_to_read = testcase.get("read_headers", {})
+
+    if headers_to_read:
+        headers = override_default_headers(headers, json.load(open(headers_to_read, "r")))
+
+    r = http_util.do_request(url, method, data, headers, _logger)
+    status, json_response, headers_response = r.status_code, r.json(), r.headers
+
+    if headers_to_write:
+        dump_response_headers(headers_to_write, r)
+
+    _logger.debug("expected: %s" % expected_response)
+    _logger.debug("actual: %s" % json_response)
+
+    try:
+        verify(expected_status, status)
+        verify(expected_response, json_response)
+    except Exception as e:
+        msg = e.message
+        status = STATUS_FAILED
+        return status, msg
+
+    return "OK", None  # Yay! it passed.... nothing more to say than that
+
+
+def dump_response_headers(headers_to_write, r):
+    for filename in headers_to_write.keys():
+        _logger.debug("writing header: %s" % filename)
+        headers = dict_util.subset(r.headers, headers_to_write.get(filename, []))
+        file_util.write_tmp(filename, json.dumps(headers))
+
+
+def run():
+    arguments = docopt(__doc__, version='skivvy 0.1')
+    conf = read_config(arguments.get("<cfg_file>"))
+    tests = file_util.list_files(conf.tests, conf.ext)
+    failures = 0
+    num_tests = 0
+
+    result_format = "%s\t%s"
+
+    for testfile in tests:
+        result, msg = run_test(testfile, conf)
+        if result == STATUS_FAILED:
+            _logger.error(result_format % (testfile, STATUS_FAILED))
+            _logger.error(msg)
+            failures += 1
+        else:
+            _logger.info(result_format % (testfile, STATUS_OK))
+        num_tests += 1
+
+    if not arguments.get("-t"):
+        _logger.debug("Removing temporary files...")
+        file_util.cleanup_tmp_files()
+
+    return summary(failures, num_tests)
+
+
+def summary(failures, num_tests):
+    if failures > 0:
+        _logger.info("%s testcases of %s failed. :(" % (failures, num_tests))
+        return False
+    else:
+        _logger.info("All %s tests passed." % num_tests)
+        _logger.info("Lookin' good!")
+        return True
+
+
+if __name__ == "__main__":
+    result = run()
+    if not result:
+        exit(1)
+    else:
+        exit(0)

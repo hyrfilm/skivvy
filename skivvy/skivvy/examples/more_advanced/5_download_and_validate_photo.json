@@ -1,0 +1,8 @@
+{
+  "url": "https://jsonplaceholder.typicode.com/photos/1",
+  "response":
+  {
+    "url": "$valid_url",
+    "thumbnailUrl": "$valid_url"
+  }
+}
