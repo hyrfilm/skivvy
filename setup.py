@@ -15,5 +15,7 @@ setup(
                  'Topic :: Software Development :: Quality Assurance',
                  'Topic :: Software Development :: Testing',
                  'Programming Language :: Python'],
-    install_requires=['pyopenssl', 'requests', 'docopt']
+    install_requires=['pyopenssl', 'requests', 'docopt'],
+    data_files=[('config', 'cfg/*.json'),
+                ('examples', 'examples/*.json')]
 )
