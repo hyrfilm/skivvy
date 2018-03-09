@@ -12,14 +12,14 @@ things few things it can do it does well.
 #### installing
 * install through PIP
 ```sh
-mkdir skivvy
 pip install skivvy
 ```
 * download some examples
 ```sh
+mkdir skivvy
+cd skivvy
 curl https://github.com/hyrfilm/skivvy/raw/master/skivvy_examples.zip -OL skivvy_examples.zip
 tar xf skivvy_examples.zip
-cd skivvy_examples
 ```
 * run:
 ```sh
