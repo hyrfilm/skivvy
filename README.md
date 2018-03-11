@@ -71,7 +71,7 @@ With skivvy you could easily create a testcase for this in a myraid of ways depe
 #### etc
 Other things supported:
 * test-suites incl using different environments (like staging / production)
-* custom matcher syntax, for checking things like urls ("$valid_url"), approximations ("$~"), dates ("$date"), custom python-expression ("$expr") and more
+* custom matcher syntax, for checking things like urls (```$valid_url```), approximations (```$~```), date-validation (```$date```), custom python-expression (```$expr```) and more
 * ability to create extend the syntax to create own matchers easily
 * all common http-verbs (get, put, post, delete)
 * reading and writing http-headers
