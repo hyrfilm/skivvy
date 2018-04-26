@@ -19,7 +19,6 @@ class SkivvyConfig:
         return dict(self.d)
 
 
-#TODO: you should be able to specify the conf file
 def read_config(config_name):
     cwd = os.getcwd()
     config_file = path.join(cwd, config_name)

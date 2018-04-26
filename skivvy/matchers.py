@@ -6,6 +6,7 @@ from math import fabs
 import requests
 
 from util import log_util
+
 _logger = log_util.get_logger(__name__)
 
 DEFAULT_APPROXIMATE_THRESHOLD = 0.05  # default margin of error for a ~value to still be considered equal to another
@@ -129,13 +130,6 @@ def date_matcher(expected, actual):
         return False, "Expected %s but got %s" % (expected, actual)
 
 
-def null_matcher(expected, actual):
-    if actual is None:
-        return True, SUCCESS_MSG
-    else:
-        return "Expected null but got: %s" % actual
-
-
 def match_valid_ip(expected, actual):
     if "." in actual:
         return _match_valid_ip4(actual)
@@ -186,7 +180,6 @@ matcher_dict = {
     "$len": len_match,
     "$~": approximate_match,
     "$date": date_matcher,
-    "$null": null_matcher,
     "$write_file": file_writer,
     "$valid_ip": match_valid_ip,
     "$expects": match_expression,

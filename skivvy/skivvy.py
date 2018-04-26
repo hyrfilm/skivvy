@@ -60,6 +60,9 @@ def run_test(filename, conf):
     headers = testcase.get("headers", {})
     headers_to_write = testcase.get("write_headers", {})
     headers_to_read = testcase.get("read_headers", {})
+    match_subsets = testcase.get("match_subsets", False)
+
+    match_options = {"match_subsets": match_subsets}
 
     if headers_to_read:
         headers = override_default_headers(headers, json.load(open(headers_to_read, "r")))
@@ -74,8 +77,8 @@ def run_test(filename, conf):
     _logger.debug("actual: %s" % json_response)
 
     try:
-        verify(expected_status, status)
-        verify(expected_response, json_response)
+        verify(expected_status, status, **match_options)
+        verify(expected_response, json_response, **match_options)
     except Exception as e:
         msg = e.message
         status = STATUS_FAILED
@@ -92,7 +95,7 @@ def dump_response_headers(headers_to_write, r):
 
 
 def run():
-    arguments = docopt(__doc__, version='skivvy 0.12')
+    arguments = docopt(__doc__, version='skivvy 0.13')
     conf = read_config(arguments.get("<cfg_file>"))
     tests = file_util.list_files(conf.tests, conf.ext)
     failures = 0

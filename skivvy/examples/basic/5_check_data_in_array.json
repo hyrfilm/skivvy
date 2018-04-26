@@ -1,0 +1,13 @@
+{
+  "url": "/comments",
+  "match_subsets": true,
+  "response": [
+    {
+      "postId": 1,
+      "id": 1
+    },
+    {
+      "email": "Jayne_Kuhic@sydney.com"
+    }
+  ]
+}

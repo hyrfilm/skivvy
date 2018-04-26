@@ -1,0 +1,16 @@
+{
+  "url": "/photos",
+  "match_subsets": true,
+  "response": [
+    {
+      "id": 1,
+      "thumbnailUrl": "$valid_url",
+      "url": "$valid_url"
+    },
+    {
+      "id": 2,
+      "thumbnailUrl": "$valid_url",
+      "url": "$valid_url"
+    }
+  ]
+}
