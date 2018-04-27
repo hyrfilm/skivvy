@@ -53,11 +53,13 @@ def run_test(filename, conf):
     base_url = testcase.get("base_url", "")
     url = testcase.get("url")
     url = urljoin(base_url, url)
-    method = testcase.get("method", "get")
+    method = testcase.get("method", "get").lower()
     expected_status = testcase.get("status", 200)
     expected_response = testcase.get("response", {})
     data = testcase.get("body", None)
+    json_encode_body = testcase.get("json_body", True)
     headers = testcase.get("headers", {})
+    content_type = testcase.get("content_type", "application/json")
     headers_to_write = testcase.get("write_headers", {})
     headers_to_read = testcase.get("read_headers", {})
     match_subsets = testcase.get("match_subsets", False)
@@ -66,6 +68,12 @@ def run_test(filename, conf):
 
     if headers_to_read:
         headers = override_default_headers(headers, json.load(open(headers_to_read, "r")))
+
+    if data:
+        headers = override_default_headers(headers, {"Content-Type": content_type})
+
+    if json_encode_body:
+        data = json.dumps(data)
 
     r = http_util.do_request(url, method, data, headers, _logger)
     status, json_response, headers_response = r.status_code, r.json(), r.headers
@@ -95,7 +103,7 @@ def dump_response_headers(headers_to_write, r):
 
 
 def run():
-    arguments = docopt(__doc__, version='skivvy 0.13')
+    arguments = docopt(__doc__, version='skivvy 0.14')
     conf = read_config(arguments.get("<cfg_file>"))
     tests = file_util.list_files(conf.tests, conf.ext)
     failures = 0
