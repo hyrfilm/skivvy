@@ -26,7 +26,10 @@ def match_expression(expected, actual):
 
 def match_regexp(expected, actual):
     try:
+        expected = expected.strip()
+        _logger.debug("Comparing '%s' to regexp: '%s'" % (actual, expected))
         if re.match(expected, actual):
+            _logger.debug("It's a match.")
             return True, SUCCESS_MSG
         else:
             return False, u"Expected '%s' to match regular expression '%s' - but didn't" % (actual, expected)
