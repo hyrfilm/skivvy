@@ -8,10 +8,10 @@ import requests
 import log_util
 
 _methods = ["get", "post", "put", "patch", "delete"]
-
+_session = requests.Session()
 
 def do_request(url, method, data, headers, logger):
-    http_verb = getattr(requests, method)
+    http_verb = getattr(_session, method)
     logger.debug("--- REQUEST ---")
     logger.debug("%s: %s" % (method.upper(), url))
     logger.debug(" data: %s" % data)
