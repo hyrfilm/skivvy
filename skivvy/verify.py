@@ -72,6 +72,9 @@ def verify(expected, actual, **match_options):
     if is_matcher(expected):
         verify_matcher(expected, actual)
     elif type(expected) != type(actual):
+        if not actual and not expected:
+            if match_options.get("match_falsiness"):
+                return True
         raise Exception("%s is not the same type as %s" % (expected, actual))
     elif isinstance(expected, dict):
         return verify_dict(expected, actual, **match_options)

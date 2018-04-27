@@ -19,6 +19,7 @@ from skivvy_config import read_config
 from util import file_util, http_util, dict_util
 from util import log_util
 from verify import verify
+import matchers
 
 STATUS_OK = "OK"
 STATUS_FAILED = "FAILED"
@@ -52,6 +53,7 @@ def run_test(filename, conf):
     # TODO: should be in a config somewhere
     base_url = testcase.get("base_url", "")
     url = testcase.get("url")
+    brace_expansion = testcase.get("url_brace_expansion", False)
     url = urljoin(base_url, url)
     method = testcase.get("method", "get").lower()
     expected_status = testcase.get("status", 200)
@@ -63,8 +65,9 @@ def run_test(filename, conf):
     headers_to_write = testcase.get("write_headers", {})
     headers_to_read = testcase.get("read_headers", {})
     match_subsets = testcase.get("match_subsets", False)
+    match_falsiness = testcase.get("match_falsiness", True)
 
-    match_options = {"match_subsets": match_subsets}
+    match_options = {"match_subsets": match_subsets, "match_falsiness": match_falsiness}
 
     if headers_to_read:
         headers = override_default_headers(headers, json.load(open(headers_to_read, "r")))
@@ -74,6 +77,9 @@ def run_test(filename, conf):
 
     if json_encode_body:
         data = json.dumps(data)
+
+    if brace_expansion:
+        url = matchers.brace_expand(url)
 
     r = http_util.do_request(url, method, data, headers, _logger)
     status, json_response, headers_response = r.status_code, http_util.as_json(r), r.headers

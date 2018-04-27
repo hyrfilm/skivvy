@@ -2,6 +2,9 @@
 import string
 from datetime import datetime
 from math import fabs
+import re
+import os.path
+from util import file_util
 
 import requests
 
@@ -19,6 +22,16 @@ def match_expression(expected, actual):
         return True, SUCCESS_MSG
     else:
         return False, u"Expected '%s' to evaluate to True but was evaluated to False" % actual
+
+
+def match_regexp(expected, actual):
+    try:
+        if re.match(expected, actual):
+            return True, SUCCESS_MSG
+        else:
+            return False, u"Expected '%s' to match regular expression '%s' - but didn't" % (actual, expected)
+    except:
+        return False, u"Invalid regular expression in testcase: %s" % expected
 
 
 def match_valid_url(expected, actual):
@@ -168,9 +181,7 @@ def file_writer(expected, actual):
 
 def file_reader(expected, actual):
     expected = expected.strip()
-    f = open(expected, "r")
-    data = f.read()
-    f.close()
+    data = file_util.read_file_contents(expected)
     return data == actual, "Files content didn't match - expected: %s but got %s" % (expected, actual)
 
 
@@ -183,8 +194,9 @@ matcher_dict = {
     "$write_file": file_writer,
     "$valid_ip": match_valid_ip,
     "$expects": match_expression,
+    "$text": match_text,
+    "$regexp": match_regexp,
     "$expr": match_expression,
-    "$text": match_text
 }
 
 
@@ -197,3 +209,22 @@ def _parse_single_number(expected):
         index += 1
 
     return float(expected[index:])
+
+
+# technically not a matcher but this file seems like the best location nonetheless?
+def brace_expand(url):
+    while True:
+        match = re.search(r"\<.*?\>", url)
+        if not match:
+            return url
+        else:
+            variable = match.group(0)
+            variable_name = variable.replace("<", "").replace(">", "")
+            # maybe it refers to a file?
+            if not os.path.isfile(variable_name):
+                # Oh well, I give up! ;)
+                _logger.warn("Failed to match variable %s to anything" % variable)
+                return url
+            else:
+                variable_value = file_util.read_file_contents(variable_name)
+                url = url.replace(variable, variable_value)

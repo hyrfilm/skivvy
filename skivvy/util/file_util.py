@@ -30,3 +30,8 @@ def write_tmp(filename, content):
 def cleanup_tmp_files():
     for filename in _tmp_files:
         os.remove(filename)
+
+
+def read_file_contents(filename):
+    with open(filename) as fp:
+        return fp.read()
