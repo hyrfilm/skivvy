@@ -176,9 +176,7 @@ def _match_valid_ip6(actual):
 
 def file_writer(expected, actual):
     expected = expected.strip()
-    f = open(expected, "w")
-    f.write(actual)
-    f.close()
+    file_util.write_tmp(expected, actual)
     return True, SUCCESS_MSG
 
 
