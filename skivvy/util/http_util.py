@@ -10,6 +10,7 @@ import log_util
 _methods = ["get", "post", "put", "patch", "delete"]
 _session = requests.Session()
 
+
 def do_request(url, method, data, headers, logger):
     http_verb = getattr(_session, method)
     logger.debug("--- REQUEST ---")
@@ -22,7 +23,14 @@ def do_request(url, method, data, headers, logger):
 
     logger.debug("--- RESPONSE ---")
     logger.debug("%s" % r.status_code)
-    logger.debug("%s" % r.json())
+    logger.debug("%s" % as_json(r))
     logger.debug("----------------")
 
     return r
+
+
+def as_json(response):
+    try:
+        return response.json()
+    except:
+        return None

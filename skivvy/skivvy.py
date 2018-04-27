@@ -76,7 +76,7 @@ def run_test(filename, conf):
         data = json.dumps(data)
 
     r = http_util.do_request(url, method, data, headers, _logger)
-    status, json_response, headers_response = r.status_code, r.json(), r.headers
+    status, json_response, headers_response = r.status_code, http_util.as_json(r), r.headers
 
     if headers_to_write:
         dump_response_headers(headers_to_write, r)
