@@ -80,7 +80,7 @@ Other things supported:
 
 ### Documentation
 
-#### config documentation
+#### optional config settings
 a skivvy testfile, can contain the following flags that changes how the tests is performed
 
 #### mandatory config settings
