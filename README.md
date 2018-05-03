@@ -14,8 +14,8 @@ pip install skivvy
 ```
 * download some examples
 ```sh
-mkdir skivvy
-cd skivvy
+mkdir skivvy_examples
+cd skivvy_examples
 curl -OL https://github.com/hyrfilm/skivvy/raw/master/skivvy_examples.zip
 tar xf skivvy_examples.zip
 ```
