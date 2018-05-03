@@ -78,6 +78,7 @@ Other things supported:
 * dumping output from one testcase into a file and passing in parts of that data to other testcases
 * ... and more! ;)
 
+### Documentation
 
 #### config documentation
 a skivvy testfile, can contain the following flags that changes how the tests is performed
