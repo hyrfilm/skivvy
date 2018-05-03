@@ -77,3 +77,37 @@ Other things supported:
 * reading and writing http-headers
 * dumping output from one testcase into a file and passing in parts of that data to other testcases
 * ... and more! ;)
+
+
+#### config documentation
+a skivvy testfile, can contain the following flags that changes how the tests is performed
+
+#### mandatory config settings
+* *tests* - directory where to look for tests (recursively)
+* *ext* - file extension to look for (like ".json")
+* *base_url* - base URL that will be prefixed for all tests
+
+#### optional config settings
+* *log_level* - a low value like 10, shows ALL logging, a value like 20 shows only info and more severe
+
+#### mandatory settings for a testcase
+* *url* - the URL that skivvy should send a HTTP request to 
+* *base_url* - an base url (like "https://example.com") that will be prefixed for the URL
+* *method* - what HTTP verb should be used (optional, defaults to GET)
+
+#### optional settings for testcase
+* *brace_expansion* - whether brace expansion should used for URLs containting <variable> 
+* *expected_status* - the expected HTTP status of the call
+* *response* - the _expected_ response that should be checked against _actual_ response received from the API
+* *data* - data should be sent in in POST or PUT request
+* *json_encode_body* - setting this to false makes skivvy not json encode the body of a PUT or POST and instead sends it as form-data
+* *headers* - headers to send into the request
+* *content_type* - defaults to _"application/json"_
+* *headers_to_write* - headers that should be retrieved from the HTTP response and dumped a file, for example: ````"write_headers": {"headers.json": ["Set-Cookie", "Cache-Control"]}, ````
+* *headers_to_write* - specifies a file containing headers to be sent in the request, for example: ````"read_headers": "headers.json"````
+* *match_subsets* - (boolean, default is false) - controls whether skivvy will allow to match a subset of a dict found in a list
+* *match_falsiness* - (boolean, default is false) - controls whether skivvy will consider falsy values (such as null, and empty string, etc) as the same equivalent
+
+#### matchers
+
+###TODO :)
