@@ -111,7 +111,7 @@ a skivvy testfile, can contain the following flags that changes how the tests is
 
 ### matchers
 
-Matchers is a simple, extensible notation that allows one greater expressiveness than vanilla-JSON would allow for.
+Skivvy's matcher-syntax is a simple, extensible notation that allows one greater expressiveness than vanilla-JSON would allow for.
 
 For example, let's say you want to check that the field "email" containing a some characters followed by an @-sign,
 some more characters followed by a dot and then some more characters (I don't recommend this as a way to check if an email is valid, which is quite hard!).
