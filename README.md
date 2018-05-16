@@ -79,6 +79,10 @@ Other things supported:
 * ... and more! ;)
 
 ### Documentation
+**NOTE:** The easiest way to gain understading of ways to use skivvy is to simply download the examples and _then_ look at the documentation.
+
+All examples as zip: https://github.com/hyrfilm/skivvy/raw/master/skivvy_examples.zip
+Or if you prefer to view them on github directly: https://github.com/hyrfilm/skivvy/tree/master/skivvy/examples
 
 #### optional config settings
 a skivvy testfile, can contain the following flags that changes how the tests is performed
