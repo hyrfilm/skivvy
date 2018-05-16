@@ -65,10 +65,11 @@ def match_text(expected, actual):
     if not actual:
         return False, u"Expected %s but got %s" % (expected, actual)
 
-    for c in string.ascii_letters:
-        if c in actual:
-            return True, SUCCESS_MSG
-    return False, u"Expected %s but got %s" % (expected, actual)
+    for c in actual:
+        if c not in string.ascii_letters:
+            return False, u"Expected %s but got %s" % (expected, actual)
+
+    return True, SUCCESS_MSG
 
 
 def match_contains(expected, actual):
@@ -193,6 +194,7 @@ matcher_dict = {
     "$~": approximate_match,
     "$date": date_matcher,
     "$write_file": file_writer,
+    "$read_file": file_reader,
     "$valid_ip": match_valid_ip,
     "$expects": match_expression,
     "$text": match_text,

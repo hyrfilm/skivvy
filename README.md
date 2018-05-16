@@ -111,4 +111,84 @@ a skivvy testfile, can contain the following flags that changes how the tests is
 
 #### matchers
 
-###TODO :)
+Matchers is a simple, extensible notation that allows one greater expressiveness than vanilla-JSON would allow for.
+
+For example, let's say you want to check that the field "email" containing a some characters followed by an @-sign,
+some more characters followed by a dot and then some more characters (I don't recommend this as a way to check if an email is valid, which is quite hard!).
+Then you could write:
+```
+"email": "$regexp (.+)@(.+)\.(.+)"
+```
+The format for all matchers are as following:
+```
+$matcher_name expected [parameter1 parameter2... parameterN].
+```
+The amount of parameters a particular matcher takes depends on what matcher you are using. Currently these matchers are supported out-of-the-box:
+
+#####$valid_url
+Matches any URL that returns a 200 status.
+Example:
+```
+"some_page": "$valid_url"
+```
+would pass if `some_page` was `http://google.com`
+
+#####$contains
+Matches a string inside a field, good for finding nested information when you
+don't care about the structure of what's returned.
+Example:
+```"foo": "$contains dude!" ```
+would for example pass if `foo` was 
+```json
+{"movies": [{"title": "dude! where's my car?"}]}
+```
+#####$len
+Matches the length on JSON-array.
+Example:
+```"foo": "$len 3" ```
+would for example pass if `foo` was
+```json
+["a", "b", "c"]
+```
+#####$~
+Matches an approximate value.
+Example:
+```
+"foo": "$~ 100 threshold 0.1"
+```
+would match values between 90-110.
+#####$write_file
+Writes the value of a field to a file, which can then be passed to another test.
+This is useful for scenarios where you want to save a field (like a database id) that
+should be passed in to a subsequent test.
+Example:
+```
+"foo": "$write_file dude.txt"
+```
+Would write the value of `foo` to the file `dude.txt`
+
+#####$read_file
+Reads the value of a file and sets a field to it (most useful in the body of a POST)
+```json
+...
+"body": {
+  "foo": "$read_file dude.txt"
+}
+```
+Would read the contents of the file `dude.txt` and assign it to the field `foo`.
+#####$regexp
+Matches using a regular expression.
+Example:
+```"foo": "$regexp [a-z]+" ```
+Would require `foo` to contain at least one occurence of the a or b... to z.
+#####$expr
+Dynamically evaluates the string as a python statement, on the data received if the statement evaluates to True it passes.
+(Be careful with this one, don't use it on untrusted data etc :)
+Example:
+```
+"foo": "$expr (int(actual)%3)==0"
+``` 
+Would try to convert the data in the field `foo` to an integer and see if it was
+evenly dividable by 3. If so it would pass, otherwise fail.
+
+
