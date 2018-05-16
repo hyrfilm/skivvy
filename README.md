@@ -109,7 +109,7 @@ a skivvy testfile, can contain the following flags that changes how the tests is
 * *match_subsets* - (boolean, default is false) - controls whether skivvy will allow to match a subset of a dict found in a list
 * *match_falsiness* - (boolean, default is false) - controls whether skivvy will consider falsy values (such as null, and empty string, etc) as the same equivalent
 
-#### matchers
+### matchers
 
 Matchers is a simple, extensible notation that allows one greater expressiveness than vanilla-JSON would allow for.
 
@@ -125,7 +125,7 @@ $matcher_name expected [parameter1 parameter2... parameterN].
 ```
 The amount of parameters a particular matcher takes depends on what matcher you are using. Currently these matchers are supported out-of-the-box:
 
-#####$valid_url
+#### $valid_url
 Matches any URL that returns a 200 status.
 Example:
 ```
@@ -133,7 +133,7 @@ Example:
 ```
 would pass if `some_page` was `http://google.com`
 
-#####$contains
+#### $contains
 Matches a string inside a field, good for finding nested information when you
 don't care about the structure of what's returned.
 Example:
@@ -142,7 +142,7 @@ would for example pass if `foo` was
 ```json
 {"movies": [{"title": "dude! where's my car?"}]}
 ```
-#####$len
+#### $len
 Matches the length on JSON-array.
 Example:
 ```"foo": "$len 3" ```
@@ -150,14 +150,14 @@ would for example pass if `foo` was
 ```json
 ["a", "b", "c"]
 ```
-#####$~
+#### $~
 Matches an approximate value.
 Example:
 ```
 "foo": "$~ 100 threshold 0.1"
 ```
 would match values between 90-110.
-#####$write_file
+#### $write_file
 Writes the value of a field to a file, which can then be passed to another test.
 This is useful for scenarios where you want to save a field (like a database id) that
 should be passed in to a subsequent test.
@@ -167,7 +167,7 @@ Example:
 ```
 Would write the value of `foo` to the file `dude.txt`
 
-#####$read_file
+#### $read_file
 Reads the value of a file and sets a field to it (most useful in the body of a POST)
 ```json
 ...
@@ -176,12 +176,12 @@ Reads the value of a file and sets a field to it (most useful in the body of a P
 }
 ```
 Would read the contents of the file `dude.txt` and assign it to the field `foo`.
-#####$regexp
+#### $regexp
 Matches using a regular expression.
 Example:
 ```"foo": "$regexp [a-z]+" ```
 Would require `foo` to contain at least one occurence of the a or b... to z.
-#####$expr
+#### $expr
 Dynamically evaluates the string as a python statement, on the data received if the statement evaluates to True it passes.
 (Be careful with this one, don't use it on untrusted data etc :)
 Example:
