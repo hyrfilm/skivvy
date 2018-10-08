@@ -63,7 +63,7 @@ With skivvy you could easily create a testcase for this in a myraid of ways depe
 }
 ```
 #### checking that the response contain some particular data
-```json
+```json`
 {"url": "http://example.com/words/api/skivvy",
 "response": "$contains servant who does all kinds of menial work"}
 ```
@@ -75,6 +75,7 @@ Other things supported:
 * ability to create extend the syntax to create own matchers easily
 * all common http-verbs (get, put, post, delete)
 * reading and writing http-headers
+* file uploads
 * dumping output from one testcase into a file and passing in parts of that data to other testcases
 * ... and more! ;)
 
@@ -101,7 +102,7 @@ a skivvy testfile, can contain the following flags that changes how the tests is
 * *method* - what HTTP verb should be used (optional, defaults to GET)
 
 #### optional settings for testcase
-* *brace_expansion* - whether brace expansion should used for URLs containting <variable> 
+* *brace_expansion* - whether brace expansion should used for URLs containing <variable>
 * *expected_status* - the expected HTTP status of the call
 * *response* - the _expected_ response that should be checked against _actual_ response received from the API
 * *data* - data should be sent in in POST or PUT request
@@ -112,6 +113,22 @@ a skivvy testfile, can contain the following flags that changes how the tests is
 * *headers_to_write* - specifies a file containing headers to be sent in the request, for example: ````"read_headers": "headers.json"````
 * *match_subsets* - (boolean, default is false) - controls whether skivvy will allow to match a subset of a dict found in a list
 * *match_falsiness* - (boolean, default is false) - controls whether skivvy will consider falsy values (such as null, and empty string, etc) as the same equivalent
+* *upload* - see below for an example of uploading files
+
+#### file uploads
+POSTs supports both file uploading & sending a post body as JSON. You can't have both (because that would result in conflicting HTTP-headers).
+Uploads takes precedence, which means that if you have enabled file uploads for a testcase it will happily ignore the POST data you pass in.
+Enabling a file upload would look like this:
+```json
+{"url": "http://example.com/some/path",
+"upload": {"file": "./path/to/some/file"},
+""
+}
+```
+When seeing an upload field skivvy like above skivvy will try to open that file and pass it along in the field specified ("file"
+in the example above). Currently only one upload is supported.
+The file needs to either be a absolute path or relative to where skivvy is executing. If the file can't be found skivvy will
+complain and mark the as failed.
 
 ### matchers
 
