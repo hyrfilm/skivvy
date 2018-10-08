@@ -11,7 +11,7 @@ _methods = ["get", "post", "put", "patch", "delete"]
 _session = requests.Session()
 
 
-def do_request(url, method, data, headers, logger):
+def do_request(url, method, data, upload_file, headers, logger):
     http_verb = getattr(_session, method)
     logger.debug("--- REQUEST ---")
     logger.debug("%s: %s" % (method.upper(), url))
@@ -19,7 +19,11 @@ def do_request(url, method, data, headers, logger):
     logger.debug(" headers: %s" % headers)
     logger.debug("----------------")
 
-    r = http_verb(url, data=data, headers=headers)
+    # it's not possible to both upload a file & provide json data
+    if upload_file:
+        r = http_verb(url, files=upload_file, headers=headers)
+    else:
+        r = http_verb(url, data=data, headers=headers)
 
     logger.debug("--- RESPONSE ---")
     logger.debug("%s" % r.status_code)

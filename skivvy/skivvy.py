@@ -1,4 +1,4 @@
-"""skivvy 0.16
+"""skivvy 0.17
 
 Usage:
     skivvy.py run <cfg_file>
@@ -59,6 +59,7 @@ def run_test(filename, conf):
     expected_status = testcase.get("status", 200)
     expected_response = testcase.get("response", {})
     data = testcase.get("body", None)
+    upload = testcase.get("upload")
     json_encode_body = testcase.get("json_body", True)
     headers = testcase.get("headers", {})
     content_type = testcase.get("content_type", "application/json")
@@ -81,7 +82,9 @@ def run_test(filename, conf):
     if brace_expansion:
         url = matchers.brace_expand(url)
 
-    r = http_util.do_request(url, method, data, headers, _logger)
+    file = handle_upload_file(upload)
+
+    r = http_util.do_request(url, method, data, file, headers, _logger)
     status, json_response, headers_response = r.status_code, http_util.as_json(r), r.headers
 
     if headers_to_write:
@@ -101,6 +104,14 @@ def run_test(filename, conf):
     return "OK", None  # Yay! it passed.... nothing more to say than that
 
 
+def handle_upload_file(file):
+    if not file:
+        return None
+
+    key = file.keys()[0]
+    filename = open(file.values()[0], 'rb')
+    return {key: filename}
+
 def dump_response_headers(headers_to_write, r):
     for filename in headers_to_write.keys():
         _logger.debug("writing header: %s" % filename)
@@ -109,7 +120,7 @@ def dump_response_headers(headers_to_write, r):
 
 
 def run():
-    arguments = docopt(__doc__, version='skivvy 0.16')
+    arguments = docopt(__doc__, version='skivvy 0.17')
     conf = read_config(arguments.get("<cfg_file>"))
     tests = file_util.list_files(conf.tests, conf.ext)
     failures = 0
