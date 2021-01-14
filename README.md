@@ -63,7 +63,7 @@ With skivvy you could easily create a testcase for this in a myraid of ways depe
 }
 ```
 #### checking that the response contain some particular data
-```json`
+```json
 {"url": "http://example.com/words/api/skivvy",
 "response": "$contains servant who does all kinds of menial work"}
 ```
