@@ -112,6 +112,7 @@ def handle_upload_file(file):
     filename = open(file.values()[0], 'rb')
     return {key: filename}
 
+
 def dump_response_headers(headers_to_write, r):
     for filename in headers_to_write.keys():
         _logger.debug("writing header: %s" % filename)
@@ -161,3 +162,7 @@ def run_skivvy():
         exit(1)
     else:
         exit(0)
+
+
+if __name__ == "__main__":
+    run_skivvy()
