@@ -33,7 +33,7 @@ skivvy run cfg/example.json
 
 #### running skivvy through docker (using bind mounts)
 Assuming the current directory would contain your tests and that the root of that directory would contain a
-configuration file `cfg.json` you could run bind mount that directory and run skivvy like so:
+configuration file `cfg.json` you could bind mount that directory and run skivvy like so:
 ```sh
 docker run --rm --mount type=bind,source="$(pwd)",target="/app" hyrfilm/skivvy skivvy run cfg.json
 ```
