@@ -7,7 +7,14 @@ You can think of skivvy as a more simple-minded cousin of cURL - it can't do man
 things few things it can do it does well.
 
 ## try it out
-#### installing
+#### running it through docker
+This is the simplest and the recommended way to run skivvy.
+```sh
+docker run --rm hyrfilm/skivvy skivvy run --version
+```
+See below for a more useful example on how to run it using bind mounts.
+
+#### installing it manually
 * install through PIP
 ```sh
 pip install skivvy
@@ -22,6 +29,13 @@ tar xf skivvy_examples.zip
 * run:
 ```sh
 skivvy run cfg/example.json
+```
+
+#### running skivvy through docker (using bind mounts)
+Assuming the current directory would contain your tests and that the root of that directory would contain a
+configuration file `cfg.json` you could run bind mount that directory and run skivvy like so:
+```sh
+docker run --rm --mount type=bind,source="$(pwd)",target="/app" hyrfilm/skivvy skivvy run cfg.json
 ```
 
 ## what you can do with it
