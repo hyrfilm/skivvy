@@ -21,7 +21,7 @@ def is_matcher(expected):
 def verify_dict(expected, actual, **match_options):
     for key in expected.keys():
         _logger.debug("Checking '%s'..." % key)
-        verify(expected.get(key), actual.get(key))
+        verify(expected.get(key), actual.get(key), **match_options)
         _logger.debug("Success.")
 
 
