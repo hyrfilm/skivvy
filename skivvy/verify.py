@@ -1,5 +1,6 @@
 import matchers
 from util import log_util
+from util.log_util import tojsonstr
 
 _logger = log_util.get_logger(__name__)
 
@@ -25,7 +26,7 @@ def verify_dict(expected, actual, **match_options):
         _logger.debug("Success.")
 
 
-# TODO: we should support strict or non-strict types of comparsions of lists
+# TODO: we should support strict or non-strict types of comparisons of lists
 def verify_list(expected, actual, **match_options):
     match_subsets = match_options.get("match_subsets", False)
 
@@ -35,7 +36,7 @@ def verify_list(expected, actual, **match_options):
             if match_subsets:
                 verify_list_subset(expected_entry, actual, **match_options)
             else:
-                raise Exception("Didn't find '%s' in %s" % (expected_entry, actual))
+                raise Exception("Didn't find:\n%s\nin:\n%s" % (tojsonstr(expected_entry), tojsonstr(actual)))
 
 
 def verify_list_subset(expected_entry, actual, **match_options):
@@ -53,7 +54,7 @@ def verify_list_subset(expected_entry, actual, **match_options):
                 except:
                     pass
 
-    raise Exception("Didn't find '%s' in %s" % (expected_entry, actual))
+    raise Exception("Didn't find:\n%s\nin:\n%s" % (tojsonstr(expected_entry), tojsonstr(actual)))
 
 
 def verify_matcher(expected, actual):
