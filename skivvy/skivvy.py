@@ -1,9 +1,9 @@
-"""skivvy 0.17
+"""skivvy
 
 Usage:
     skivvy.py run <cfg_file>
     skivvy.py [-t] run <cfg_file>
-    skivvy.py run <cfg/example.json> (run examples)
+    skivvy.py run cfg/example.json (run examples)
 
 Options:
   -h --help         Show this screen.
@@ -123,7 +123,7 @@ def dump_response_headers(headers_to_write, r):
 
 
 def run():
-    arguments = docopt(__doc__, version='skivvy 0.19')
+    arguments = docopt(__doc__, version='skivvy 0.20')
     conf = read_config(arguments.get("<cfg_file>"))
     tests = file_util.list_files(conf.tests, conf.ext)
     failures = 0
