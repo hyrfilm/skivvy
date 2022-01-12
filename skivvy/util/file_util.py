@@ -23,7 +23,7 @@ def parse_json(filename):
 
 def write_tmp(filename, content):
     with open(filename, "w") as fp:
-        fp.write(content)
+        fp.write(str(content))
         _tmp_files.append(filename)
 
 
