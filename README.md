@@ -116,7 +116,7 @@ a skivvy testfile, can contain the following flags that changes how the tests is
 * *method* - what HTTP verb should be used (optional, defaults to GET)
 
 #### optional settings for testcase
-* *brace_expansion* - whether brace expansion should used for URLs containing <variable>
+* *brace_expansion* - whether brace expansion should used for URLs containing \<variable> (these variables can be retrieved from a file in the path, or can be a file created using $write_file)
 * *expected_status* - the expected HTTP status of the call
 * *response* - the _expected_ response that should be checked against _actual_ response received from the API
 * *data* - data should be sent in in POST or PUT request
