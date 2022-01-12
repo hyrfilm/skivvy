@@ -15,6 +15,8 @@ import json
 import logging
 from urlparse import urljoin
 from docopt import docopt
+
+from util.log_util import tojsonstr
 from skivvy_config import read_config
 from util import file_util, http_util, dict_util
 from util import log_util
@@ -90,8 +92,8 @@ def run_test(filename, conf):
     if headers_to_write:
         dump_response_headers(headers_to_write, r)
 
-    _logger.debug("expected: %s" % expected_response)
-    _logger.debug("actual: %s" % json_response)
+    _logger.debug("!!! expected:\n%s" % tojsonstr(expected_response))
+    _logger.debug("!!! actual:\n%s" % tojsonstr(json_response))
 
     try:
         verify(expected_status, status, **match_options)

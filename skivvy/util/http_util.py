@@ -5,7 +5,7 @@
 #     from urllib import urlopen
 import requests
 
-import log_util
+from log_util import tojsonstr
 
 _methods = ["get", "post", "put", "patch", "delete"]
 _session = requests.Session()
@@ -27,7 +27,7 @@ def do_request(url, method, data, upload_file, headers, logger):
 
     logger.debug("--- RESPONSE ---")
     logger.debug("%s" % r.status_code)
-    logger.debug("%s" % as_json(r))
+    logger.debug("%s" % tojsonstr(as_json(r)))
     logger.debug("----------------")
 
     return r
