@@ -1,3 +1,4 @@
+
 # skivvy
 A simple tool for testing JSON/HTTP APIs
 
@@ -109,6 +110,7 @@ a skivvy testfile, can contain the following flags that changes how the tests is
 
 #### optional config settings
 * *log_level* - a low value like 10, shows ALL logging, a value like 20 shows only info and more severe
+* *colorize* - terminal colors for diffs (default is true)
 
 #### mandatory settings for a testcase
 * *url* - the URL that skivvy should send a HTTP request to 
