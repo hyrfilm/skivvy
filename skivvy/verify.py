@@ -1,6 +1,6 @@
 import matchers
 from util import log_util
-from util.log_util import tojsonstr
+from util.str_util import tojsonstr
 
 _logger = log_util.get_logger(__name__)
 

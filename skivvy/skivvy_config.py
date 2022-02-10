@@ -15,6 +15,9 @@ class SkivvyConfig:
         else:
             return self.d[item]
 
+    def get(self, item, default=None):
+        return self.d.get(item, default)
+
     def as_dict(self):
         return dict(self.d)
 

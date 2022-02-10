@@ -5,7 +5,7 @@
 #     from urllib import urlopen
 import requests
 
-from log_util import tojsonstr
+from str_util import tojsonstr
 
 _methods = ["get", "post", "put", "patch", "delete"]
 _session = requests.Session()

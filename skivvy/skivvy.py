@@ -16,12 +16,12 @@ import logging
 from urlparse import urljoin
 from docopt import docopt
 
-from util.log_util import tojsonstr
+import matchers
+from util.str_util import tojsonstr, diff_strings
 from skivvy_config import read_config
 from util import file_util, http_util, dict_util
 from util import log_util
 from verify import verify
-import matchers
 
 STATUS_OK = "OK"
 STATUS_FAILED = "FAILED"
@@ -99,6 +99,12 @@ def run_test(filename, conf):
         verify(expected_status, status, **match_options)
         verify(expected_response, json_response, **match_options)
     except Exception as e:
+        _logger.info("--------------- DIFF BEGIN ---------------")
+        colorize = conf.get("colorize", True)
+        diff_output = diff_strings(tojsonstr(expected_response), tojsonstr(json_response), colorize=colorize)
+        _logger.info(diff_output)
+        _logger.info("--------------- DIFF END -----------------")
+
         msg = e.message
         status = STATUS_FAILED
         return status, msg

@@ -1,4 +1,3 @@
-import json
 import logging
 
 import sys
@@ -25,7 +24,3 @@ def get_logger(name, level=logging.INFO):
     # error_handler.setLevel(logging.WARNING)
     # logger.addHandler(error_handler)
     return logger
-
-
-def tojsonstr(o):
-    return json.dumps(o, sort_keys=True, indent=2)
