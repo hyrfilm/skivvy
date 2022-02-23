@@ -4,6 +4,8 @@ from datetime import datetime
 from math import fabs
 import re
 import os.path
+
+from util.str_util import coerce_str_to_int
 from util import file_util
 
 import requests
@@ -215,11 +217,14 @@ def _parse_single_number(expected):
 
 
 # technically not a matcher but this file seems like the best location nonetheless?
-def brace_expand(url):
+def brace_expand(s, auto_coerce):
+    if not isinstance(s, basestring):
+        return s
+
     while True:
-        match = re.search(r"\<.*?\>", url)
+        match = re.search(r"\<.*?\>", s)
         if not match:
-            return url
+            break
         else:
             variable = match.group(0)
             variable_name = variable.replace("<", "").replace(">", "")
@@ -227,7 +232,12 @@ def brace_expand(url):
             if not os.path.isfile(variable_name):
                 # Oh well, I give up! ;)
                 _logger.warn("Failed to match variable %s to anything" % variable)
-                return url
+                break
             else:
                 variable_value = file_util.read_file_contents(variable_name)
-                url = url.replace(variable, variable_value)
+                s = s.replace(variable, variable_value)
+
+    if auto_coerce:
+        return coerce_str_to_int(s)
+    else:
+        return s

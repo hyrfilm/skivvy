@@ -13,6 +13,7 @@ Options:
 
 import json
 import logging
+from functools import partial
 from urlparse import urljoin
 from docopt import docopt
 
@@ -46,6 +47,9 @@ def override_default_headers(default_headers, more_headers):
     d.update(more_headers)
     return d
 
+def deprecation_warnings(testcase):
+    if "url_brace_expansion" in testcase:
+        print("Warning - 'url_brace_expansion' has been deprecated: use 'brace_expansion' instead.")
 
 def run_test(filename, conf):
     testcase = configure_testcase(file_util.parse_json(filename), conf.as_dict())
@@ -55,7 +59,8 @@ def run_test(filename, conf):
     # TODO: should be in a config somewhere
     base_url = testcase.get("base_url", "")
     url = testcase.get("url")
-    brace_expansion = testcase.get("url_brace_expansion", False)
+    brace_expansion = testcase.get("url_brace_expansion", False) or testcase.get("brace_expansion", False)
+    auto_coerce = testcase.get("auto_coerce", True)
     url = urljoin(base_url, url)
     method = testcase.get("method", "get").lower()
     expected_status = testcase.get("status", 200)
@@ -72,17 +77,23 @@ def run_test(filename, conf):
 
     match_options = {"match_subsets": match_subsets, "match_falsiness": match_falsiness}
 
+    deprecation_warnings(testcase)
+
     if headers_to_read:
         headers = override_default_headers(headers, json.load(open(headers_to_read, "r")))
 
     if data:
         headers = override_default_headers(headers, {"Content-Type": content_type})
 
+    if brace_expansion:
+        expand = partial(matchers.brace_expand, auto_coerce=auto_coerce)
+        # we expand potential braces in the url... (eg example.com/<replace_me>/)
+        url = expand(url)
+        # ... and each value in the dict
+        data = dict_util.map_nested_dicts_py(data, expand)
+
     if json_encode_body:
         data = json.dumps(data)
-
-    if brace_expansion:
-        url = matchers.brace_expand(url)
 
     file = handle_upload_file(upload)
 

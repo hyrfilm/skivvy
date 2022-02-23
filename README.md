@@ -130,15 +130,39 @@ a skivvy testfile, can contain the following flags that changes how the tests is
 * *match_subsets* - (boolean, default is false) - controls whether skivvy will allow to match a subset of a dict found in a list
 * *match_falsiness* - (boolean, default is false) - controls whether skivvy will consider falsy values (such as null, and empty string, etc) as the same equivalent
 * *upload* - see below for an example of uploading files
+* auto_coerce - default is true, if the content of a file (read using [$read_file](#read_file) or [brace expansion](#brace-expansion)) can be interpreted as an integer it will be converted to that.
+
+#### variables
+Parts of a request may need to vary depending on context. Skivvy provides a number of ways to facilitate this:
+* *If a response* contains a value you want to store, use
+[$write_file](#$write_file)
+* *If a response* contains a value you want to verify matches a value in a stored file, use [$read_file](#$read_file)
+* If the *body of a request* should contain one or more values from a stored file, use [brace expansion](#brace-expansion)
+* If the parts of the *url of a request* should contain one or more values from a stored file, use [brace expansion](#brace-expansion)
+* If the *headers of a response* should be saved to a file, use $write_headers
+* If the *headers of a request* should be read from a file, use $read_headers
+
+#### brace expansion
+```json
+{
+  "url": "http://example.com/<some>/<file>", 
+  "a": "<foo>", 
+  "b": "<bar>"
+}
+```
+
+If you `brace_expansion` is to `true`. The value for `a` will be read from the file `foo` the value for `b`will be read from `bar`.
+The first part of the path of the url will be read replaced with the contents of the file `some` and the second part by the contents of the file `file`. The file is expected to be in the path, otherwise no brace expansion will occur and the value is set as-is.
+By default any value that can be interpreted as an integer will be coerced to an int. Disable this by setting `auto_coerce`to false.
 
 #### file uploads
 POSTs supports both file uploading & sending a post body as JSON. You can't have both (because that would result in conflicting HTTP-headers).
 Uploads takes precedence, which means that if you have enabled file uploads for a testcase it will happily ignore the POST data you pass in.
 Enabling a file upload would look like this:
 ```json
-{"url": "http://example.com/some/path",
-"upload": {"file": "./path/to/some/file"},
-""
+{
+  "url": "http://example.com/some/path", 
+  "upload": {"file": "./path/to/some/file"}
 }
 ```
 When seeing an upload field skivvy like above skivvy will try to open that file and pass it along in the field specified ("file"

@@ -32,3 +32,10 @@ def colorize_line(line, colorize):
 
 def tojsonstr(o):
     return json.dumps(o, sort_keys=True, indent=2)
+
+
+def coerce_str_to_int(s):
+    try:
+        return int(s)
+    except ValueError:
+        return s
