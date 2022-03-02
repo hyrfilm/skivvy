@@ -186,7 +186,12 @@ def file_writer(expected, actual):
 def file_reader(expected, actual):
     expected = expected.strip()
     data = file_util.read_file_contents(expected)
-    return data == actual, "Files content didn't match - expected: %s but got %s" % (expected, actual)
+    data = data.strip()
+    is_match = str(data) == str(actual)
+    error_msg = "Files content in %s didn't match - expected: %s but got %s" % (expected, data, actual)
+    if not is_match:
+        _logger.warn(error_msg)
+    return is_match, error_msg
 
 
 matcher_dict = {
