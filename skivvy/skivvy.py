@@ -86,11 +86,16 @@ def run_test(filename, conf):
         headers = override_default_headers(headers, {"Content-Type": content_type})
 
     if brace_expansion:
-        expand = partial(matchers.brace_expand, auto_coerce=auto_coerce)
-        # we expand potential braces in the url... (eg example.com/<replace_me>/)
-        url = expand(url)
-        # ... and each value in the dict
-        data = dict_util.map_nested_dicts_py(data, expand)
+        brace_expander = partial(matchers.brace_expand, auto_coerce=auto_coerce)
+    else:
+        brace_expander = matchers.brace_expand_noop
+
+    # we expand potential braces in the url... (eg example.com/<replace_me>/)
+    url = brace_expander(url)
+    # ... and each value in the dict
+    data = dict_util.map_nested_dicts_py(data, brace_expander)
+    # ... and also in the headers
+    headers = dict_util.map_nested_dicts_py(headers, brace_expander)
 
     if json_encode_body:
         data = json.dumps(data)
@@ -140,7 +145,7 @@ def dump_response_headers(headers_to_write, r):
 
 
 def run():
-    arguments = docopt(__doc__, version='skivvy 0.231')
+    arguments = docopt(__doc__, version='skivvy 0.232')
     conf = read_config(arguments.get("<cfg_file>"))
     tests = file_util.list_files(conf.tests, conf.ext)
     failures = 0

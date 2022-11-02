@@ -221,6 +221,10 @@ def _parse_single_number(expected):
     return float(expected[index:])
 
 
+# when brace expansion is not used, just return the same string as passed in
+def brace_expand_noop(s):
+    return s
+
 # technically not a matcher but this file seems like the best location nonetheless?
 def brace_expand(s, auto_coerce):
     if not isinstance(s, basestring):
