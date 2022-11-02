@@ -4,8 +4,7 @@ A simple tool for testing JSON/HTTP APIs
 
 Skivvy was developed in order to faciliate automated testing of web-APIs. If you've written an API that consumes or
 produces JSON, skivvy makes it easy to create test-suites for these APIs.
-You can think of skivvy as a more simple-minded cousin of cURL - it can't do many of the things cURL can but the the
-things few things it can do it does well.
+You can think of skivvy as a more simple-minded cousin of cURL - it can't do many of the things cURL can - but the few things it can do it does well.
 
 ## try it out
 #### running it through docker
