@@ -10,12 +10,12 @@ def diff_strings(a, b, colorize=True):
     difference = difflib.Differ()
 
     lines = difference.compare(a.splitlines(), b.splitlines())
-    lines = [colorize_line(line, colorize) for line in lines]
+    lines = [colorize_diff_line(line, colorize) for line in lines]
 
     print("\n".join(lines))
 
 
-def colorize_line(line, colorize):
+def colorize_diff_line(line, colorize):
     if not colorize:
         return line
 
@@ -28,6 +28,10 @@ def colorize_line(line, colorize):
     elif line.startswith("-"):
         line_color = RED_COLOR
     return line_color + line + RESET_COLOR
+
+
+def colorize(s, color):
+    return color + s + RESET_COLOR
 
 
 def tojsonstr(o):

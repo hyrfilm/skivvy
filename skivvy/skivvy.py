@@ -18,9 +18,9 @@ from urlparse import urljoin
 from docopt import docopt
 
 import matchers
-from util.str_util import tojsonstr, diff_strings
+from util.str_util import tojsonstr, diff_strings, RED_COLOR, RESET_COLOR
 from skivvy_config import read_config
-from util import file_util, http_util, dict_util
+from util import file_util, http_util, dict_util, str_util
 from util import log_util
 from verify import verify
 
@@ -47,9 +47,34 @@ def override_default_headers(default_headers, more_headers):
     d.update(more_headers)
     return d
 
+
 def deprecation_warnings(testcase):
     if "url_brace_expansion" in testcase:
         print("Warning - 'url_brace_expansion' has been deprecated: use 'brace_expansion' instead.")
+
+
+def log_testcase_failed(testfile, conf):
+    colorize = conf.get("colorize", True)
+    failure_msg = "\n\n%s\t%s\n\n" % (testfile, STATUS_FAILED)
+    if colorize:
+        failure_msg = str_util.colorize(failure_msg, RED_COLOR)
+    _logger.error(failure_msg)
+
+
+def log_error_context(err_context, conf):
+    colorize = conf.get("colorize", True)
+    e, expected, actual = err_context["exception"], err_context["expected"], err_context["actual"]
+    _logger.error(e.message)
+    _logger.info("--------------- DIFF BEGIN ---------------")
+    diff_output = diff_strings(tojsonstr(expected), tojsonstr(actual), colorize=colorize)
+    _logger.info(diff_output)
+    _logger.info("--------------- DIFF END -----------------")
+    _logger.debug("************** EXPECTED *****************")
+    _logger.debug("!!! expected:\n%s" % tojsonstr(expected))
+    _logger.debug("**************  ACTUAL *****************")
+    _logger.debug("!!! actual:\n%s" % tojsonstr(actual))
+    _logger.debug("\n" * 5)
+
 
 def run_test(filename, conf):
     testcase = configure_testcase(file_util.parse_json(filename), conf.as_dict())
@@ -108,22 +133,13 @@ def run_test(filename, conf):
     if headers_to_write:
         dump_response_headers(headers_to_write, r)
 
-    _logger.debug("!!! expected:\n%s" % tojsonstr(expected_response))
-    _logger.debug("!!! actual:\n%s" % tojsonstr(json_response))
-
     try:
         verify(expected_status, status, **match_options)
         verify(expected_response, json_response, **match_options)
     except Exception as e:
-        _logger.info("--------------- DIFF BEGIN ---------------")
-        colorize = conf.get("colorize", True)
-        diff_output = diff_strings(tojsonstr(expected_response), tojsonstr(json_response), colorize=colorize)
-        _logger.info(diff_output)
-        _logger.info("--------------- DIFF END -----------------")
-
-        msg = e.message
+        error_context = {"expected": expected_response, "actual": json_response, "exception": e}
         status = STATUS_FAILED
-        return status, msg
+        return status, error_context
 
     return "OK", None  # Yay! it passed.... nothing more to say than that
 
@@ -151,16 +167,14 @@ def run():
     failures = 0
     num_tests = 0
 
-    result_format = "%s\t%s"
-
     for testfile in tests:
-        result, msg = run_test(testfile, conf)
+        result, err_context = run_test(testfile, conf)
         if result == STATUS_FAILED:
-            _logger.error(result_format % (testfile, STATUS_FAILED))
-            _logger.error(msg)
+            log_testcase_failed(testfile, conf)
+            log_error_context(err_context, conf)
             failures += 1
         else:
-            _logger.info(result_format % (testfile, STATUS_OK))
+            _logger.info("%s\t%s" % (testfile, STATUS_OK))
         num_tests += 1
 
     if not arguments.get("-t"):
@@ -173,6 +187,9 @@ def run():
 def summary(failures, num_tests):
     if failures > 0:
         _logger.info("%s testcases of %s failed. :(" % (failures, num_tests))
+        return False
+    elif num_tests == 0:
+        _logger.info("No tests found!")
         return False
     else:
         _logger.info("All %s tests passed." % num_tests)
