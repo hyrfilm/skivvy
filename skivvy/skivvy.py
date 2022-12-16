@@ -10,7 +10,7 @@ Options:
   -v --version      Show version.
   -t                Keep temporary files (if any)
 """
-
+import imp
 import json
 import logging
 from functools import partial
@@ -18,6 +18,7 @@ from urlparse import urljoin
 from docopt import docopt
 
 import matchers
+import custom_matchers
 from util.str_util import tojsonstr, diff_strings, RED_COLOR, RESET_COLOR
 from skivvy_config import read_config
 from util import file_util, http_util, dict_util, str_util
@@ -164,6 +165,8 @@ def run():
     arguments = docopt(__doc__, version='skivvy 0.234')
     conf = read_config(arguments.get("<cfg_file>"))
     tests = file_util.list_files(conf.tests, conf.ext)
+    custom_matchers.load(conf)
+
     failures = 0
     num_tests = 0
 

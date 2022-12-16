@@ -194,22 +194,6 @@ def file_reader(expected, actual):
     return is_match, error_msg
 
 
-matcher_dict = {
-    "$valid_url": match_valid_url,
-    "$contains": match_contains,
-    "$len": len_match,
-    "$~": approximate_match,
-    "$date": date_matcher,
-    "$write_file": file_writer,
-    "$read_file": file_reader,
-    "$valid_ip": match_valid_ip,
-    "$expects": match_expression,
-    "$text": match_text,
-    "$regexp": match_regexp,
-    "$expr": match_expression,
-}
-
-
 def _parse_single_number(expected):
     # skip characters in the beginning which aren't digits
     index = 0
@@ -224,6 +208,7 @@ def _parse_single_number(expected):
 # when brace expansion is not used, just return the same string as passed in
 def brace_expand_noop(s):
     return s
+
 
 # technically not a matcher but this file seems like the best location nonetheless?
 def brace_expand(s, auto_coerce):
@@ -250,3 +235,25 @@ def brace_expand(s, auto_coerce):
         return coerce_str_to_int(s)
     else:
         return s
+
+
+def add_matcher(matcher_name, matcher_func):
+    if matcher_name in matcher_dict:
+        raise AssertionError("Duplicate matcher: %s" % matcher_name)
+    matcher_dict["$" + matcher_name] = matcher_func
+
+
+matcher_dict = {
+    "$valid_url": match_valid_url,
+    "$contains": match_contains,
+    "$len": len_match,
+    "$~": approximate_match,
+    "$date": date_matcher,
+    "$write_file": file_writer,
+    "$read_file": file_reader,
+    "$valid_ip": match_valid_ip,
+    "$expects": match_expression,
+    "$text": match_text,
+    "$regexp": match_regexp,
+    "$expr": match_expression,
+}
