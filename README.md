@@ -91,10 +91,11 @@ Other things supported:
 * reading and writing http-headers
 * file uploads
 * dumping output from one testcase into a file and passing in parts of that data to other testcases
+* your own custom matchers
 * ... and more! ;)
 
 ### Documentation
-**NOTE:** The easiest way to gain understading of ways to use skivvy is to simply download the examples and _then_ look at the documentation.
+**NOTE:** The easiest way to gain understanding of ways to use skivvy is to simply download the examples and _then_ look at the documentation.
 
 All examples as zip: https://github.com/hyrfilm/skivvy/raw/master/skivvy_examples.zip
 Or if you prefer to view them on github directly: https://github.com/hyrfilm/skivvy/tree/master/skivvy/examples
@@ -110,6 +111,7 @@ a skivvy testfile, can contain the following flags that changes how the tests is
 #### optional config settings
 * *log_level* - a low value like 10, shows ALL logging, a value like 20 shows only info and more severe
 * *colorize* - terminal colors for diffs (default is true)
+* *matchers* - directory where you place your own matchers (eg "./matchers")
 
 #### mandatory settings for a testcase
 * *url* - the URL that skivvy should send a HTTP request to 
@@ -184,6 +186,48 @@ The format for all matchers are as following:
 $matcher_name expected [parameter1 parameter2... parameterN].
 ```
 The amount of parameters a particular matcher takes depends on what matcher you are using. Currently these matchers are supported out-of-the-box:
+
+### Extending skivvy
+Skivvy can be extended with custom matchers, written in python. This allows you to either provide your own
+matchers if you feel that some are missing. A matcher is just a python-function that you write yourself, you
+can use all the typical python functions in the standard library like os, urllib etc.
+A matcher is expected to a boolean and a message, or just a boolean if you're lazy. You're recommended to
+provide a message in case the matcher returns false which will make skivvy treat that testcase as failed.
+Tecnically a matcher can do whatever you want (like `$write_file`, for example) as long as it returns a boolean.
+
+#### Example: creating a custom matcher
+Let's say you want to have a sort of useless matcher that looks for whether the json has a key that contains the 
+word "dude". You would use it like this `$dude nickname` that would verify that the response would have a key 
+`nickname` that would contain `dude`.
+
+1. in the config create a key like so `./matchers`
+2. Create a directory, `./matchers` next to the config directory
+3. Create a file `dude.py` like so:
+```python
+def match(expected, actual):
+    expected = str(expected) # would contain "nickname"
+    actual = actual # would contain json like {nicknamne: "dude", ...}
+    field = actual.get(expected.strip(), {})
+    if not field:
+      return False, "Missing key: %s" % expected
+
+    return "dude" in field, "Didn't find 'dude' in %s" % expected
+```
+4. Use it in a testcase:
+```json
+  {"url": "/some/url",
+  "method": "get",
+  "status": 200,
+  "response": "$dude nickname"}
+```
+**NOTE:** If you were to use the matcher on a specific field, `actual` would refer to that part of the response
+like this for example:
+`
+{
+...
+    response": {"somekey": "$dude"}}
+`
+... then the variable `actual` would refer to what `somekey` contains when the matcher would run.
 
 #### $valid_url
 Matches any URL that returns a 200 status.
