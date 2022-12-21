@@ -181,7 +181,7 @@ def run():
         else:
             _logger.info("%s\t%s" % (testfile, STATUS_OK))
         num_tests += 1
-        if fail_fast and failures>0:
+        if fail_fast and failures > 0:
             _logger.info('Halting test run! ("fail_fast" is set to true)')
             break
 
