@@ -10,19 +10,19 @@ Options:
   -v --version      Show version.
   -t                Keep temporary files (if any)
 """
-import imp
 import json
 import logging
 from functools import partial
 from urlparse import urljoin
+
 from docopt import docopt
 
-import matchers
 import custom_matchers
-from util.str_util import tojsonstr, diff_strings, RED_COLOR, RESET_COLOR
+import matchers
 from skivvy_config import read_config
 from util import file_util, http_util, dict_util, str_util
 from util import log_util
+from util.str_util import tojsonstr, diff_strings, RED_COLOR
 from verify import verify
 
 STATUS_OK = "OK"
@@ -167,6 +167,7 @@ def run():
     tests = file_util.list_files(conf.tests, conf.ext)
     custom_matchers.load(conf)
     matchers.add_negating_matchers()
+    fail_fast = conf.get("fail_fast", False)
 
     failures = 0
     num_tests = 0
@@ -180,6 +181,9 @@ def run():
         else:
             _logger.info("%s\t%s" % (testfile, STATUS_OK))
         num_tests += 1
+        if fail_fast and failures>0:
+            _logger.info('"fail_fast" is set to true - halting test run.')
+            break
 
     if not arguments.get("-t"):
         _logger.debug("Removing temporary files...")

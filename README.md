@@ -111,6 +111,7 @@ a skivvy testfile, can contain the following flags that changes how the tests is
 #### optional config settings
 * *log_level* - a low value like 10, shows ALL logging, a value like 20 shows only info and more severe
 * *colorize* - terminal colors for diffs (default is true)
+* *fail_fast* - aborts the test run immediately when a testcase fails instead of running the whole suite (default is false) 
 * *matchers* - directory where you place your own matchers (eg "./matchers")
 
 #### mandatory settings for a testcase
