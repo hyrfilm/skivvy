@@ -18,6 +18,13 @@ DEFAULT_APPROXIMATE_THRESHOLD = 0.05  # default margin of error for a ~value to 
 SUCCESS_MSG = "OK"
 
 
+def strip_matcher_prefix(s):
+    if s.startswith("$"):
+        return s[1:]
+    else:
+        return s
+
+
 def match_expression(expected, actual):
     result = eval(expected, {}, {"actual": actual})
     if result is True:
@@ -265,6 +272,24 @@ def add_matcher(matcher_name, matcher_func):
     if matcher_name in matcher_dict:
         raise AssertionError("Duplicate matcher: %s" % matcher_name)
     matcher_dict["$" + matcher_name] = matcher_func
+
+
+def negating_matcher(negating_name, matcher_func):
+    def do_match(expected, actual):
+        result, msg = matcher_func(expected, actual)
+        if result:
+            return False, u"Expected negating matcher ('$!%s %s') - to be FALSE but was TRUE for: %s" % (
+                negating_name, expected, actual)
+        else:
+            return True, None
+
+    return do_match
+
+
+def add_negating_matchers():
+    for matcher_name, matcher_func in matcher_dict.items():
+        matcher_name = strip_matcher_prefix(matcher_name)
+        add_matcher("!"+matcher_name, negating_matcher(matcher_name, matcher_func))
 
 
 matcher_dict = {

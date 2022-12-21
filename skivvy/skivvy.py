@@ -166,6 +166,7 @@ def run():
     conf = read_config(arguments.get("<cfg_file>"))
     tests = file_util.list_files(conf.tests, conf.ext)
     custom_matchers.load(conf)
+    matchers.add_negating_matchers()
 
     failures = 0
     num_tests = 0
