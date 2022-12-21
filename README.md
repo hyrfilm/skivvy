@@ -254,6 +254,22 @@ would for example pass if `foo` was
 ```json
 ["a", "b", "c"]
 ```
+#### $len_gt
+Passes if the length of an JSON-array is longer than a certain amount.
+Example:
+```"foo": "$len_gt 3" ```
+would for example pass if `foo` was
+```json
+["a", "b", "c", "d"]
+```
+#### $len_lt
+Passes if the length of an JSON-array is shorter than a certain amount.
+Example:
+```"foo": "$len_gt 3" ```
+would for example pass if `foo` was
+```json
+["a", "b"]
+```
 #### $~
 Matches an approximate value.
 Example:

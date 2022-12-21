@@ -126,6 +126,30 @@ def len_match(expected, actual):
     return default_matcher(expected_value, actual_value)
 
 
+def len_greater_match(expected, actual):
+    try:
+        len(actual)
+    except Exception as e:
+        return False, str(e)
+
+    expected_value = _parse_single_number(expected.strip())
+    actual_value = len(actual)
+
+    return actual_value > expected_value, u"Expected %s>%s" % (actual_value, expected_value)
+
+
+def len_less_match(expected, actual):
+    try:
+        len(actual)
+    except Exception as e:
+        return False, str(e)
+
+    expected_value = _parse_single_number(expected.strip())
+    actual_value = len(actual)
+
+    return actual_value < expected_value, u"Expected %s<%s" % (actual_value, expected_value)
+
+
 def approximate_match(expected, actual):
     expected = expected.strip()
     threshold, expected = parse_threshold(expected)
@@ -247,6 +271,8 @@ matcher_dict = {
     "$valid_url": match_valid_url,
     "$contains": match_contains,
     "$len": len_match,
+    "$len_gt": len_greater_match,
+    "$len_lt": len_less_match,
     "$~": approximate_match,
     "$date": date_matcher,
     "$write_file": file_writer,
