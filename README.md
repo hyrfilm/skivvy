@@ -229,6 +229,14 @@ like this for example:
 `
 ... then the variable `actual` would refer to what `somekey` contains when the matcher would run.
 
+#### negation
+Note that all matchers (including custom ones) automatically gets a negating matcher. For example, there's a matcher
+called `$contains` that checks that the result contains some text string, like so `$contains what's up?`. This would
+succeed if the response contained the string "what's up?". The negating matcher would look like this: 
+`$!contains what's up?` - and will succeed if the response does NOT contain the string "what's up?". It operatates
+as a NOT expression, in other words. The prefix used is `$!` is used instead of `$`. This will work even for
+custom matchers that you create yourself.
+
 #### $valid_url
 Matches any URL that returns a 200 status.
 Example:
