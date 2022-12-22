@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name='skivvy',
     packages=find_packages(exclude=["*.json"]),
-    version='0.401',
+    version='0.402',
     description='A simple tool for testing JSON/HTTP APIs',
     author='Jonas Holmer',
     author_email='jonas.holmer@gmail.com',
