@@ -1,5 +1,6 @@
 import difflib
 import json
+import re
 
 RED_COLOR = '\033[91m\b'
 GREEN_COLOR = '\033[92m\b'
@@ -43,3 +44,14 @@ def coerce_str_to_int(s):
         return int(s)
     except ValueError:
         return s
+
+
+def matches_any(s, patterns):
+    for p in patterns:
+        if p.match(s):
+            return True
+    return False
+
+
+def compile_regexps(regexps):
+    return [re.compile(".*" + p) for p in regexps]

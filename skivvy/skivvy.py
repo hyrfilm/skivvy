@@ -2,12 +2,18 @@
 
 Usage:
     skivvy.py run <cfg_file>
-    skivvy.py [-t] run <cfg_file>
+    skivvy.py run <cfg_file> [-t]
+    skivvy.py run <cfg_file> [-t] -i path.*file...
+    skivvy.py run <cfg_file> [-t] -e path.*file...
+    skivvy.py run <cfg_file> [-t] -i path.*file... -e path.*file...
+
     skivvy.py run cfg/example.json (run examples)
 
 Options:
   -h --help         Show this screen.
   -v --version      Show version.
+  -i=regexp         Only include files matching any provided regexp(s) [default: .*]
+  -e=regexp         Exclude files matching provided regexp(s)
   -t                Keep temporary files (if any)
 """
 import json
@@ -171,6 +177,17 @@ def run():
 
     failures = 0
     num_tests = 0
+
+    # include files - by inclusive filtering files that match the -i regexps
+    # (default is ['.*'] so all files would be included in the filter)
+    incl_patterns = arguments.get("-i") or []
+    incl_patterns = str_util.compile_regexps(incl_patterns)
+    tests = [testfile for testfile in tests if str_util.matches_any(testfile, incl_patterns)]
+
+    # exclude files - by removing any files that match the -i regexps (default is [] so no files would be excluded)
+    excl_patterns = arguments.get("-e") or []
+    excl_patterns = str_util.compile_regexps(excl_patterns)
+    tests = [testfile for testfile in tests if not str_util.matches_any(testfile, excl_patterns)]
 
     for testfile in tests:
         result, err_context = run_test(testfile, conf)

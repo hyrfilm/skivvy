@@ -100,6 +100,18 @@ Other things supported:
 All examples as zip: https://github.com/hyrfilm/skivvy/raw/master/skivvy_examples.zip
 Or if you prefer to view them on github directly: https://github.com/hyrfilm/skivvy/tree/master/skivvy/examples
 
+### CLI flags
+As common for most testing frameworks, you can pass a number of flags to filter what files get included in the suite
+that skivvy runs. `-i regexp` is used for including files, `-e regexp`is used for excluding files.
+
+Running `skivvy run cfg.json -i file1 -i file2` only includes paths that match either the regexp `file1` or `file2`. `skivvy run cfg.json` is functionally 
+equivalent of `skivvy run cfg.json -i *.` In other words, all files that skivvy finds are included.
+
+Running `skivvy run cfg.json -e file3` excludes paths that match the `file3` regexp.
+
+Stacking multiple flags is allowed: `skivvy run cfg.json -i path1.* -i path2.* -e some.*file`.
+The order of filtering is done by first applying the `-i` filters and then the `-e` filters.
+
 #### optional config settings
 a skivvy testfile, can contain the following flags that changes how the tests is performed
 
