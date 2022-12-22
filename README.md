@@ -94,7 +94,7 @@ Other things supported:
 * your own custom matchers
 * ... and more! ;)
 
-### Documentation
+## Documentation
 **NOTE:** The easiest way to gain understanding of ways to use skivvy is to simply download the examples and _then_ look at the documentation.
 
 All examples as zip: https://github.com/hyrfilm/skivvy/raw/master/skivvy_examples.zip
@@ -112,15 +112,15 @@ Running `skivvy run cfg.json -e file3` excludes paths that match the `file3` reg
 Stacking multiple flags is allowed: `skivvy run cfg.json -i path1.* -i path2.* -e some.*file`.
 The order of filtering is done by first applying the `-i` filters and then the `-e` filters.
 
-#### optional config settings
-a skivvy testfile, can contain the following flags that changes how the tests is performed
+### config settings
+a skivvy testfile, can contain the following flags that changes how the tests is performed:
 
-#### mandatory config settings
+##### mandatory config settings
 * *tests* - directory where to look for tests (recursively)
 * *ext* - file extension to look for (like ".json")
 * *base_url* - base URL that will be prefixed for all tests
 
-#### optional config settings
+##### optional config settings
 * *log_level* - a low value like 10, shows ALL logging, a value like 20 shows only info and more severe
 * *colorize* - terminal colors for diffs (default is true)
 * *fail_fast* - aborts the test run immediately when a testcase fails instead of running the whole suite (default is false) 
