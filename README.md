@@ -1,4 +1,224 @@
+# Skivvy — JSON-native, CLI-first integration tests for HTTP APIs
 
+Skivvy is a tiny, Unix-style runner for API tests where the tests themselves are **JSON**.
+
+## What makes skivvy similar to postman / bruno / curl / jq / etc
+
+- Support for all https-verbs, http-headers, cookies handled the way you expect them to, data from responses can be passed into other requests, easy to deal with things such as OAuth etc
+- Rich support for verifying / asserting repsonses
+- Good diffs when tests fail
+- Setup / Teardown functionality
+- Arbitary amount environment configs (eg local / staging / etc)
+
+## What makes skivvy different (compared to postman, bruno)
+
+- Assert **only what you care about** (whether it's only the status, or a substring in the response, or a particular field among other fields you don't care about - snapshots are an anti-pattern leading to brittle, flaky-tests and false positives). This is probably the most central and distinguishing aspect of skivvy and
+although technically can do snapshot-like asserting, it's strongly discouraged and if that's something you're
+after you should probably stick to some other tool.
+- Unix-philosophy: do one thing well
+- Lightweight
+- Simple, clear, declarative, text-based (.json) tests. Much simpler than postman, bruno etc
+- CI-friendly, no GUI
+- Very tiny API (if it could even be called that)
+- Simple to extend by implementing tiny custom python functions
+- Predictable deterministic execution
+- MIT license
+
+At [my current company](https://www.mindmore.com/) we use it for **all backend API tests** - as far as I know there's never been a false positive (hello cypress).
+
+## Why Skivvy (vs GUI suites)
+GUI tools (Postman/Bruno) are good for exploration, but heavier and brittle when used in an actual CI/CD envirionment for testing your entire API. But what's worse is they push you toward bad habits such as overerly complicated imperative JS hooks and snapshot-style assertions. This is just unnecessary and encourages writing bad, brittle tessts. Having JS code does also introduce its own set of issues like learning an some unwieldy API using an unwieldy languange like JS (this is not meant as a flame-bait ;) I happpen to write JS-code for a living but that doesn't have to mean that I think it's a good languange for all tasks). 
+Skivvy tests are plain json files you keep in git.
+
+## Quick look
+
+Status only:
+```json
+{ "url": "https://api.example.com/ping", "status": 200 }
+```
+
+Assert what you care about:
+```json
+{
+  "url": "https://api.example.com/items",
+  "response": {
+    "results": [{ "name": "Widget42" }]
+  }
+}
+```
+
+Or maybe you just care about:
+```json
+{
+  "url": "https://api.example.com/items",
+  "response": {
+    "results": ""results": "$len 200""
+  }
+}
+```
+
+
+Pass state between steps (files + brace expansion):
+```json
+{
+  "_comment": "Login and store dashboard path",
+  "url": "/login",
+  "method": "post",
+  "response": {
+    "status": 200,
+    "dashboard": "$write_file dashboard.txt",
+    "profile": { "pic": "$valid_url" }
+  }
+}
+```
+```json
+{ "url": "/home/<dashboard.txt>", "status": 200 }
+```
+
+Match a **subset** anywhere under a node:
+```json
+{
+  "url": "/project",
+  "response": { "project": { "name": "MKUltra" } }
+}
+```
+(Works even if the server nests it under `project.department.name`.)
+This can be disabled globally or per tests, if so preferred.
+
+## Why not just curl + jq + bash?
+Well...You can — and you’ll slowly re-invent like skivvy (reusable assertions, readable diffs, state passing, config/env handling, CI output). Skivvy is the minimal framework you’d build anyway.
+
+## Readable diffs
+Intentional failure:
+```json
+{
+  "url": "/project",
+  "match_subsets": true,
+  "response": { "project": { "name": "WrongName" } }
+}
+```
+Typical output (abridged):
+```
+✗ GET /project
+  response.project.name
+    expected: "WrongName"
+    actual:   "MKUltra"
+    diff:
+      - WrongName
+      + MKUltra
+```
+
+**Docker**
+The preferred to run it:
+```bash
+docker run --rm hyrfilm/skivvy skivvy run --version
+docker run --rm -v "$PWD":/app -w /app hyrfilm/skivvy skivvy run cfg.json
+```
+
+## Install & Run
+Or through pip:
+**pip**
+```bash
+pip install skivvy
+skivvy run cfg/example.json
+```
+
+## CLI filters (this example illustrates how a setup/teardown could be implemented)
+```bash
+skivvy run cfg.json -i '00_setup' -i '99_teardown' -e 'flaky' -i $1
+```
+Then you can just create an alias for it and be able to do something like:
+```bash
+skivvy 01_login_tests
+```
+In your local / CI environment you could, for example, seed the database in the setup and tear it down after running the test pattern you specified
+Includes are applied first, then excludes.
+
+## Config (high-value keys)
+A minimal config / env file might look this:
+```json
+{
+  "tests": "./api/tests",
+  "base_url": "https://example.com",
+  "ext": ".json"
+}
+
+Or specifying all currently supported settings:
+```
+  "ext": ".json",
+  "base_url": "https://api.example.com",
+  "colorize": true,
+  "fail_fast": false,
+  "brace_expansion": true,
+  "auto_coerce": true,
+  "matchers": "./matchers"
+```
+
+## Test file keys (most used)
+- `url` (string required), 
+### All other fields are optional
+- `method` (`get` default),
+- `status` (expected HTTP status, only checked if specified)
+- `response` (object or matcher string, only checked if specified)
+- `data` (body), `headers`, `content_type`, `json_encode_body`
+- `match_subsets` (true by default, allows you to check fields or parts of objects, occurring somewhere in the response)
+- `match_falsiness` (true by default)
+- `brace_expansion`, (true by default, makes skivvy look for the content of files specified within <some_file.txt> eg /item/<item.txt> will be transformed into /item/42 if this was the content of item.txt - the .txt is just a convention by a recommended one)
+- `auto_coerce` - will try to interpret something like "field": "<item.txt>" as number, boolean, otherwise it will passed in as text
+- `_comment` or `comment` or `note` or `whatever` (unrecognized top-level entries are simply ignored)
+
+## Built-in matchers (common)
+Format: `"$matcher args..."`
+
+- `$contains <text>` — substring present
+- `$len N`, `$len_gt N`, `$len_lt N` — length checks
+- `$valid_url` — value is http(s) URL that returns 2xx
+- `$regexp <pattern>` — regex match
+- `$~ <number> [threshold <ratio>]` — approximate numeric
+- `$date [format?]` — value parses as date
+- `$expr <python_expr>` — escape hatch (`actual` bound to value)
+- `$write_file <filename>` — write value for later `<filename>`
+- `$read_file <filename>` — read value from file
+
+Negation: prefix with `$!` (e.g., `$!contains foo`).
+
+**Custom matchers:** create `./matchers/<name>.py` with:
+```python
+def match(expected, actual):
+    # return True/False, optionally with a message
+    ...
+```
+
+## Examples: JSONPlaceholder
+See `examples/jsonplaceholder/` in this repo.
+
+## Asciinema (30s success + 15s failure)
+```bash
+# success
+cd examples/jsonplaceholder
+asciinema rec demo.cast -c "bash -lc 'skivvy -c config.json tests'"
+# failure diff
+asciinema rec demo_fail.cast -c "bash -lc 'skivvy -c config.json tests/99_fail_diff_demo.json'"
+```
+
+## Docker & ephemeral DBs
+We often seed a DB in `00_setup/` and teardown in `9999_teardown/`. With bind mounts, state files (IDs/tokens) are inspectable:
+```bash
+docker run --rm -v "$PWD":/work -w /work hyrfilm/skivvy skivvy -c cfg.json tests
+```
+
+## FAQ
+- **Isn’t this just curl + jq / grep ?** YES, it is. Especially if you like writing a lot of bash, over time you might want reusable assertions, diffs, state, filters, CI-friendly output, and then you've ended up re-implementing something like skivvy or not, I say go for it!
+- **Why JSON (not YAML/JS)?** JSON matches your payloads; zero DSL. JS is not support as a concious decision,
+if you want a non-declarative tool for testing your APIs, there's always bruno/postman etc.
+- **Why serial by default?** Determinism is a feature. For concurrency, run multiple processes with distinct state dirs. (This might get elevated to support true concurrency in the future, if the total cost of complexity is low and
+fits with the other design-goals mentioned above).
+- **Comments?** `_comment` is supported and ignored at runtime.
+
+## License
+
+Keeping it MIT dude
+Keep rockin' in the free world
 # skivvy
 A simple tool for testing JSON/HTTP APIs
 
@@ -8,7 +228,7 @@ You can think of skivvy as a more simple-minded cousin of cURL - it can't do man
 
 ## try it out
 #### running it through docker
-This is the simplest and the recommended way to run skivvy.
+This is the simplest and the recommended way to run it
 ```sh
 docker run --rm hyrfilm/skivvy skivvy run --version
 ```
@@ -189,7 +409,7 @@ complain and mark the as failed.
 Skivvy's matcher-syntax is a simple, extensible notation that allows one greater expressiveness than vanilla-JSON would allow for.
 
 For example, let's say you want to check that the field "email" containing a some characters followed by an @-sign,
-some more characters followed by a dot and then some more characters (I don't recommend this as a way to check if an email is valid, which is quite hard!).
+some more characters followed by a dot and then some more characters (I don't recommend this as a way to check if an email is valid, but let's just pretend it was that simple).
 Then you could write:
 ```
 "email": "$regexp (.+)@(.+)\.(.+)"
