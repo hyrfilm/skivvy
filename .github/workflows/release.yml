@@ -19,17 +19,16 @@ jobs:
         run: |
           TAG="${GITHUB_REF_NAME#v}"
           python - <<'PY'
-import tomllib, sys, os
-tag = os.environ["TAG"]
-ver = tomllib.loads(open("pyproject.toml","rb").read())["project"]["version"]
-print(f"pyproject version: {ver}, tag: {tag}")
-if ver!==tag:
-  print("ERROR - mismatched tag in toml and Github release")
-  sys.exit(1)
-else:
-  sys.exit(0)
-PY
-
+          import tomllib, sys, os
+          tag = os.environ["TAG"]
+          ver = tomllib.loads(open("pyproject.toml","rb").read())["project"]["version"]
+          print(f"pyproject version: {ver}, tag: {tag}")
+          if ver!==tag:
+            print("ERROR - mismatched tag in toml and Github release")
+            sys.exit(1)
+          else:
+            sys.exit(0)
+          PY
       # Build wheel + sdist
       - uses: astral-sh/setup-uv@v1
       - name: Build distributions
