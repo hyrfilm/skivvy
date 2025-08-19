@@ -2,7 +2,7 @@
 
 Skivvy is a tiny, Unix-style runner for API tests where the tests themselves are **JSON**.
 
-## What makes skivvy similar to postman / bruno / curl / jq / etc
+### What makes skivvy similar to postman / bruno / curl / jq / etc
 
 - Support for all https-verbs, http-headers, cookies handled the way you expect them to, data from responses can be passed into other requests, easy to deal with things such as OAuth etc
 - Rich support for verifying / asserting repsonses
@@ -10,7 +10,7 @@ Skivvy is a tiny, Unix-style runner for API tests where the tests themselves are
 - Setup / Teardown functionality
 - Arbitary amount environment configs (eg local / staging / etc)
 
-## What makes skivvy different (compared to postman, bruno)
+### What makes skivvy *different* (compared to postman, bruno)
 
 - Assert **only what you care about** (whether it's only the status, or a substring in the response, or a particular field among other fields you don't care about - snapshots are an anti-pattern leading to brittle, flaky-tests and false positives). This is probably the most central and distinguishing aspect of skivvy and
 although technically can do snapshot-like asserting, it's strongly discouraged and if that's something you're
