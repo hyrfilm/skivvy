@@ -1,0 +1,5 @@
+{
+  "url": "https://jsonplaceholder.typicode.com/photos/",
+  "write_headers": {"headers.json": ["Set-Cookie", "Cache-Control"]},
+  "response": []
+}

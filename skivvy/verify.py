@@ -7,10 +7,9 @@ _logger = log_util.get_logger(__name__)
 # basically just looks at a string and the name of a matcher and determines if the string is invoking that matcher
 # returns true in that case, false otherwise
 def has_matcher_syntax(expected, matcher):
-    # TODO: not compatible with python 3 - FIX
     try:
         first_word = expected.split()[0]
-        if isinstance(expected, basestring) and first_word == matcher:
+        if isinstance(expected, str) and first_word == matcher:
             return True
         return False
     except:

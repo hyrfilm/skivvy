@@ -1,0 +1,6 @@
+{
+    "tests": "./examples",
+    "ext": ".json",
+    "base_url": "https://jsonplaceholder.typicode.com",
+    "log_level": 20
+}

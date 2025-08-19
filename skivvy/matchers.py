@@ -30,7 +30,7 @@ def match_expression(expected, actual):
     if result is True:
         return True, SUCCESS_MSG
     else:
-        return False, u"Expected '%s' to evaluate to True but was evaluated to False" % actual
+        return False, "Expected '%s' to evaluate to True but was evaluated to False" % actual
 
 
 def match_regexp(expected, actual):
@@ -41,9 +41,9 @@ def match_regexp(expected, actual):
             _logger.debug("It's a match.")
             return True, SUCCESS_MSG
         else:
-            return False, u"Expected '%s' to match regular expression '%s' - but didn't" % (actual, expected)
+            return False, "Expected '%s' to match regular expression '%s' - but didn't" % (actual, expected)
     except:
-        return False, u"Invalid regular expression in testcase: %s" % expected
+        return False, "Invalid regular expression in testcase: %s" % expected
 
 
 def match_valid_url(expected, actual):
@@ -63,20 +63,21 @@ def match_valid_url(expected, actual):
             return True, SUCCESS_MSG
         else:
             _logger.debug("Failure.")
-            return False, u"Expected %s but got %s" % (valid_status_codes, actual)
+            return False, "Expected %s but got %s" % (valid_status_codes, actual)
     except Exception as e:
-        _logger.error("ERROR - http call failed for: %s" % actual)
-        _logger.error("ERROR - expected: %s" % expected)
-        raise e
+        _logger.debug("Failure.")
+        _logger.debug("http call failed for: %s" % actual)
+        _logger.debug("expected: %s" % expected)
+        return False, "Failed to make request to %s: %s" % (actual, e)
 
 
 def match_text(expected, actual):
     if not actual:
-        return False, u"Expected %s but got %s" % (expected, actual)
+        return False, "Expected %s but got %s" % (expected, actual)
 
     for c in actual:
         if c not in string.ascii_letters:
-            return False, u"Expected %s but got %s" % (expected, actual)
+            return False, "Expected %s but got %s" % (expected, actual)
 
     return True, SUCCESS_MSG
 
@@ -88,14 +89,14 @@ def match_contains(expected, actual):
     if expected in actual:
         return True, SUCCESS_MSG
     else:
-        return False, u"Expected %s but got %s" % (expected, actual)
+        return False, "Expected %s but got %s" % (expected, actual)
 
 
 def default_matcher(expected, actual):
     if expected == actual:
         return True, SUCCESS_MSG
     else:
-        return False, u"Expected %s but got %s" % (expected, actual)
+        return False, "Expected %s but got %s" % (expected, actual)
 
 
 def is_almost_equal(expected, actual, threshold):
@@ -104,7 +105,7 @@ def is_almost_equal(expected, actual, threshold):
     if delta < abs_threshold:
         return True, SUCCESS_MSG
     else:
-        return False, u"Expected %s±%s but get %s" % (expected, abs_threshold, actual)
+        return False, "Expected %s±%s but get %s" % (expected, abs_threshold, actual)
 
 
 def parse_threshold(expected):
@@ -142,7 +143,7 @@ def len_greater_match(expected, actual):
     expected_value = _parse_single_number(expected.strip())
     actual_value = len(actual)
 
-    return actual_value > expected_value, u"Expected %s>%s" % (actual_value, expected_value)
+    return actual_value > expected_value, "Expected %s>%s" % (actual_value, expected_value)
 
 
 def len_less_match(expected, actual):
@@ -154,7 +155,7 @@ def len_less_match(expected, actual):
     expected_value = _parse_single_number(expected.strip())
     actual_value = len(actual)
 
-    return actual_value < expected_value, u"Expected %s<%s" % (actual_value, expected_value)
+    return actual_value < expected_value, "Expected %s<%s" % (actual_value, expected_value)
 
 
 def approximate_match(expected, actual):
@@ -243,7 +244,7 @@ def brace_expand_noop(s):
 
 # technically not a matcher but this file seems like the best location nonetheless?
 def brace_expand(s, auto_coerce):
-    if not isinstance(s, basestring):
+    if not isinstance(s, str):
         return s
 
     while True:
@@ -256,7 +257,7 @@ def brace_expand(s, auto_coerce):
             # maybe it refers to a file?
             if not os.path.isfile(variable_name):
                 # Oh well, I give up! ;)
-                _logger.warn("Failed to match variable %s to anything" % variable)
+                _logger.warning("Failed to match variable %s to anything" % variable)
                 break
             else:
                 variable_value = file_util.read_file_contents(variable_name)
@@ -278,7 +279,7 @@ def negating_matcher(negating_name, matcher_func):
     def do_match(expected, actual):
         result, msg = matcher_func(expected, actual)
         if result:
-            return False, u"Expected negating matcher ('$!%s %s') - to be FALSE but was TRUE for: %s" % (
+            return False, "Expected negating matcher ('$!%s %s') - to be FALSE but was TRUE for: %s" % (
                 negating_name, expected, actual)
         else:
             return True, None
@@ -287,9 +288,13 @@ def negating_matcher(negating_name, matcher_func):
 
 
 def add_negating_matchers():
+    negating_matchers = []
     for matcher_name, matcher_func in matcher_dict.items():
         matcher_name = strip_matcher_prefix(matcher_name)
-        add_matcher("!"+matcher_name, negating_matcher(matcher_name, matcher_func))
+        negating_matchers.append(("!"+matcher_name, negating_matcher(matcher_name, matcher_func)))
+
+    for name, func in negating_matchers:
+        add_matcher(name, func)
 
 
 matcher_dict = {

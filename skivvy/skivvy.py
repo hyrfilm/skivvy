@@ -19,7 +19,7 @@ Options:
 import json
 import logging
 from functools import partial
-from urlparse import urljoin
+from urllib.parse import urljoin
 
 from docopt import docopt
 
@@ -71,7 +71,7 @@ def log_testcase_failed(testfile, conf):
 def log_error_context(err_context, conf):
     colorize = conf.get("colorize", True)
     e, expected, actual = err_context["exception"], err_context["expected"], err_context["actual"]
-    _logger.error(e.message)
+    _logger.error(str(e))
     _logger.info("--------------- DIFF BEGIN ---------------")
     diff_output = diff_strings(tojsonstr(expected), tojsonstr(actual), colorize=colorize)
     _logger.info(diff_output)
@@ -155,8 +155,8 @@ def handle_upload_file(file):
     if not file:
         return None
 
-    key = file.keys()[0]
-    filename = open(file.values()[0], 'rb')
+    key = list(file.keys())[0]
+    filename = open(list(file.values())[0], 'rb')
     return {key: filename}
 
 
@@ -168,7 +168,7 @@ def dump_response_headers(headers_to_write, r):
 
 
 def run():
-    arguments = docopt(__doc__, version='skivvy 0.402')
+    arguments = docopt(__doc__, version='skivvy 0.500')
     conf = read_config(arguments.get("<cfg_file>"))
     tests = file_util.list_files(conf.tests, conf.ext)
     custom_matchers.load(conf)

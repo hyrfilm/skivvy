@@ -1,0 +1,10 @@
+{
+  "url": "/comments",
+  "method": "GET",
+  "match_subsets": true,
+  "response": [
+    {
+      "email": "$regexp (.*)_(.*)@(.*)"
+    }
+  ]
+}
