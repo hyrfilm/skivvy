@@ -3,6 +3,10 @@ on:
   push:
     branches: [master]
 
+on:
+  pull_request:
+    types: [opened, reopened]
+
 jobs:
   build-examples:
     uses: ./.github/workflows/docker-build.yml
