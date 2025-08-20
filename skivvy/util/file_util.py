@@ -36,6 +36,10 @@ def read_file_contents(filename):
     with open(filename) as fp:
         return fp.read()
 
+def set_current_file(filename):
+    os.environ["SKIVVY_CURRENT_FILE"] = filename
+    os.environ["SKIVVY_CURRENT_DIR"] = os.path.dirname(filename)
+
 def split_all(path):
     allparts = []
     while True:

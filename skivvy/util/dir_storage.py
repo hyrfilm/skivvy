@@ -1,20 +1,15 @@
 # --- Dir-scoped stash -------------------------------------------------------
 import copy
+import os
 
 STORE = {}
-_CURRENT_DIR_NS = None  # set by runner before executing a test file
-
-def set_dir_namespace(ns: str):
-    """Runner MUST call this per test file, e.g., relative directory path."""
-    global _CURRENT_DIR_NS
-    _CURRENT_DIR_NS = ns
 
 def get_dir_namespace():
-    return _CURRENT_DIR_NS
+    return os.environ["SKIVVY_CURRENT_DIR"]
 
 def _require_ns():
-    assert _CURRENT_DIR_NS is not None, "INTERNAL BUG: namespace not set for directory"
-    return _CURRENT_DIR_NS
+    assert get_dir_namespace() is not None, "INTERNAL BUG: namespace not set for directory"
+    return get_dir_namespace()
 
 def _dir_key(name: str) -> str:
     ns = _require_ns()

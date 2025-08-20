@@ -87,6 +87,7 @@ def log_error_context(err_context, conf):
 
 def run_test(filename, conf):
     testcase = configure_testcase(file_util.parse_json(filename), conf.as_dict())
+    file_util.set_current_file(filename)
 
     configure_logging(testcase)
 
