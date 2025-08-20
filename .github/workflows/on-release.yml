@@ -2,11 +2,6 @@ name: Upload Python Package
 on:
   release:
     types: [published]
-  push:
-    branches: [ master ]
-  pull_request:
-    types: [opened, synchronize, reopened]
-
 permissions:
   contents: read
   packages: write
@@ -23,9 +18,6 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@v6
-
-      - name: Install skivvy
-        run: uv tool install skivvy
 
       - name: Build dist
         run: uv build

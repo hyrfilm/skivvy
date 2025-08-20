@@ -3,5 +3,5 @@ WORKDIR /app
 RUN uv tool install skivvy
 COPY skivvy/cfg/ ./cfg/
 COPY skivvy/examples/ ./examples/
-ENTRYPOINT ["uv tool run skivvy"]
+ENTRYPOINT ["uv", "tool", "run", "skivvy"]
 CMD ["run", "cfg/example.json"]

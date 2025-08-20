@@ -23,13 +23,13 @@ from urllib.parse import urljoin
 
 from docopt import docopt
 
-import custom_matchers
-import matchers
-from skivvy_config import read_config
-from util import file_util, http_util, dict_util, str_util
-from util import log_util
-from util.str_util import tojsonstr, diff_strings, RED_COLOR
-from verify import verify
+from . import custom_matchers
+from . import matchers
+from .skivvy_config import read_config
+from .util import file_util, http_util, dict_util, str_util
+from .util import log_util
+from .util.str_util import tojsonstr, diff_strings, RED_COLOR
+from .verify import verify
 
 STATUS_OK = "OK"
 STATUS_FAILED = "FAILED"

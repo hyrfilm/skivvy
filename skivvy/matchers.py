@@ -1,16 +1,16 @@
+"""Built-in matchers used by skivvy"""
 # coding=utf-8
 import string
-from datetime import datetime
-from math import fabs
 import re
 import os.path
-
-from util.str_util import coerce_str_to_int
-from util import file_util
+from datetime import datetime
+from math import fabs
 
 import requests
 
-from util import log_util
+from .util.str_util import coerce_str_to_int
+from .util import file_util
+from .util import log_util
 
 _logger = log_util.get_logger(__name__)
 

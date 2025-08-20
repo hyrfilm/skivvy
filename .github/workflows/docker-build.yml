@@ -32,12 +32,12 @@ jobs:
           context: .
           file: ${{ inputs.dockerfile }}
           push: true
-          tags: ghcr.io/${{ github.repository }}/skivvy:${{ inputs.tag }}
+          tags: ghcr.io/${{ github.repository }}:${{ inputs.tag }}
           
       - uses: docker/login-action@v3
         with:
           registry: docker.io
-          username: ${{ github.actor }}
+          username: ${{ variables.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
             
       - uses: docker/build-push-action@v6
@@ -45,4 +45,4 @@ jobs:
           context: .
           file: ${{ inputs.dockerfile }}
           push: true
-          tags: ${{ github.repository }}/skivvy:${{ inputs.tag }}
+          tags: ${{ github.repository }}:${{ inputs.tag }}

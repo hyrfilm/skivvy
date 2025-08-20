@@ -4,8 +4,8 @@ import inspect
 import logging
 import os.path
 
-import matchers
-from util import file_util, log_util
+from . import matchers
+from .util import file_util, log_util
 
 _logger = log_util.get_logger(__name__, level=logging.DEBUG)
 
