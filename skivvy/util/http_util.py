@@ -1,11 +1,6 @@
-# try:  # python 2
-#     from urllib2 import Request, urlopen
-# except ImportError:  # python 3
-#     from urllib import Request
-#     from urllib import urlopen
 import requests
 
-from str_util import tojsonstr
+from .str_util import tojsonstr
 
 _methods = ["get", "post", "put", "patch", "delete"]
 _session = requests.Session()

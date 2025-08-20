@@ -26,6 +26,6 @@ def read_config(config_name):
     cwd = os.getcwd()
     config_file = path.join(cwd, config_name)
 
-    fp = open(config_file)
-    config_dict = json.load(fp)
+    with open(config_file) as fp:
+        config_dict = json.load(fp)
     return SkivvyConfig(config_dict)

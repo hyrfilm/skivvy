@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "skivvy"
+version = "0.50"
+description = "A simple tool for testing JSON/HTTP APIs"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+    {name = "Jonas Holmer", email = "jonas.holmer@gmail.com"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Software Development :: Testing",
+    "Programming Language :: Python"
+]
+dependencies = [
+    "pyopenssl",
+    "requests",
+    "docopt"
+]
+
+[project.urls]
+Homepage = "https://github.com/hyrfilm/skivvy"
+
+[project.scripts]
+skivvy = "skivvy.skivvy:run_skivvy"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["skivvy*"]
+
+[tool.setuptools.package-data]
+"skivvy" = ["cfg/*.json", "examples/**/*.json"]

@@ -1,3 +1,3 @@
-import file_util
-import http_util
-import dict_util
+from . import file_util
+from . import http_util
+from . import dict_util

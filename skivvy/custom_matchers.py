@@ -1,5 +1,5 @@
 # coding=utf-8
-import imp
+import importlib.util
 import inspect
 import logging
 import os.path
@@ -33,7 +33,9 @@ class CustomMatcher(object):
         try:
             self.matcher_func_name = "match"
             self.matcher_name = os.path.basename(source_file).split(".")[0]
-            self.matcher_module = imp.load_source(self.matcher_name, source_file)
+            spec = importlib.util.spec_from_file_location(self.matcher_name, source_file)
+            self.matcher_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(self.matcher_module)
             self.matcher_func = self.matcher_module.__getattribute__(self.matcher_func_name)
             CustomMatcher.validate_matcher(self.matcher_func)
         except Exception as e:
@@ -43,7 +45,7 @@ class CustomMatcher(object):
     def validate_matcher(matcher_func):
         if matcher_func is None:
             raise AssertionError("Expected to find 'match' function")
-        arguments = inspect.getargspec(matcher_func)[0]
+        arguments = inspect.getfullargspec(matcher_func).args
         expected_signature = ["expected", "actual"]
         if not arguments == expected_signature:
             raise AssertionError(
@@ -58,5 +60,5 @@ class CustomMatcher(object):
                 return result
             else:
                 raise AssertionError("Unexpected result %s from %s" % (result, self.matcher_name))
-        except:
-            raise "Custom matcher threw unexpected execption: %s"
+        except Exception as e:
+            raise Exception("Custom matcher threw unexpected execption: %s" % str(e))

@@ -1,0 +1,4 @@
+{
+    "url": "/comments?postId=1",
+    "response": "$expects 'hayden@althea.biz' in (actual[4]['email']).lower()"
+  }

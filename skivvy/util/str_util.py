@@ -13,7 +13,7 @@ def diff_strings(a, b, colorize=True):
     lines = difference.compare(a.splitlines(), b.splitlines())
     lines = [colorize_diff_line(line, colorize) for line in lines]
 
-    print("\n".join(lines))
+    return "\n".join(lines)
 
 
 def colorize_diff_line(line, colorize):
