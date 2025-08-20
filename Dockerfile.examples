@@ -5,4 +5,3 @@ COPY skivvy/cfg/ ./cfg/
 COPY skivvy/examples/ ./examples/
 ENTRYPOINT ["uv tool run skivvy"]
 CMD ["run", "cfg/example.json"]
-ENTRYPOINT ["uv tool run skivvy"]
