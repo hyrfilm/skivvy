@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "skivvy"
-version = "0.512"
+version = "0.513"
 description = "A simple tool for testing JSON/HTTP APIs"
 readme = "README.md"
 requires-python = ">=3.9"

@@ -32,7 +32,7 @@ from .util import log_util
 from .util.str_util import tojsonstr, diff_strings, RED_COLOR
 from .verify import verify
 
-version = "0.512"
+version = "0.513"
 STATUS_OK = "OK"
 STATUS_FAILED = "FAILED"
 
