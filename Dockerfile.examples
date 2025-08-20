@@ -1,6 +1,6 @@
 FROM python:3.9-slim
-RUN pip install --no-cache-dir pipx && pipx ensurepath && pipx install skivvy
 WORKDIR /app
+RUN pip install --no-cache-dir pipx && pipx ensurepath && pipx install skivvy
 COPY skivvy/cfg/ ./cfg/
 COPY skivvy/examples/ ./examples/
 ENTRYPOINT ["skivvy"]
