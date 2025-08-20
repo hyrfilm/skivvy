@@ -24,3 +24,6 @@ def get_logger(name, level=logging.INFO):
     # error_handler.setLevel(logging.WARNING)
     # logger.addHandler(error_handler)
     return logger
+
+class InlineHandler(logging.StreamHandler):
+    terminator = ''  # no newline

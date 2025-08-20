@@ -23,6 +23,7 @@ from urllib.parse import urljoin
 
 from docopt import docopt
 
+from skivvy.util.log_util import InlineHandler
 from . import custom_matchers
 from . import matchers
 from .skivvy_config import read_config
@@ -88,6 +89,11 @@ def run_test(filename, conf):
     testcase = configure_testcase(file_util.parse_json(filename), conf.as_dict())
 
     configure_logging(testcase)
+
+    inline = InlineHandler()
+    _logger.addHandler(inline)
+    _logger.info("%s\t", testcase)
+    _logger.removeHandler(inline)
 
     # TODO: should be in a config somewhere
     base_url = testcase.get("base_url", "")
@@ -197,7 +203,7 @@ def run():
             log_error_context(err_context, conf)
             failures += 1
         else:
-            _logger.info("%s\t%s" % (testfile, STATUS_OK))
+            _logger.info("%s\t\t\t%s" % (testfile, STATUS_OK))
         num_tests += 1
         if fail_fast and failures > 0:
             _logger.info('Halting test run! ("fail_fast" is set to true)')

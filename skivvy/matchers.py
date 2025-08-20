@@ -1,4 +1,5 @@
 """Built-in matchers used by skivvy"""
+import copy
 # coding=utf-8
 import string
 import re
@@ -8,6 +9,7 @@ from math import fabs
 
 import requests
 
+from .util.dir_storage import is_in_store, _require_ns, get_from_storage, put_in_storage, get_dir_namespace
 from .util.str_util import coerce_str_to_int
 from .util import file_util
 from .util import log_util
@@ -16,7 +18,7 @@ _logger = log_util.get_logger(__name__)
 
 DEFAULT_APPROXIMATE_THRESHOLD = 0.05  # default margin of error for a ~value to still be considered equal to another
 SUCCESS_MSG = "OK"
-
+STORE = {}
 
 def strip_matcher_prefix(s):
     if s.startswith("$"):
@@ -214,6 +216,25 @@ def file_writer(expected, actual):
     file_util.write_tmp(expected, actual)
     return True, SUCCESS_MSG
 
+def store_var(expected, actual):
+    name = (expected or "").strip()
+    if not name:
+        return False, "$store needs a name (runner must inject current key when omitted)."
+    if is_in_store(name):
+        return False, f"ERROR: Variable '{name}' already exists in '{_require_ns()}'."
+    put_in_storage(name, actual)
+    return True, SUCCESS_MSG
+
+def fetch_var(expected, actual):
+    name = (expected or "").strip()
+    if not name:
+        return False, "$fetch needs a name."
+    elif not is_in_store(name):
+        return False, f"ERROR: Variable '{name}' does not exist in '{_require_ns()}'."
+    val = get_from_storage(name)
+    if val != actual:
+        return False, f"Expected {val} but got {actual}"
+    return True, SUCCESS_MSG
 
 def file_reader(expected, actual):
     expected = expected.strip()
@@ -243,30 +264,37 @@ def brace_expand_noop(s):
 
 
 # technically not a matcher but this file seems like the best location nonetheless?
+_PLACEHOLDER = re.compile(r"<([A-Za-z0-9_.\-]+)>")
 def brace_expand(s, auto_coerce):
+    # Non-strings pass through
     if not isinstance(s, str):
         return s
 
-    while True:
-        match = re.search(r"\<.*?\>", s)
-        if not match:
-            break
-        else:
-            variable = match.group(0)
-            variable_name = variable.replace("<", "").replace(">", "")
-            # maybe it refers to a file?
-            if not os.path.isfile(variable_name):
-                # Oh well, I give up! ;)
-                _logger.warning("Failed to match variable %s to anything" % variable)
-                break
-            else:
-                variable_value = file_util.read_file_contents(variable_name)
-                s = s.replace(variable, variable_value)
+    # WHOLE-VALUE typed injection: "<NAME>" -> stored value (preserve type)
+    m = _PLACEHOLDER.fullmatch(s)
+    if m:
+        name = m.group(1)
+        if is_in_store(name):
+            return get_from_storage(name)
+        if os.path.isfile(name):
+            contents = file_util.read_file_contents(name)
+            return coerce_str_to_int(contents) if auto_coerce else contents
+        _logger.warning("Failed to resolve <%s> in dir '%s'", name, get_dir_namespace())
+        return s  # leave as-is
 
-    if auto_coerce:
-        return coerce_str_to_int(s)
-    else:
-        return s
+    # STRING INTERPOLATION: replace each <NAME> with stringified value
+    def _repl(mm):
+        name = mm.group(1)
+        if is_in_store(name):
+            return str(get_from_storage(name))
+        if os.path.isfile(name):
+            return file_util.read_file_contents(name)
+        _logger.warning("Failed to resolve <%s> in dir '%s'", name, get_dir_namespace())
+        return mm.group(0)  # leave placeholder intact
+
+    out = _PLACEHOLDER.sub(_repl, s)
+    # For interpolation, we keep it a string; optional numeric coercion:
+    return coerce_str_to_int(out) if auto_coerce else out
 
 
 def add_matcher(matcher_name, matcher_func):
