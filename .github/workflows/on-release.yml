@@ -27,6 +27,9 @@ jobs:
       - name: Install skivvy
         run: uv tool install skivvy
 
+      - name: Build dist
+        run: uv build
+
       - name: List artifacts
         run: ls -l dist
       - name: Upload distributions
