@@ -222,7 +222,7 @@ def file_reader(expected, actual):
     is_match = str(data) == str(actual)
     error_msg = "Files content in %s didn't match - expected: %s but got %s" % (expected, data, actual)
     if not is_match:
-        _logger.warn(error_msg)
+        _logger.warning(error_msg)
     return is_match, error_msg
 
 
