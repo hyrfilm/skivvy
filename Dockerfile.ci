@@ -1,4 +1,4 @@
-FROM python:3.9-slim
+FROM astral/uv:python3.10-bookworm-slim
 WORKDIR /app
-RUN pip install --no-cache-dir uv && uv install skivvy
-CMD ["skivvy"]
+RUN uv tool install skivvy
+ENTRYPOINT ["uv tool run skivvy"]
