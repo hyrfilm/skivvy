@@ -62,17 +62,19 @@ jobs:
           packages-dir: dist/
 
   build-examples-image:
-    needs: [get-version]
+    needs: [pypi-publish, get-version]
     uses: ./.github/workflows/docker-build.yml
     with:
       dockerfile: Dockerfile.examples
-      tag: examples-${{ needs.get-version.outputs.version }}
+      primary_tag: examples
+  also_latest: false
     secrets: inherit
 
-  build-ci-image:
-    needs: [get-version]
+  build-main-image:
+    needs: [pypi-publish, get-version]
     uses: ./.github/workflows/docker-build.yml
     with:
-      dockerfile: Dockerfile.ci
-      tag: ci-${{ needs.get-version.outputs.version }}
+      dockerfile: Dockerfile
+      primary_tag: ${{ needs.get-version.outputs.version }}
+      also_latest: true
     secrets: inherit

@@ -6,10 +6,20 @@ on:
         required: true
         type: string
         description: 'Path to the Dockerfile to build'
-      tag:
+      primary_tag:
         required: true
         type: string
-        description: 'Tag to use for the Docker image'
+        description: 'Primary tag to use for the Docker image (e.g., 1.2.3, dev, examples)'
+      also_latest:
+        required: false
+        type: boolean
+        default: false
+        description: 'Whether to also tag and push :latest for this image'
+      repoSuffix:
+        required: false
+        type: string
+        default: ''
+        description: 'Optional suffix appended to the repository name (e.g., -examples)'
 
 jobs:
   build-push:
@@ -27,12 +37,25 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       
-      - uses: docker/build-push-action@v6
+      - name: Build/push GHCR (primary)
+        if: ${{ !inputs.also_latest }}
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ${{ inputs.dockerfile }}
           push: true
-          tags: ghcr.io/${{ github.repository }}:${{ inputs.tag }}
+          tags: ghcr.io/${{ github.repository }}${{ inputs.repoSuffix }}:${{ inputs.primary_tag }}
+
+      - name: Build/push GHCR (primary + latest)
+        if: ${{ inputs.also_latest }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ inputs.dockerfile }}
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}${{ inputs.repoSuffix }}:${{ inputs.primary_tag }}
+            ghcr.io/${{ github.repository }}${{ inputs.repoSuffix }}:latest
           
       - uses: docker/login-action@v3
         with:
@@ -40,9 +63,22 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
             
-      - uses: docker/build-push-action@v6
+      - name: Build/push Docker Hub (primary)
+        if: ${{ !inputs.also_latest }}
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ${{ inputs.dockerfile }}
           push: true
-          tags: ${{ github.repository }}:${{ inputs.tag }}
+          tags: ${{ github.repository }}${{ inputs.repoSuffix }}:${{ inputs.primary_tag }}
+
+      - name: Build/push Docker Hub (primary + latest)
+        if: ${{ inputs.also_latest }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ inputs.dockerfile }}
+          push: true
+          tags: |
+            ${{ github.repository }}${{ inputs.repoSuffix }}:${{ inputs.primary_tag }}
+            ${{ github.repository }}${{ inputs.repoSuffix }}:latest
