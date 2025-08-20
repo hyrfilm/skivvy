@@ -12,7 +12,7 @@ authors = [
     {name = "Jonas Holmer", email = "jonas.holmer@gmail.com"}
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 2 - Beta",
     "Intended Audience :: Developers",
     "Topic :: Software Development :: Quality Assurance",
     "Topic :: Software Development :: Testing",
@@ -21,7 +21,7 @@ classifiers = [
 dependencies = [
     "pyopenssl",
     "requests",
-    "docopt"
+    "docopt-ng"
 ]
 
 [project.urls]
