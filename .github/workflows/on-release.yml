@@ -67,7 +67,7 @@ jobs:
     with:
       dockerfile: Dockerfile.examples
       primary_tag: examples
-  also_latest: false
+      also_latest: false
     secrets: inherit
 
   build-main-image:
