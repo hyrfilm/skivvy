@@ -61,7 +61,7 @@ jobs:
       contents: read
     environment:
       name: pypi
-      url: https://pypi.org/project/skivvy/${{ github.event.release.name }}
+      url: https://pypi.org/project/skivvy/${{ steps.get_version.outputs.VERSION }}
 
     steps:
       - name: Retrieve release distributions
