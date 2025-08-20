@@ -12,7 +12,7 @@ authors = [
     {name = "Jonas Holmer", email = "jonas.holmer@gmail.com"}
 ]
 classifiers = [
-    "Development Status :: 2 - Beta",
+    "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Topic :: Software Development :: Quality Assurance",
     "Topic :: Software Development :: Testing",
