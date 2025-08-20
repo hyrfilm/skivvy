@@ -1,0 +1,10 @@
+{
+  "_comment": "Pick only a few fields",
+  "url": "/posts/1",
+  "status": 200,
+  "response": {
+    "id": 1,
+    "userId": "$regexp ^\\d+$",
+    "title": "$contains sunt aut facere"
+  }
+}

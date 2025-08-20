@@ -1,0 +1,9 @@
+{
+  "base_url": "https://jsonplaceholder.typicode.com",
+  "brace_expansion": true,
+  "auto_coerce": true,
+  "fail_fast": false,
+  "colorize": true,
+  "tests": "./examples",
+  "ext": ".json"
+}

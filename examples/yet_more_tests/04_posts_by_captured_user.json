@@ -1,0 +1,6 @@
+{
+  "_comment": "Use <uid.txt> via brace expansion",
+  "url": "/posts?userId=<uid.txt>",
+  "status": 200,
+  "response": "$len_gt 0"
+}

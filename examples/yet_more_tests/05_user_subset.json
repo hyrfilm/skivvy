@@ -1,0 +1,11 @@
+{
+  "_comment": "Only care that address.city contains 'borough' somewhere under address",
+  "url": "/users/1",
+  "match_subsets": true,
+  "status": 200,
+  "response": {
+    "address": {
+      "city": "$contains borough"
+    }
+  }
+}

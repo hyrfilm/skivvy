@@ -1,0 +1,7 @@
+{
+  "_comment": "Save userId to a file",
+  "url": "/posts/1",
+  "response": {
+    "userId": "$write_file uid.txt"
+  }
+}

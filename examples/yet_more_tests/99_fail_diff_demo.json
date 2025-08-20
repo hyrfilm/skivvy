@@ -1,0 +1,8 @@
+{
+  "_comment": "Intentional failure to show red/green diff",
+  "url": "/posts/1",
+  "status": 200,
+  "response": {
+    "id": 999
+  }
+}
