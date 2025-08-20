@@ -37,7 +37,7 @@ jobs:
           context: .
           file: Dockerfile.examples
           load: true
-          tags: ghcr.io/${{ github.repository }}/skivvy:examples-dev
+          tags: ghcr.io/${{ github.repository }}:examples-dev
 
       # Run examples image to test it
 #      - name: Test examples image
@@ -54,8 +54,8 @@ jobs:
           file: Dockerfile.examples
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}/skivvy:examples-dev
-            ${{ github.repository }}/skivvy:examples-dev
+            ghcr.io/${{ github.repository }}:examples-dev
+            ${{ github.repository }}:examples-dev
 
       # Build ci image only if examples image test passes
       - name: Build ci image
@@ -65,5 +65,5 @@ jobs:
           file: Dockerfile.ci
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}/skivvy:ci-dev
-            ${{ github.repository }}/skivvy:ci-dev
+            ghcr.io/${{ github.repository }}:ci-dev
+            ${{ github.repository }}:ci-dev
