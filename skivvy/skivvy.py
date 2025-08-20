@@ -31,6 +31,7 @@ from .util import log_util
 from .util.str_util import tojsonstr, diff_strings, RED_COLOR
 from .verify import verify
 
+version = "0.509"
 STATUS_OK = "OK"
 STATUS_FAILED = "FAILED"
 
@@ -168,7 +169,7 @@ def dump_response_headers(headers_to_write, r):
 
 
 def run():
-    arguments = docopt(__doc__, version='skivvy 0.504')
+    arguments = docopt(__doc__, version=f'skivvy {version}')
     conf = read_config(arguments.get("<cfg_file>"))
     tests = file_util.list_files(conf.tests, conf.ext)
     custom_matchers.load(conf)
