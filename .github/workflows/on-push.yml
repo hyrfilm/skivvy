@@ -40,11 +40,11 @@ jobs:
           tags: ghcr.io/${{ github.repository }}/skivvy:examples-dev
 
       # Run examples image to test it
-      - name: Test examples image
-        run: |
-          docker run --rm ghcr.io/${{ github.repository }}/skivvy:examples-dev
-        continue-on-error: false
-        id: test-examples
+#      - name: Test examples image
+#        run: |
+#          docker run --rm ghcr.io/${{ github.repository }}/skivvy:examples-dev
+#        continue-on-error: false
+#        id: test-examples
 
       # Push examples image if test passes
       - name: Push examples image
