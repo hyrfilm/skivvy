@@ -7,7 +7,7 @@ name = "skivvy"
 version = "0.50"
 description = "A simple tool for testing JSON/HTTP APIs"
 readme = "README.md"
-requires-python = ">=3.6"
+requires-python = ">=3.9"
 authors = [
     {name = "Jonas Holmer", email = "jonas.holmer@gmail.com"}
 ]
@@ -26,7 +26,13 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://github.com/hyrfilm/skivvy"
-Download = "https://github.com/hyrfilm/skivvy/archive/0.1.tar.gz"
 
 [project.scripts]
 skivvy = "skivvy.skivvy:run_skivvy"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["skivvy*"]
+
+[tool.setuptools.package-data]
+"skivvy" = ["cfg/*.json", "examples/**/*.json"]
