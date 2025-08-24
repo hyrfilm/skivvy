@@ -1,0 +1,16 @@
+{
+  "_comment": "Intentional failure showing multiple differing values for several fields",
+  "url": "/posts",
+    "method": "post",
+    "status": 200,
+    "body": {
+      "body": "quia et\nsuscipit recsand consequuntur expedita cum\nreprehenderit molestiae ut ut quas totam",
+      "title": "aut facere repellat provident occaecati excepturi optio reprehenderit",
+      "userId": "hyrfilm"
+    },
+    "response": {
+      "body": "quia et\nsuscipit recsand consequuntur expedita cum\nreprehenderit molestiae ut ut quas totam",
+      "title": "aut facere repellat provident occaecati excepturi optio reprehenderit",
+      "userId": "hyrfilm"
+  }
+}

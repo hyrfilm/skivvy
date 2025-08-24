@@ -1,0 +1,12 @@
+{
+  "_comment": "Intentional failure showing multiple differing values for several fields",
+  "url": "/posts/1",
+    "method": "get",
+    "status": 201,
+    "response": {
+      "body": "quia et\nsuscipit recsand consequuntur expedita cum\nreprehenderit molestiae ut ut quas totam",
+      "id": "0",
+      "title": "aut facere repellat provident occaecati excepturi optio reprehenderit",
+      "userId": "hyrfilm"
+  }
+}

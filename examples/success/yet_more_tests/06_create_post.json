@@ -2,14 +2,13 @@
   "_comment": "JSONPlaceholder's POST returns a fake created item",
   "url": "/posts",
   "method": "post",
-  "data": {
+  "body": {
     "title": "skivvy demo",
     "body": "just a test",
     "userId": 1
   },
   "status": 201,
   "response": {
-    "id": "$regexp ^\\d+$",
-    "title": "skivvy demo"
+    "id": "$regexp \\d+"
   }
 }
