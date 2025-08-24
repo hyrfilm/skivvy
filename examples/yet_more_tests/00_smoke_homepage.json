@@ -1,6 +1,0 @@
-{
-  "_comment": "Smoke",
-  "url": "/",
-  "status": 200,
-  "response": "$contains JSONPlaceholder"
-}

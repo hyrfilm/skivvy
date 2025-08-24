@@ -5,7 +5,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent
 PYPROJECT = ROOT / "pyproject.toml"
-SKIVVY_PY = ROOT / "skivvy" / "skivvy.py"
+SKIVVY_PY = ROOT / "src" / "skivvy" / "skivvy.py"
 
 VERSION_LINE = re.compile(r'(?m)^version\s*=\s*"0\.(\d+)"\s*$')
 

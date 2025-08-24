@@ -4,12 +4,12 @@
   "body": {
     "title": "Dude!",
     "body": "Where's my car?",
-    "userId": "123"
+    "userId": 123
   },
   "status": 201,
   "response": {
     "title": "Dude!",
     "body": "Where's my car?",
-    "userId": "123"
+    "userId": 123
   }
 }

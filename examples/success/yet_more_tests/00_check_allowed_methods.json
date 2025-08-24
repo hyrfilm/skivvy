@@ -1,0 +1,9 @@
+{
+  "_comment": "check allowed methods",
+  "url": "/post",
+  "method": "options",
+  "headers": {
+    "Host": "jsonplaceholder.typicode.com"
+  },
+  "status": 204
+}
