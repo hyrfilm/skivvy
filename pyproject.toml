@@ -21,7 +21,8 @@ classifiers = [
 dependencies = [
     "pyopenssl",
     "requests",
-    "docopt-ng"
+    "docopt-ng",
+    "rich>=14.1.0",
 ]
 
 [project.urls]

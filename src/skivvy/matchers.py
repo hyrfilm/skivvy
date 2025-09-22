@@ -292,61 +292,6 @@ def expand_string(s):
         log.warning(str(e))
         return s
 
-# def expand_string(s):
-#     while match := re.search(r"<(.*?)>", s):
-#         if match:
-#             substring = match.group(0)
-#             var_name = match.group(1)
-#
-#             # is declared in the scope?
-#             if scope.has(var_name):
-#                 s = s.replace(substring, scope.fetch(var_name))
-#             # maybe it refers to a file?
-#             elif os.path.isfile(var_name):
-#                 variable_value = file_util.read_file_contents(var_name)
-#                 s = s.replace(substring, variable_value)
-#             else:
-#                 # Ok, time to give up
-#                 log.warning(f"Failed to match variable {substring} to anything")
-#                 break
-#     return s
-
-
-
-# # technically not a matcher but this file seems like the best location nonetheless?
-# _PLACEHOLDER = re.compile(r"<([A-Za-z0-9_.\-]+)>")
-# def brace_expand(s, auto_coerce):
-#     # Non-strings pass through
-#     if not isinstance(s, str):
-#         return s
-#
-#     # WHOLE-VALUE typed injection: "<NAME>" -> stored value (preserve type)
-#     m = _PLACEHOLDER.fullmatch(s)
-#     if m:
-#         name = m.group(1)
-#         if is_in_store(name):
-#             return get_from_store(name)
-#         if os.path.isfile(name):
-#             contents = file_util.read_file_contents(name)
-#             return coerce_str_to_int(contents) if auto_coerce else contents
-#         log.warning("Failed to resolve <%s> in dir '%s'", name, get_dir_namespace())
-#         return s  # leave as-is
-#
-#     # STRING INTERPOLATION: replace each <NAME> with stringified value
-#     def _repl(mm):
-#         name = mm.group(1)
-#         if is_in_store(name):
-#             return str(get_from_store(name))
-#         if os.path.isfile(name):
-#             return file_util.read_file_contents(name)
-#         log.warning("Failed to resolve <%s> in dir '%s'", name, get_dir_namespace())
-#         return mm.group(0)  # leave placeholder intact
-#
-#     out = _PLACEHOLDER.sub(_repl, s)
-#     # For interpolation, we keep it a string; optional numeric coercion:
-#     return coerce_str_to_int(out) if auto_coerce else out
-
-
 def add_matcher(matcher_name, matcher_func):
     if matcher_name in matcher_dict:
         raise AssertionError("Duplicate matcher: %s" % matcher_name)

@@ -28,7 +28,7 @@ def verify_dict(expected, actual, **match_options):
         log.debug("Success.")
 
 
-# TODO: we should support strict or non-strict types of comparisons of lists
+# TODO: support strict or non-strict types of comparisons of lists
 def verify_list(expected, actual, **match_options):
     match_subsets = match_options.get("match_subsets", False)
 
@@ -49,7 +49,6 @@ def verify_list_subset(expected_entry, actual, **match_options):
                 a = dict(actual_entry)
 
                 a.update(e)
-
                 try:
                     verify(a, actual_entry, **match_options)
                     return
