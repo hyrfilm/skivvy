@@ -32,7 +32,7 @@ def test_brace_expansion_with_files_and_variables():
     # of retrieving variables from a file in our fixture dir
     test_config = {
         "base_url": "https://api.example.com",
-        "url": f"<fixtures/user_id.txt>/hail-satan",
+        "url": "<fixtures/user_id.txt>/hail-satan",
         "body": {"lucky": "<number>" },
         "method": "POST",
         "brace_expansion": True,
@@ -45,8 +45,7 @@ def test_brace_expansion_with_files_and_variables():
         "base_url": "https://api.example.com",
         "url": "https://api.example.com/666/hail-satan",
         "method": "POST",
-        # TODO: auto-coercion failing here?
         "auto_coercion": True,
-        "body": {"lucky": "23" },
+        "body": {"lucky": 23 },
         "brace_expansion": True
     }

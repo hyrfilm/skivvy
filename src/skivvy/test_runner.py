@@ -1,11 +1,12 @@
 import json
-from typing import Dict, Mapping
+from functools import partial
+from typing import Dict, Mapping, Callable
 from urllib.parse import urljoin
 
-from skivvy.brace_expansion import expand
+from skivvy.brace_expansion import brace_expand_string
 from skivvy.skivvy_config2 import Settings, conf_get
-from skivvy.util import dict_util, log
-from skivvy.util.dict_util import filter_null_from_dict, get_all, get_many
+from skivvy.util import dict_util, log, str_util
+from skivvy.util.dict_util import filter_null_from_dict, get_all
 
 
 def create_request(test_config:Dict[str, object]) -> Dict[str, object]:
@@ -85,16 +86,39 @@ def brace_expand_fields(request_dict: Mapping[str,object], *keys: str) -> Dict[s
     Returns a new dict, all the other entries as well.
     If is_enabled is False, then it will simply just return a new dict without any expansion applied.
     """
-    expanded = json.loads(json.dumps(request_dict))
-    is_enabled = conf_get(expanded, Settings.BRACE_EXPANSION)
-    auto_coerce = conf_get(expanded, Settings.AUTO_COERCE)
-
-    if not is_enabled:
-        return expanded
+    expand_func = get_brace_expansion_func(request_dict)
+    result = json.loads(json.dumps(request_dict))
 
     for k in keys:
-        field = expanded.get(k)
+        field = result.get(k)
         if field:
-            field = expand(field, auto_coerce)
-            expanded[k] = field
-    return expanded
+            field = dict_util.map_nested_dicts_py(field, expand_func)
+            result[k] = field
+    return result
+
+def get_brace_expansion_func(config: Mapping[str,object]) -> Callable:
+    if conf_get(config, Settings.AUTO_COERCE):
+        auto_coerce_func = auto_coercer
+    else:
+        auto_coerce_func = auto_coercer_noop
+
+    if conf_get(config, Settings.BRACE_EXPANSION):
+        brace_expand_func = partial(brace_expand_string, auto_coerce_func=auto_coerce_func)
+    else:
+        brace_expand_func = brace_expander_noop
+
+    return brace_expand_func
+
+def auto_coercer(s):
+    return str_util.coerce_str_to_int(s)
+
+# identity function, when auto coercion is not enabled
+def auto_coercer_noop(s):
+    return s
+
+def brace_expander(s, **kwargs):
+    return brace_expand_string(s, **kwargs)
+
+# identity function, when brace expansion is not enabled
+def brace_expander_noop(s, **_kwargs):
+    return s

@@ -2,17 +2,14 @@
 # coding=utf-8
 import string
 import re
-import os.path
 from datetime import datetime
 from math import fabs
 
 import requests
 
-from skivvy.util.scope import has,fetch, store, get_current_namespace
-from skivvy.util.str_util import coerce_str_to_int, compile_regexp
-from skivvy.util import file_util, str_util
+from skivvy.util.scope import has,fetch, store
+from skivvy.util import file_util
 from skivvy.util import log
-from skivvy.util import scope
 
 DEFAULT_APPROXIMATE_THRESHOLD = 0.05  # default margin of error for a ~value to still be considered equal to another
 SUCCESS_MSG = "OK"
@@ -252,45 +249,6 @@ def _parse_single_number(expected):
 
     return float(expected[index:])
 
-
-# when brace expansion is not used, just return the same string as passed in
-def brace_expand_noop(s):
-    return s
-
-
-# technically not a matcher but this file seems like the best location nonetheless?
-# TODO: How to be able to join paths eg urls better, like path.join etc
-def brace_expand(s, auto_coerce=False):
-    if not isinstance(s, str):
-        return s
-
-    s = expand_string(s)
-
-    if auto_coerce:
-        return coerce_str_to_int(s)
-    else:
-        return s
-
-def variable_resolver(variable_name):
-    if scope.has(variable_name):
-        return scope.fetch(variable_name)
-    return None
-
-def file_resolver(variable_name):
-    if os.path.isfile(variable_name):
-        return file_util.read_file_contents(variable_name)
-    return None
-
-resolvers = [variable_resolver, file_resolver]
-brace_expansion_regexp = r'<([^<>]+)>'
-
-def expand_string(s):
-    pattern = compile_regexp(brace_expansion_regexp)
-    try:
-        return str_util.expand_string(s, pattern, resolve_funcs=resolvers)
-    except ValueError as e:
-        log.warning(str(e))
-        return s
 
 def add_matcher(matcher_name, matcher_func):
     if matcher_name in matcher_dict:
