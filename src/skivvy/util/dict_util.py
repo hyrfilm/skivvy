@@ -2,9 +2,20 @@ import collections.abc
 from functools import wraps
 from operator import itemgetter
 
-def subset(d, keys):
-    return {k: d[k] for k in keys if k in d}
+def subset(d: dict, keys: list[str], include_none=True) -> dict:
+    """Returns a subset of a dictionary whose keys are included in keys."""
+    def should_include(key):
+        if include_none:
+            return key in d
+        else:
+            return d.get(key, None) is not None
 
+    return {k: d[k] for k in keys if should_include(k)}
+
+def remap_keys(d: dict, remap: dict[str, str]) -> dict:
+    """Returns a dictionary where keys are renamed according to remap (e.g. {'old: 'new'}).
+    Other keys are left alone and returned in the new dictionary."""
+    return { remap.get(k, k): v for k, v in d.items() }
 
 def map_nested_dicts_py(d, func):
     if isinstance(d, collections.abc.Mapping):
@@ -24,7 +35,7 @@ def wrap_in_tuple(fn):
 @wrap_in_tuple
 def get_all(d, *keys):
     """
-    removes all keys from a dict or raises an error
+    retrieves all keys from a dict or raises an error
     """
     _get = itemgetter(*keys)
     return _get(d)

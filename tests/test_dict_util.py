@@ -1,14 +1,20 @@
 import pytest
 
-from skivvy.util.dict_util import subset, map_nested_dicts_py, get_all
+from skivvy.util.dict_util import subset, remap_keys, map_nested_dicts_py, get_all
 
 
-def test_subset_basic():
-    d = {"a": 1, "b": 2, "c": 3}
+def test_subset():
+    d = {"a": 1, "b": 2, "c": 3, "d": None}
     # includes an existing and a non-existing key
-    result = subset(d, ["a", "x"])
+    result = subset(d, ["a", "x", "d"])
+    assert result == {"a": 1, "d": None}
+    result = subset(d, ["a", "x", "d"], include_none=False)
     assert result == {"a": 1}
 
+def test_remap_keys():
+    remap = {"a": "x", "b": "y", "c": "z"}
+    d = { "a": 1, "b": 2, "c": 3, "w": 4 }
+    assert remap_keys(d, remap) == {"x": 1, "y": 2, "z": 3, "w": 4}
 
 def test_map_nested_dicts_py_numbers():
     d = {

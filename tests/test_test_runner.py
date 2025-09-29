@@ -19,10 +19,15 @@ def test_create_request_with_brace_expansion():
         "write_headers": {"Authorization": "Bearer <api_key>"}
     }
 
-    result = create_request(test_config)
+    request_dict, complete_dict = create_request(test_config)
 
-    assert result["url"] == "https://api.example.com/users/12345"
-    assert result["write_headers"]["Authorization"] == "Bearer s3cr3t"
+    assert request_dict == {
+        "method": "GET",
+        "url": "https://api.example.com/users/12345",
+    }
+
+    assert complete_dict["url"] == "https://api.example.com/users/12345"
+    assert complete_dict["write_headers"]["Authorization"] == "Bearer s3cr3t"
 
 def test_brace_expansion_with_files_and_variables():
     # Set up some variables in our current scope
@@ -39,9 +44,15 @@ def test_brace_expansion_with_files_and_variables():
         "auto_coercion": True
     }
 
-    result = create_request(test_config)
+    request_dict, complete_dict = create_request(test_config)
 
-    assert result == {
+    assert request_dict == {
+        "method": "POST",
+        "url": "https://api.example.com/666/hail-satan",
+        "body": {"lucky": 23 },
+    }
+
+    assert complete_dict == {
         "base_url": "https://api.example.com",
         "url": "https://api.example.com/666/hail-satan",
         "method": "POST",

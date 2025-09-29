@@ -10,11 +10,11 @@ Usage:
     skivvy examples/example.json (run examples)
 
 Options:
-    -h --help         show this screen.
+    -h --help       show this screen.
     -v --version    show version.
-    -i=regexp        only include files matching any provided regexp(s) [default: .*]
-    -e=regexp      exclude files matching provided regexp(s)
-    -t                     keep temporary files (if any)
+    -i=regexp       include only files matching provided regexp(s) [default: .*]
+    -e=regexp       exclude files matching provided regexp(s)
+    -t              keep temporary files (if any)
 """
 import json
 from functools import partial
@@ -22,10 +22,11 @@ from urllib.parse import urljoin
 
 from docopt import docopt
 
-from . import custom_matchers
+from skivvy.skivvy_config2 import create_test_config, conf_get, Settings, get_all_settings
+from . import custom_matchers, test_runner
 from . import matchers
 from .skivvy_config import read_config
-from .util import file_util, http_util, dict_util, str_util
+from .util import file_util, http_util, dict_util, str_util, http_util2
 from .util import log
 from .util.str_util import tojsonstr, diff_strings, RED_COLOR
 from .verify import verify
@@ -152,6 +153,21 @@ def run_test(filename, conf):
 
     return " OK", None  # Yay! it passed.... nothing more to say than that
 
+def run_test(filename, conf):
+    print(filename)
+    file_util.set_current_file(filename)
+    config = {}
+    try:
+        testcase_config = file_util.parse_json(filename)
+        config = create_test_config(testcase_config, conf.as_dict())
+    except Exception as e:
+        print(e)
+        return STATUS_FAILED, {}
+
+    request_data, complete_config = test_runner.create_request(config)
+    http_envelope = http_util2.execute(request_data)
+    print(http_envelope.json())
+    return STATUS_OK, None
 
 def handle_upload_file(file):
     if not file:

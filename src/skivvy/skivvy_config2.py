@@ -1,3 +1,4 @@
+import inspect
 from typing import NamedTuple, Dict, Any, ChainMap, Mapping
 
 
@@ -22,6 +23,7 @@ class Settings:
     BODY = Option("body", None, "JSON Request body")
     FORM = Option("form", None, "Form body")
     UPLOAD = Option("upload", None, "File upload configuration")
+    QUERY = Option("query", None, "Query parameters")
     CONTENT_TYPE = Option("content_type", "application/json", "Request content type")
     WRITE_HEADERS = Option("write_headers", {}, "Headers to write to files")
     READ_HEADERS = Option("read_headers", {}, "Headers to read from files")
@@ -31,10 +33,20 @@ class Settings:
     FAIL_FAST = Option("fail_fast", False, "Stop on first failure")
     MATCHERS = Option("matchers", None, "Directory containing custom matcher files")
 
+def get_all_settings() -> list[Option]:
+    return [ option for _name, option in vars(Settings).items() if isinstance(option, Option) ]
 
 def create_test_config(*dicts: Dict[str, object]) -> Mapping[str, object]:
-    """Creates a dict-like test configuration from multiple dictionaries"""
-    return ChainMap(*dicts)
+    """Creates a dict-like test configuration from multiple dictionaries
+    Priority order:
+    1. command-line arguments
+    2. current test fields
+    3. config file
+    4. default values
+    """
+    defaults = {option.key: option.default for option in get_all_settings() if option.default}
+    priority = [*dicts, defaults]
+    return ChainMap({}, *priority)
 
 def conf_get(d, option: Option):
     return d.get(option.key, option.default)

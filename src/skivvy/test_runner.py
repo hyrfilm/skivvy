@@ -6,10 +6,9 @@ from urllib.parse import urljoin
 from skivvy.brace_expansion import brace_expand_string
 from skivvy.skivvy_config2 import Settings, conf_get
 from skivvy.util import dict_util, log, str_util
-from skivvy.util.dict_util import filter_null_from_dict, get_all
+from skivvy.util.dict_util import get_all, subset
 
-
-def create_request(test_config:Dict[str, object]) -> Dict[str, object]:
+def create_request(test_config:Dict[str, object]) -> tuple[dict, dict]:
     """
     Creates and validates a request given a test_config dict.
     The return value of this function can just be sent as-is to
@@ -28,14 +27,15 @@ def create_request(test_config:Dict[str, object]) -> Dict[str, object]:
 
     # in either case, we get back a dict that represents all configuration related to the request
     request_config = brace_expand_fields(test_config, *fields_to_expand)
-    # finally, filter out null / none fields
-    request_config = filter_null_from_dict(request_config)
     # validate and warn if the request looks odd
     is_valid = validate_request_body(request_config)
     if not is_valid:
         log.warning(f"Request does not seem valid: {method, url}")
 
-    return request_config
+    request_fields = [Settings.METHOD, Settings.URL, Settings.QUERY, Settings.BODY, Settings.FORM, Settings.UPLOAD]
+    request_data = subset(request_config, [option.key for option in request_fields], include_none=False)
+
+    return request_data, request_config
 
 def validate_request_body(d):
     """Validates that the body data makes sense for the HTTP method"""
@@ -71,15 +71,6 @@ def validate_request_body(d):
             raise ValueError(f"Unsupported HTTP method: {method}")
     return True
 
-# TODO: both brace expansion and auto coercion should be implemented by
-# TODO: as identify no-op when disabled, can probably be applied much more widely
-# is_enabled = conf_get(expanded, Settings.BRACE_EXPANSION)
-# auto_coerce = conf_get(expanded, Settings.AUTO_COERCE)
-#
-# if brace_expansion:
-#     brace_expander = partial(matchers.brace_expand, auto_coerce=auto_coerce)
-# else:
-#     brace_expander = matchers.brace_expand_noop
 def brace_expand_fields(request_dict: Mapping[str,object], *keys: str) -> Dict[str, object]:
     """
     Takes a list of keys and applies brace expansion for each key it finds, others are silently ignored.
@@ -87,7 +78,7 @@ def brace_expand_fields(request_dict: Mapping[str,object], *keys: str) -> Dict[s
     If is_enabled is False, then it will simply just return a new dict without any expansion applied.
     """
     expand_func = get_brace_expansion_func(request_dict)
-    result = json.loads(json.dumps(request_dict))
+    result = json.loads(json.dumps(dict(request_dict)))
 
     for k in keys:
         field = result.get(k)
