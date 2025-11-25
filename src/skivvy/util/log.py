@@ -21,6 +21,8 @@ def _create_rich_handler():
         show_time=False,
         show_path=False,
         markup=True,
+        show_level=False,
+        rich_tracebacks=True,        
     )
     h.terminator = ""  # important for your layout
     h.setFormatter(logging.Formatter("%(message)s"))
@@ -119,7 +121,7 @@ def testcase_logger(testcase_name: str):
         # 2) replay buffered log entries
         if buf:
             # Optional blank line between summary and details
-            _log(logging.INFO, "")  # prints just "\n"
+            #_log(logging.INFO, "")  # prints just "\n"
 
             for level, msg, new_line in buf:
                 # Skip debug if logger isn't in DEBUG mode
