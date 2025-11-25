@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 2
 requires-python = ">=3.13"
 
 [[package]]
@@ -376,7 +376,7 @@ wheels = [
 
 [[package]]
 name = "skivvy"
-version = "0.517"
+version = "0.60"
 source = { editable = "." }
 dependencies = [
     { name = "docopt-ng" },
