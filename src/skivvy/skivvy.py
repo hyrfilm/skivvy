@@ -22,6 +22,7 @@ from urllib.parse import urljoin
 
 from docopt import docopt
 
+from skivvy import __version__
 from skivvy.skivvy_config2 import create_test_config, conf_get, Settings, get_all_settings
 from .util import icdiff2
 from . import custom_matchers, test_runner
@@ -32,7 +33,7 @@ from .util import log
 from .util.str_util import tojsonstr
 from .verify import verify
 
-version = "0.519"
+version = __version__
 STATUS_OK = "OK"
 STATUS_FAILED = "FAILED"
 log.set_default_level("INFO")
