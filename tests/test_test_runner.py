@@ -37,7 +37,7 @@ def test_brace_expansion_with_files_and_variables():
     # of retrieving variables from a file in our fixture dir
     test_config = {
         "base_url": "https://api.example.com",
-        "url": "<fixtures/user_id.txt>/hail-satan",
+        "url": "<tests/fixtures/user_id.txt>/hail-satan",
         "body": {"lucky": "<number>" },
         "method": "POST",
         "brace_expansion": True,
