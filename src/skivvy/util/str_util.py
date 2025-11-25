@@ -4,46 +4,45 @@ import re
 from functools import cache, partial
 from typing import AnyStr
 
-RED_COLOR = '\033[91m\b'
-GREEN_COLOR = '\033[92m\b'
-RESET_COLOR = '\033[0m'
+def pretty_diff(expected: str, actual: str, diff_type: str = "context", lines: int = 3) -> str:
+    """
+    Diff two JSON strings using a chosen diff type.
 
-RESET_ALL = "\033[0m"
-BOLD_ON, BOLD_OFF = "\033[1m",  "\033[22m"
-UL_ON,   UL_OFF   = "\033[4m",  "\033[24m"
-FG_RESET = "\033[39m"
+    Parameters:
+        expected (str): First JSON string
+        actual (str): Second JSON string
+        diff_type (str): "unified", "context", or "ndiff"
+        lines (int): Number of context lines for unified/context
 
-tags = {
-    "<b>": BOLD_ON, "</b>": BOLD_OFF,
-    "<u>": UL_ON, "</u>": UL_OFF,
-}
+    Returns:
+        str: The diff as a string.
+    """
 
-def diff_strings(a, b, colorize=True):
-    difference = difflib.Differ()
+    try:
+        obj1 = json.loads(expected)
+    except Exception as _e:
+        obj1 = str(expected)
 
-    lines = difference.compare(a.splitlines(), b.splitlines())
-    lines = [colorize_diff_line(line, colorize) for line in lines]
-
-    return "\n".join(lines)
-
-
-def colorize_diff_line(line, colorize):
-    if not colorize:
-        return line
-
-    line_color = ""
-    if line.startswith("?"):
-        if "+" in line:
-            line_color = GREEN_COLOR
-        elif "-" in line:
-            line_color = RED_COLOR
-    elif line.startswith("-"):
-        line_color = RED_COLOR
-    return line_color + line + RESET_COLOR
+    try:
+        obj2 = json.loads(actual)
+    except Exception as _e:
+        obj2 = str(actual)
 
 
-def colorize(s, color):
-    return color + s + RESET_COLOR
+    # Convert objects to pretty, stable JSON lines for diffing
+    j1 = json.dumps(obj1, indent=2, sort_keys=True).splitlines(keepends=True)
+    j2 = json.dumps(obj2, indent=2, sort_keys=True).splitlines(keepends=True)
+
+    if diff_type == "unified":
+        diff_iter = difflib.unified_diff(j1, j2, fromfile=expected, tofile=actual, n=lines)
+    elif diff_type == "context":
+        diff_iter = difflib.context_diff(j1, j2, fromfile=expected, tofile=actual, n=lines)
+    elif diff_type == "ndiff":
+        diff_iter = difflib.ndiff(j1, j2)
+    else:
+        raise ValueError("diff_type must be one of: unified, context, ndiff")
+
+    return "".join(diff_iter)
 
 def stylize(s):
     for name, value in tags.items():

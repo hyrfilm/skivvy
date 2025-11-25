@@ -4,7 +4,7 @@ build-backend = "uv_build"
 
 [project]
 name = "skivvy"
-version = "0.517"
+version = "0.60"
 description = "A simple tool for testing JSON/HTTP APIs"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -21,7 +21,8 @@ classifiers = [
 dependencies = [
     "pyopenssl",
     "requests",
-    "docopt-ng"
+    "docopt-ng",
+    "rich>=14.1.0",
 ]
 
 [project.urls]
