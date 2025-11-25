@@ -279,6 +279,8 @@ def add_negating_matchers():
 
 
 matcher_dict = {
+    "$store": store_var,
+    "$fetch": fetch_var,
     "$valid_url": match_valid_url,
     "$contains": match_contains,
     "$len": len_match,
