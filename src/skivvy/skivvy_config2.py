@@ -46,7 +46,8 @@ def create_test_config(*dicts: Dict[str, object]) -> Mapping[str, object]:
     """
     defaults = {option.key: option.default for option in get_all_settings() if option.default}
     priority = [*dicts, defaults]
-    return ChainMap({}, *priority)
+    d = ChainMap({}, *priority)
+    return dict(**d)
 
 def conf_get(d, option: Option):
     return d.get(option.key, option.default)

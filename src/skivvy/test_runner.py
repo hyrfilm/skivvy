@@ -47,13 +47,14 @@ def validate_request_body(d):
 
     # TODO: stop lowering everywhere
     match method.lower():
-        case "post" | "put" | "patch":
+        case "post" | "put" | "patch" | "delete":
             # These methods can have body data - validate no conflicts
             body_fields = [json_data, form_data, upload]
             match body_fields:
+                case [None, None, None]:
+                    log.debug(f'No data provided for {method} {url}')
                 case [json_data, None, None]:
                     log.debug(f'{method} {url} (JSON payload)')
-                    log.debug(f'No data provided for {method} {url}')
                 case [None, form_data, None]:
                     log.debug(f'{method} {url} (multi-form payload)')
                 case [None, None, upload]:

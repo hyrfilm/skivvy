@@ -4,6 +4,7 @@ from skivvy.util import dict_util
 from dataclasses import dataclass
 from typing import Mapping, Any, Optional
 import json
+from skivvy.util.str_util import tojsonstr
 
 _supported_methods = {"get", "post", "put", "patch", "delete", "options", "head", "connect"}
 _session = None
