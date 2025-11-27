@@ -1,6 +1,6 @@
 import pytest
 
-from skivvy.util.http_util2 import initialize_session, do_request, prepare_request_data
+from skivvy.util.http_util import initialize_session, do_request, prepare_request_data
 
 
 class DummySession:

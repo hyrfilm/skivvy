@@ -29,7 +29,7 @@ from .util import icdiff2
 from . import custom_matchers, test_runner
 from . import matchers
 from .skivvy_config import read_config
-from .util import file_util, http_util, dict_util, str_util, http_util2
+from .util import file_util, http_util, dict_util, str_util
 from .util import log
 from .util.str_util import tojsonstr
 from .verify import verify
@@ -166,7 +166,7 @@ def run_test(filename, env_conf):
         request, testcase_config = test_runner.create_request(testcase)
         error_context["expected"] = testcase_config.get("response")
 
-        http_envelope = http_util2.execute(request)
+        http_envelope = http_util.execute(request)
         error_context["actual"] = http_envelope.json()
 
         if "status" in testcase_config:
