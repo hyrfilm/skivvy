@@ -8,17 +8,17 @@ from skivvy.skivvy_config2 import Settings, conf_get
 from skivvy.util import dict_util, log, str_util
 from skivvy.util.dict_util import get_all, subset
 
-def create_request(test_config:Dict[str, object]) -> tuple[dict, dict]:
+def create_request(testcase:Dict[str, object]) -> tuple[dict, dict]:
     """
-    Creates and validates a request given a test_config dict.
-    The return value of this function can just be sent as-is to
+    Validates a test case and returns a request-dict and a testconfig-dict.
+    The request-dict can be passed directly to execute while the testconfig-dict determines the behavior of the test (expected status, fields, brace expansion and so on).
     """
     # TODO: Before we reach here we should have just already have this dict filled with
     # TODO: the necessary values by just iterating over the dict and for each option either it would have a default or we would raise a validation exception
     required_fields = (Settings.BASE_URL.key, Settings.URL.key, Settings.METHOD.key)
-    base_url, url, method = dict_util.get_all(test_config, *required_fields)
+    base_url, url, method = dict_util.get_all(testcase, *required_fields)
     url = urljoin(base_url, url)
-    test_config[Settings.URL.key] = url
+    testcase[Settings.URL.key] = url
     log.debug(f'Creating request {method}: {url}')
 
     # apply for these fields, the ones not present will just be ignored
@@ -26,7 +26,7 @@ def create_request(test_config:Dict[str, object]) -> tuple[dict, dict]:
     fields_to_expand = [opt.key for opt in options]
 
     # in either case, we get back a dict that represents all configuration related to the request
-    request_config = brace_expand_fields(test_config, *fields_to_expand)
+    request_config = brace_expand_fields(testcase, *fields_to_expand)
     # validate and warn if the request looks odd
     is_valid = validate_request_body(request_config)
     if not is_valid:

@@ -18,12 +18,13 @@ Options:
 """
 import json
 from functools import partial
+import traceback
 from urllib.parse import urljoin
 
 from docopt import docopt
 
 from skivvy import __version__
-from skivvy.skivvy_config2 import create_test_config, conf_get, Settings, get_all_settings
+from skivvy.skivvy_config2 import create_testcase, conf_get, Settings, get_all_settings
 from .util import icdiff2
 from . import custom_matchers, test_runner
 from . import matchers
@@ -156,25 +157,24 @@ def log_error_context(err_context, conf):
 #
 #     return " OK", None  # Yay! it passed.... nothing more to say than that
 
-def run_test(filename, conf):
+def run_test(filename, env_conf):
     file_util.set_current_file(filename)
     error_context = {}
 
     try:
-        testcase_config = file_util.parse_json(filename)
-        config = create_test_config(testcase_config, conf.as_dict())
-        request_data, complete_config = test_runner.create_request(config)
-        error_context["expected"] = config.get("response")
+        testcase = create_testcase(filename, env_conf)
+        request, testcase_config = test_runner.create_request(testcase)
+        error_context["expected"] = testcase_config.get("response")
 
-        http_envelope = http_util2.execute(request_data)
+        http_envelope = http_util2.execute(request)
         error_context["actual"] = http_envelope.json()
 
-        if "status" in config:
-            verify(config["status"], http_envelope.status_code, **config)
-        if "response" in config:
-            verify(config["response"], http_envelope.json(), **config)
+        if "status" in testcase_config:
+            verify(testcase_config["status"], http_envelope.status_code, **testcase_config)
+        if "response" in testcase_config:
+            verify(testcase_config["response"], http_envelope.json(), **testcase_config)
     except Exception as e:
-        error_context["exception"] = e
+        error_context["exception"] = traceback.format_exc()
         return STATUS_FAILED, error_context
 
     return STATUS_OK, None

@@ -18,7 +18,6 @@ class HttpEnvelope:
     text: str
     encoding: str
     url: str
-    method: str
     elapsed: float
 
     def has_body(self) -> bool:
@@ -58,7 +57,6 @@ class HttpEnvelope:
             text=getattr(resp, "text", ""),
             encoding=getattr(resp, "encoding", "utf-8"),
             url=getattr(resp, "url", ""),
-            method=getattr(resp.request, "method", ""),
             elapsed=getattr(resp, "elapsed", -1),
         )
 
@@ -67,8 +65,8 @@ def initialize_session(session=None):
     global _session
     _session = session or requests.Session()
 
-def execute(request_data: dict[str, object]) -> HttpEnvelope:
-    method, payload = prepare_request_data(request_data)
+def execute(request: dict[str, object]) -> HttpEnvelope:
+    method, payload = prepare_request_data(request)
     r = do_request(method, **payload)
     return HttpEnvelope.from_requests(r)
 
@@ -88,3 +86,31 @@ def do_request(method, **payload: Dict[str, Any]) -> requests.Request:
 
 
 initialize_session()
+
+
+#TODO: This kind of functionality was support in the old http_util - add something similar but better for being able to just turn it on and generate a test case
+    # log.debug("\n")
+    # log.debug("--- REQUEST ---")
+    # log.debug("%s: %s" % (method.upper(), url))
+    # if upload_file:
+    #     log.debug( "file: %s" % upload_file)
+    # elif data:
+    #     log.debug(" body: %s" % data)
+    # log.debug(" headers: %s" % tojsonstr(headers))
+    # log.debug("----------------")
+    # log.debug("\n")
+
+
+    # it's not possible to both upload a file & provide json data
+    # if upload_file:
+    #     r = http_verb(url, files=upload_file, headers=headers)
+    # else:
+    #     r = http_verb(url, data=data, headers=headers)
+
+    # log.debug("\n")
+    # log.debug("--- RESPONSE ---")
+    # log.debug("status: %s" % r.status_code)
+    # log.debug("json: %s" % tojsonstr(as_json(r)))
+    # log.debug("headers: %s" % tojsonstr(dict(r.headers)))
+    # log.debug("----------------")
+    # log.debug("\n")

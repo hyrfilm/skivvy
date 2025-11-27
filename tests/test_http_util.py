@@ -28,9 +28,15 @@ class DummySession:
         }
 
 
-def test_get_echoes_inputs():
-    initialize_session(DummySession())
+@pytest.fixture
+def dummy_session():
+    # setup
+    session = initialize_session(DummySession())
+    yield session
+    # teardown
+    initialize_session(None)
 
+def test_get_echoes_inputs(dummy_session):
     payload = {
         "url": "https://example.com/search",
         "params": {"q": "skivvy", "page": 2},
@@ -49,9 +55,7 @@ def test_get_echoes_inputs():
     }
 
 
-def test_post_with_json_echoes_inputs():
-    initialize_session(DummySession())
-
+def test_post_with_json_echoes_inputs(dummy_session):
     payload = {
         "url": "https://example.com/posts",
         "json": {"title": "Hello", "body": "World"},
@@ -69,10 +73,7 @@ def test_post_with_json_echoes_inputs():
         "params": None,
     }
 
-
-def test_post_with_form_and_params_echoes_inputs():
-    initialize_session(DummySession())
-
+def test_post_with_form_and_params_echoes_inputs(dummy_session):
     payload = {
         "url": "https://example.com/login",
         "data": {"user": "u", "pass": "p"},
