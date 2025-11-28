@@ -4,7 +4,7 @@
   "auto_coerce": true,
   "fail_fast": false,
   "colorize": true,
-  "tests": "./examples/success",
+  "tests": "./examples/tests/success",
   "ext": ".json",
   "log_level": "INFO"
 }
