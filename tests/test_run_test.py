@@ -33,3 +33,9 @@ def test_fortune_01_failing(httpserver):
     assert status is STATUS_FAILED
     assert "If it seems" in error_context.get("expected").get("wisdom")
     assert "if it seems" in error_context.get("actual").get("wisdom")
+
+def test_fortune_02_match_subsets(httpserver):
+    httpserver.expect_request("/api/fortune").respond_with_json({"wisdom": "If it seems that fates are aginst you today, they probably are."})
+    status, error_context = run_test("./tests/fixtures/fortune/02.json", default_cfg)
+    assert status is STATUS_OK
+    assert error_context is None
