@@ -1,6 +1,7 @@
 import logging
 import sys
 from contextlib import contextmanager
+import traceback
 
 from rich.console import Console
 from rich.logging import RichHandler
@@ -46,7 +47,10 @@ def _log(level, msg, new_line=True):
 def _buffer_or_log(level, msg, new_line=True):
     """If inside a testcase, buffer log entries; otherwise log immediately."""
     global _current_test_buffer
-
+    if msg is None:
+        return
+    if not isinstance(msg, str):
+        msg = str(msg)
     if _current_test_buffer is not None:
         # store message *without* newline, and the level
         _current_test_buffer.append((level, msg, new_line))
@@ -66,8 +70,8 @@ def warning(msg, new_line=True):
     _buffer_or_log(logging.WARNING, msg, new_line)
 
 
-def error(msg, new_line=True):
-    _buffer_or_log(logging.ERROR, msg, new_line)
+def error(msg_or_err: Exception|str, new_line=True):
+    _buffer_or_log(logging.ERROR, msg_or_err, new_line)
 
 
 def set_default_level(level):

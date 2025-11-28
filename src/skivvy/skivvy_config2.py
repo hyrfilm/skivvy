@@ -1,6 +1,6 @@
-import inspect
 from typing import NamedTuple, Dict, Any, ChainMap, Mapping
 
+from skivvy.util import file_util
 
 class Option(NamedTuple):
     key: str
@@ -51,3 +51,23 @@ def create_test_config(*dicts: Dict[str, object]) -> Mapping[str, object]:
 
 def conf_get(d, option: Option):
     return d.get(option.key, option.default)
+
+def create_testcase(*sources: Dict[str, object] | str) -> Mapping[str, object]:
+    """Creates a testcase by merging any number of configurations into one single object.
+    A source can either be a string or a dict, strings will be interpreted as paths to json files, the
+    output is created by merging and potentially overriding fields by creating a chained map.
+    """
+    dicts: list[Dict[str, object]] = []
+    for source in sources:
+        if isinstance(source, str):
+            source_dict = file_util.parse_json(source)
+        elif isinstance(source, dict):
+            source_dict = source
+        elif hasattr(source, "as_dict") and callable(getattr(source, "as_dict")):
+            source_dict = source.as_dict()
+        else:
+            source_dict = dict(source)
+
+        dicts.append(source_dict)
+
+    return create_test_config(*dicts)
