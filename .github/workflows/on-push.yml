@@ -22,3 +22,32 @@ jobs:
       primary_tag: dev
       also_latest: false
     secrets: inherit
+
+  package-examples:
+    if: github.event_name == 'push' && github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build reproducible examples tarball
+        run: |
+          tar --sort=name \
+              --mtime='UTC 1970-01-01' \
+              --owner=0 --group=0 --numeric-owner \
+              -czf examples.tar.gz examples
+
+      - name: Commit updated tarball (if changed)
+        run: |
+          if git diff --quiet -- examples.tar.gz; then
+            echo "No changes in examples.tar.gz"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add examples.tar.gz
+          git commit -m "chore: update packaged examples"
+          git push
