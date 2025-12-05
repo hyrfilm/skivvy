@@ -68,15 +68,15 @@ def log_testcase_failed(testfile, conf):
 
 def log_error_context(err_context, conf):
     colorize = conf.get("colorize", True)
-    e, expected, actual = err_context.get("exception"), err_context.get("expectec"), err_context.get("actual")
-    log.error(str(e))
+    e, expected, actual = err_context.get("exception"), err_context.get("expected"), err_context.get("actual")
+    #log.error(str(e))
     if expected:
         log.info("--------------- DIFF BEGIN ---------------")
-        #diff_output = str_util.pretty_diff(expected, actual)
-        #diff_output = icdiff.pretty_diff(expected, actual)
+        diff_output = str_util.pretty_diff(tojsonstr(expected), tojsonstr(actual))
+        #diff_output = icdiff2
         #differ = icdiff2.RichConsoleDiff()
         #log.info(differ.print_table(expected, actual))
-        #log.info(diff_output)
+        log.info(diff_output)
         log.info("--------------- DIFF END -----------------")
         log.debug("************** EXPECTED *****************")
         log.debug("!!! expected:\n%s" % tojsonstr(expected))
@@ -164,15 +164,27 @@ def run_test(filename, env_conf):
     try:
         testcase = create_testcase(filename, env_conf)
         request, testcase_config = test_runner.create_request(testcase)
-        error_context["expected"] = testcase_config.get("response")
+        expected_status = testcase_config.get("status")
+        expected_response = testcase_config.get("response")
+        expected = {}
+        if expected_status is not None:
+            expected["status"] = expected_status
+        if expected_response is not None:
+            expected["response"] = expected_response
+        error_context["expected"] = expected
 
         http_envelope = http_util.execute(request)
-        error_context["actual"] = http_envelope.json()
+        actual_status = http_envelope.status_code
+        actual_response = http_envelope.json()
+        error_context["actual"] = {
+            "status": actual_status,
+            "response": actual_response,
+        }
 
         if "status" in testcase_config:
-            verify(testcase_config["status"], http_envelope.status_code, **testcase_config)
+            verify(testcase_config["status"], actual_status, **testcase_config)
         if "response" in testcase_config:
-            verify(testcase_config["response"], http_envelope.json(), **testcase_config)
+            verify(testcase_config["response"], actual_response, **testcase_config)
     except Exception as e:
         error_context["exception"] = traceback.format_exc()
         return STATUS_FAILED, error_context

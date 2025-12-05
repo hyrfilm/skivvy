@@ -1,0 +1,7 @@
+{
+  "brace_expansion": true,
+  "match_subsets": true,
+  "base_url": "https://dummyjson.com",
+  "tests": "./examples/dummyjson",
+  "ext": ".json"
+}

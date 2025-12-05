@@ -4,7 +4,38 @@ import re
 from functools import cache, partial
 from typing import AnyStr
 
-def pretty_diff(expected: str, actual: str, diff_type: str = "context", lines: int = 3) -> str:
+
+def _colorize_diff(diff_text: str) -> str:
+    """
+    Lightweight markup-based coloring for diff output when Rich rendering
+    isn't available. Uses red for removals, green for additions, yellow for
+    inline hints, and dim for unchanged/context lines.
+    """
+    lines = []
+    for line in diff_text.splitlines():
+        if line.startswith("+"):
+            lines.append(f"[green]{line}[/green]")
+        elif line.startswith("-"):
+            lines.append(f"[red]{line}[/red]")
+        elif line.startswith("?"):
+            lines.append(f"[yellow]{line}[/yellow]")
+        elif line.startswith("@@") or line.startswith(("***", "---", "+++")):
+            lines.append(f"[cyan]{line}[/cyan]")
+        else:
+            lines.append(f"[dim]{line}[/dim]")
+
+    # Preserve trailing newline, if any
+    trailing = "\n" if diff_text.endswith("\n") else ""
+    return "\n".join(lines) + trailing
+
+
+def pretty_diff(
+    expected: str,
+    actual: str,
+    diff_type: str = "ndiff",
+    lines: int = 3,
+    colorize: bool = True,
+) -> str:
     """
     Diff two JSON strings using a chosen diff type.
 
@@ -13,36 +44,39 @@ def pretty_diff(expected: str, actual: str, diff_type: str = "context", lines: i
         actual (str): Second JSON string
         diff_type (str): "unified", "context", or "ndiff"
         lines (int): Number of context lines for unified/context
+        colorize (bool): When True, wrap diff lines in simple color markup.
 
     Returns:
         str: The diff as a string.
     """
 
+    if diff_type not in {"unified", "context", "ndiff"}:
+        raise ValueError("diff_type must be one of: unified, context, ndiff")
+
     try:
         obj1 = json.loads(expected)
-    except Exception as _e:
+    except Exception:
         obj1 = str(expected)
 
     try:
         obj2 = json.loads(actual)
-    except Exception as _e:
+    except Exception:
         obj2 = str(actual)
-
 
     # Convert objects to pretty, stable JSON lines for diffing
     j1 = json.dumps(obj1, indent=2, sort_keys=True).splitlines(keepends=True)
     j2 = json.dumps(obj2, indent=2, sort_keys=True).splitlines(keepends=True)
 
     if diff_type == "unified":
-        diff_iter = difflib.unified_diff(j1, j2, fromfile=expected, tofile=actual, n=lines)
+        diff_iter = difflib.unified_diff(j1, j2, fromfile="expected", tofile="actual", n=lines)
     elif diff_type == "context":
-        diff_iter = difflib.context_diff(j1, j2, fromfile=expected, tofile=actual, n=lines)
-    elif diff_type == "ndiff":
+        diff_iter = difflib.context_diff(j1, j2, fromfile="expected", tofile="actual", n=lines)
+    else:  # ndiff
         diff_iter = difflib.ndiff(j1, j2)
-    else:
-        raise ValueError("diff_type must be one of: unified, context, ndiff")
 
-    return "".join(diff_iter)
+    diff_text = "".join(diff_iter)
+    return _colorize_diff(diff_text) if colorize else diff_text
+
 
 def stylize(s):
     for name, value in tags.items():

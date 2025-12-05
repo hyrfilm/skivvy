@@ -1,0 +1,8 @@
+{
+  "url": "/products/<id>",
+  "response": {
+    "id": 101,
+    "title": "Apple AirPods Max Silver",
+    "thumbnail": "$valid_url"
+  }
+}
