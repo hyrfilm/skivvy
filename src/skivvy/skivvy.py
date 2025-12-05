@@ -16,6 +16,7 @@ Options:
     -e=regexp       exclude files matching provided regexp(s)
     -t              keep temporary files (if any)
 """
+
 import json
 import traceback
 
@@ -35,6 +36,7 @@ version = __version__
 STATUS_OK = "OK"
 STATUS_FAILED = "FAILED"
 log.set_default_level("INFO")
+
 
 def configure_testcase(test_dict, conf_dict):
     testcase = dict(conf_dict)
@@ -60,14 +62,18 @@ def log_testcase_failed(testfile, conf):
 
 def log_error_context(err_context, conf):
     colorize = conf.get("colorize", True)
-    e, expected, actual = err_context.get("exception"), err_context.get("expected"), err_context.get("actual")
+    e, expected, actual = (
+        err_context.get("exception"),
+        err_context.get("expected"),
+        err_context.get("actual"),
+    )
     log.error(str(e))
     if expected:
         log.info("--------------- DIFF BEGIN ---------------")
         diff_output = str_util.pretty_diff(tojsonstr(expected), tojsonstr(actual))
-        #diff_output = icdiff2
-        #differ = icdiff2.RichConsoleDiff()
-        #log.info(differ.print_table(expected, actual))
+        # diff_output = icdiff2
+        # differ = icdiff2.RichConsoleDiff()
+        # log.info(differ.print_table(expected, actual))
         log.info(diff_output)
         log.info("--------------- DIFF END -----------------")
         log.debug("************** EXPECTED *****************")
@@ -111,12 +117,13 @@ def run_test(filename, env_conf):
 
     return STATUS_OK, None
 
+
 def handle_upload_file(file):
     if not file:
         return None
 
     key = list(file.keys())[0]
-    filename = open(list(file.values())[0], 'rb')
+    filename = open(list(file.values())[0], "rb")
     return {key: filename}
 
 
@@ -128,7 +135,7 @@ def dump_response_headers(headers_to_write, r):
 
 
 def run():
-    arguments = docopt(__doc__, version=f'skivvy {version}')
+    arguments = docopt(__doc__, version=f"skivvy {version}")
     cfg_file = arguments.get("<cfg_file>")
     log.info(f"[b]skivvy[/b] [u]{version}[/u] | config=cfg_file")
     conf = read_config(cfg_file)
@@ -145,12 +152,18 @@ def run():
     # (default is ['.*'] so all files would be included in the filter)
     incl_patterns = arguments.get("-i") or []
     incl_patterns = str_util.compile_regexps(incl_patterns)
-    tests = [testfile for testfile in tests if str_util.matches_any(testfile, incl_patterns)]
+    tests = [
+        testfile for testfile in tests if str_util.matches_any(testfile, incl_patterns)
+    ]
 
     # exclude files - by removing any files that match the -i regexps (default is [] so no files would be excluded)
     excl_patterns = arguments.get("-e") or []
     excl_patterns = str_util.compile_regexps(excl_patterns)
-    tests = [testfile for testfile in tests if not str_util.matches_any(testfile, excl_patterns)]
+    tests = [
+        testfile
+        for testfile in tests
+        if not str_util.matches_any(testfile, excl_patterns)
+    ]
     log.adjust_col_width(tests)
 
     for testfile in tests:
@@ -194,6 +207,7 @@ def run_skivvy():
         exit(1)
     else:
         exit(0)
+
 
 if __name__ == "__main__":
     run_skivvy()

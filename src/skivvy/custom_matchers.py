@@ -6,6 +6,7 @@ import os.path
 from . import matchers
 from .util import file_util, log
 
+
 def load(conf):
     custom_matchers_dir = conf.get("matchers")
     if custom_matchers_dir:
@@ -29,10 +30,14 @@ class CustomMatcher(object):
         try:
             self.matcher_func_name = "match"
             self.matcher_name = os.path.basename(source_file).split(".")[0]
-            spec = importlib.util.spec_from_file_location(self.matcher_name, source_file)
+            spec = importlib.util.spec_from_file_location(
+                self.matcher_name, source_file
+            )
             self.matcher_module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(self.matcher_module)
-            self.matcher_func = self.matcher_module.__getattribute__(self.matcher_func_name)
+            self.matcher_func = self.matcher_module.__getattribute__(
+                self.matcher_func_name
+            )
             CustomMatcher.validate_matcher(self.matcher_func)
         except Exception as e:
             raise AssertionError("Failed to load matcher %s: %s" % (source_file, e))
@@ -45,7 +50,9 @@ class CustomMatcher(object):
         expected_signature = ["expected", "actual"]
         if not arguments == expected_signature:
             raise AssertionError(
-                "Expected 'match' to take exactly 2 parameters: %s - but was %s" % (expected_signature, arguments))
+                "Expected 'match' to take exactly 2 parameters: %s - but was %s"
+                % (expected_signature, arguments)
+            )
 
     def match(self, expected, actual):
         try:
@@ -55,6 +62,8 @@ class CustomMatcher(object):
             elif isinstance(result, (tuple)):
                 return result
             else:
-                raise AssertionError("Unexpected result %s from %s" % (result, self.matcher_name))
+                raise AssertionError(
+                    "Unexpected result %s from %s" % (result, self.matcher_name)
+                )
         except Exception as e:
             raise Exception("Custom matcher threw unexpected execption: %s" % str(e))

@@ -55,9 +55,7 @@ class RichConsoleDiff:
             # keep spaces; just expand tabs
             return line.expandtabs(self._tabsize).rstrip("\n")
 
-        return [expand_tabs(l) for l in fromlines], [
-            expand_tabs(l) for l in tolines
-        ]
+        return [expand_tabs(l) for l in fromlines], [expand_tabs(l) for l in tolines]
 
     def _strip_trailing_cr(self, lines: List[str]) -> List[str]:
         return [line.rstrip("\r") for line in lines]
@@ -148,9 +146,7 @@ class RichConsoleDiff:
                 # separator between hunks
                 if i > 0:
                     sep_style = self.styles["separator"]
-                    yield Text("---", style=sep_style), Text(
-                        "---", style=sep_style
-                    )
+                    yield Text("---", style=sep_style), Text("---", style=sep_style)
                 continue
 
             (fromline, fromtext), (toline, totext) = fromdata, todata

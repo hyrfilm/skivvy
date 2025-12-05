@@ -8,7 +8,8 @@ from skivvy.skivvy_config2 import Settings, conf_get
 from skivvy.util import dict_util, log, str_util
 from skivvy.util.dict_util import get_all, subset
 
-def create_request(testcase:Mapping[str, object]) -> tuple[dict, dict]:
+
+def create_request(testcase: Mapping[str, object]) -> tuple[dict, dict]:
     """
     Validates a test case and returns a request-dict and a testconfig-dict.
     The request-dict can be passed directly to execute while the testconfig-dict determines the behavior of the test (expected status, fields, brace expansion and so on).
@@ -19,10 +20,15 @@ def create_request(testcase:Mapping[str, object]) -> tuple[dict, dict]:
     base_url, url, method = dict_util.get_all(testcase, *required_fields)
     url = urljoin(base_url, url)
     testcase[Settings.URL.key] = url
-    log.debug(f'Creating request {method}: {url}')
+    log.debug(f"Creating request {method}: {url}")
 
     # apply for these fields, the ones not present will just be ignored
-    options = (Settings.URL, Settings.BODY, Settings.READ_HEADERS, Settings.WRITE_HEADERS)
+    options = (
+        Settings.URL,
+        Settings.BODY,
+        Settings.READ_HEADERS,
+        Settings.WRITE_HEADERS,
+    )
     fields_to_expand = [opt.key for opt in options]
 
     # in either case, we get back a dict that represents all configuration related to the request
@@ -32,10 +38,20 @@ def create_request(testcase:Mapping[str, object]) -> tuple[dict, dict]:
     if not is_valid:
         log.warning(f"Request does not seem valid: {method, url}")
 
-    request_fields = [Settings.METHOD, Settings.URL, Settings.QUERY, Settings.BODY, Settings.FORM, Settings.UPLOAD]
-    request_data = subset(request_config, [option.key for option in request_fields], include_none=False)
+    request_fields = [
+        Settings.METHOD,
+        Settings.URL,
+        Settings.QUERY,
+        Settings.BODY,
+        Settings.FORM,
+        Settings.UPLOAD,
+    ]
+    request_data = subset(
+        request_config, [option.key for option in request_fields], include_none=False
+    )
 
     return request_data, request_config
+
 
 def validate_request_body(d):
     """Validates that the body data makes sense for the HTTP method"""
@@ -52,13 +68,13 @@ def validate_request_body(d):
             body_fields = [json_data, form_data, upload]
             match body_fields:
                 case [None, None, None]:
-                    log.debug(f'No data provided for {method} {url}')
+                    log.debug(f"No data provided for {method} {url}")
                 case [json_data, None, None]:
-                    log.debug(f'{method} {url} (JSON payload)')
+                    log.debug(f"{method} {url} (JSON payload)")
                 case [None, form_data, None]:
-                    log.debug(f'{method} {url} (multi-form payload)')
+                    log.debug(f"{method} {url} (multi-form payload)")
                 case [None, None, upload]:
-                    log.debug(f'{method} {url} (file upload)')
+                    log.debug(f"{method} {url} (file upload)")
                 case _:
                     log.warning(f"Multiple body data for {method} {url}")
                     log.warning(f"json: {json_data} form: {form_data} upload: {upload}")
@@ -66,13 +82,18 @@ def validate_request_body(d):
         case "get" | "delete" | "head" | "options":
             # These methods shouldn't have body data
             if any([json_data, form_data, upload]):
-                log.warning(f"Multiple body data for {method} {url} - this may cause issues")
+                log.warning(
+                    f"Multiple body data for {method} {url} - this may cause issues"
+                )
                 return False
         case _:
             raise ValueError(f"Unsupported HTTP method: {method}")
     return True
 
-def brace_expand_fields(request_dict: Mapping[str,object], *keys: str) -> Dict[str, object]:
+
+def brace_expand_fields(
+    request_dict: Mapping[str, object], *keys: str
+) -> Dict[str, object]:
     """
     Takes a list of keys and applies brace expansion for each key it finds, others are silently ignored.
     Returns a new dict, all the other entries as well.
@@ -88,28 +109,35 @@ def brace_expand_fields(request_dict: Mapping[str,object], *keys: str) -> Dict[s
             result[k] = field
     return result
 
-def get_brace_expansion_func(config: Mapping[str,object]) -> Callable:
+
+def get_brace_expansion_func(config: Mapping[str, object]) -> Callable:
     if conf_get(config, Settings.AUTO_COERCE):
         auto_coerce_func = auto_coercer
     else:
         auto_coerce_func = auto_coercer_noop
 
     if conf_get(config, Settings.BRACE_EXPANSION):
-        brace_expand_func = partial(brace_expand_string, auto_coerce_func=auto_coerce_func)
+        brace_expand_func = partial(
+            brace_expand_string, auto_coerce_func=auto_coerce_func
+        )
     else:
         brace_expand_func = brace_expander_noop
 
     return brace_expand_func
 
+
 def auto_coercer(s):
     return str_util.coerce_str_to_int(s)
+
 
 # identity function, when auto coercion is not enabled
 def auto_coercer_noop(s):
     return s
 
+
 def brace_expander(s, **kwargs):
     return brace_expand_string(s, **kwargs)
+
 
 # identity function, when brace expansion is not enabled
 def brace_expander_noop(s, **_kwargs):
