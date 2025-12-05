@@ -8,6 +8,7 @@ from rich.logging import RichHandler
 
 _logger = logging.getLogger(__name__)
 
+
 def _create_plain_handler():
     h = logging.StreamHandler(sys.stdout)
     h.terminator = ""
@@ -23,11 +24,12 @@ def _create_rich_handler():
         show_path=False,
         markup=True,
         show_level=False,
-        rich_tracebacks=True,        
+        rich_tracebacks=True,
     )
     h.terminator = ""  # important for your layout
     h.setFormatter(logging.Formatter("%(message)s"))
     return h
+
 
 _handler = _create_rich_handler()
 _logger.setLevel(logging.INFO)
@@ -37,6 +39,7 @@ _max_col_width = 80
 
 # Per-test buffer (None if we're not in a test context)
 _current_test_buffer = None
+
 
 def _log(level, msg, new_line=True):
     if new_line and not msg.endswith("\n"):
@@ -70,7 +73,7 @@ def warning(msg, new_line=True):
     _buffer_or_log(logging.WARNING, msg, new_line)
 
 
-def error(msg_or_err: Exception|str, new_line=True):
+def error(msg_or_err: Exception | str, new_line=True):
     _buffer_or_log(logging.ERROR, msg_or_err, new_line)
 
 
@@ -125,7 +128,7 @@ def testcase_logger(testcase_name: str):
         # 2) replay buffered log entries
         if buf:
             # Optional blank line between summary and details
-            #_log(logging.INFO, "")  # prints just "\n"
+            # _log(logging.INFO, "")  # prints just "\n"
 
             for level, msg, new_line in buf:
                 # Skip debug if logger isn't in DEBUG mode

@@ -57,19 +57,23 @@ def pretty_diff(
     except Exception as _e:
         obj2 = str(actual)
 
-
     # Convert objects to pretty, stable JSON lines for diffing
     j1 = json.dumps(obj1, indent=2, sort_keys=True).splitlines(keepends=True)
     j2 = json.dumps(obj2, indent=2, sort_keys=True).splitlines(keepends=True)
 
     def _raw_diff() -> str:
         if diff_type == "unified":
-            diff_iter = difflib.unified_diff(j1, j2, fromfile=expected, tofile=actual, n=lines)
+            diff_iter = difflib.unified_diff(
+                j1, j2, fromfile=expected, tofile=actual, n=lines
+            )
         elif diff_type == "context":
-            diff_iter = difflib.context_diff(j1, j2, fromfile=expected, tofile=actual, n=lines)
+            diff_iter = difflib.context_diff(
+                j1, j2, fromfile=expected, tofile=actual, n=lines
+            )
         else:  # ndiff
             diff_iter = difflib.ndiff(j1, j2)
         return "".join(diff_iter)
+
     return _colorize_diff(_raw_diff())
 
 
@@ -77,6 +81,7 @@ def stylize(s):
     for name, value in tags.items():
         s = s.replace(value)
     return s
+
 
 def tojsonstr(o):
     return json.dumps(o, sort_keys=True, indent=2)
@@ -95,12 +100,15 @@ def matches_any(s, patterns):
             return True
     return False
 
+
 @cache
 def compile_regexp(regexp: str) -> re.Pattern[AnyStr]:
     return re.compile(regexp)
 
+
 def compile_regexps(regexps):
     return [re.compile(".*" + p) for p in regexps]
+
 
 def _default_done(results, variable_name):
     match results:
@@ -110,16 +118,20 @@ def _default_done(results, variable_name):
         # ambiguous failure: more than one source for the variable was found
         case [head, *tail]:
             tail.insert(0, head)
-            raise ValueError(f"Multiple variable declarations for {variable_name}: {list(tail)}")
+            raise ValueError(
+                f"Multiple variable declarations for {variable_name}: {list(tail)}"
+            )
         case _:
             raise ValueError(f"Missing variable definition: {variable_name}")
 
+
 def replacer(match, resolve_funcs, done_func):
     variable_name = match.group(1)
-    assert variable_name is not None # should never happen
+    assert variable_name is not None  # should never happen
     results = [func(variable_name) for func in resolve_funcs]
     results = [str(r) for r in results if r is not None]
     return done_func(results, variable_name)
+
 
 def expand_string(s, pattern, resolve_funcs, done_func=_default_done):
     replace_func = partial(replacer, resolve_funcs=resolve_funcs, done_func=done_func)

@@ -7,6 +7,7 @@ from skivvy.util import log
 
 _tmp_files = []
 
+
 def list_files(path, include_ext):
     result = []
     for root, subdirs, files in os.walk(path):
@@ -19,7 +20,7 @@ def list_files(path, include_ext):
 
 
 def parse_json(filename):
-    with codecs.open(filename, 'r', encoding='utf8') as f:
+    with codecs.open(filename, "r", encoding="utf8") as f:
         return json.load(f)
 
 
@@ -35,15 +36,18 @@ def cleanup_tmp_files(warn: bool = False, throw: bool = True) -> None:
         try:
             os.remove(filename)
         except FileNotFoundError as e:
-            if warn: log.warn(f"Missing temporary file: {filename}")
-            if throw: missing.append(e)
+            if warn:
+                log.warn(f"Missing temporary file: {filename}")
+            if throw:
+                missing.append(e)
     if missing:
         raise ExceptionGroup("Missing file(s) when cleaning up:", missing)
-        
+
 
 def read_file_contents(filename):
     with open(filename) as fp:
         return fp.read()
+
 
 # TODO: Move to something like an environment kind of file
 def set_current_file(filename):

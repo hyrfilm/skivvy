@@ -2,6 +2,7 @@ from . import matchers
 from .util import log
 from .util.str_util import tojsonstr
 
+
 # basically just looks at a string and the name of a matcher and determines if the string is invoking that matcher
 # returns true in that case, false otherwise
 def has_matcher_syntax(expected, matcher):
@@ -38,7 +39,10 @@ def verify_list(expected, actual, **match_options):
             if match_subsets:
                 verify_list_subset(expected_entry, actual, **match_options)
             else:
-                raise Exception("Didn't find:\n%s\nin:\n%s" % (tojsonstr(expected_entry), tojsonstr(actual)))
+                raise Exception(
+                    "Didn't find:\n%s\nin:\n%s"
+                    % (tojsonstr(expected_entry), tojsonstr(actual))
+                )
 
 
 def verify_list_subset(expected_entry, actual, **match_options):
@@ -55,13 +59,15 @@ def verify_list_subset(expected_entry, actual, **match_options):
                 except:
                     pass
 
-    raise Exception("Didn't find:\n%s\nin:\n%s" % (tojsonstr(expected_entry), tojsonstr(actual)))
+    raise Exception(
+        "Didn't find:\n%s\nin:\n%s" % (tojsonstr(expected_entry), tojsonstr(actual))
+    )
 
 
 def verify_matcher(expected, actual):
     for matcher in matchers.matcher_dict.keys():
         if has_matcher_syntax(expected, matcher):
-            expected = expected[len(matcher):]
+            expected = expected[len(matcher) :]
             matcher_func = matchers.matcher_dict.get(matcher)
             result, msg = matcher_func(expected, actual)
             if not result:

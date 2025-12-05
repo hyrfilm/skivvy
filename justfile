@@ -9,6 +9,10 @@ test:
 cov:
 	uv run pytest --cov=src --cov-report=term-missing
 
+# format code
+fmt:
+	uv run black src tests
+
 # Install dependencies (including dev deps)
 sync:
 	uv sync --group dev

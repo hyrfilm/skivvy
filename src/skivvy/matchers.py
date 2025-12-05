@@ -1,4 +1,5 @@
 """Built-in matchers used by skivvy"""
+
 # coding=utf-8
 import string
 import re
@@ -7,13 +8,16 @@ from math import fabs
 
 import requests
 
-from skivvy.util.scope import has,fetch, store
+from skivvy.util.scope import has, fetch, store
 from skivvy.util import file_util
 from skivvy.util import log
 
-DEFAULT_APPROXIMATE_THRESHOLD = 0.05  # default margin of error for a ~value to still be considered equal to another
+DEFAULT_APPROXIMATE_THRESHOLD = (
+    0.05  # default margin of error for a ~value to still be considered equal to another
+)
 SUCCESS_MSG = "OK"
 STORE = {}
+
 
 def strip_matcher_prefix(s):
     if s.startswith("$"):
@@ -27,7 +31,10 @@ def match_expression(expected, actual):
     if result is True:
         return True, SUCCESS_MSG
     else:
-        return False, "Expected '%s' to evaluate to True but was evaluated to False" % actual
+        return (
+            False,
+            "Expected '%s' to evaluate to True but was evaluated to False" % actual,
+        )
 
 
 def match_regexp(expected, actual):
@@ -38,9 +45,16 @@ def match_regexp(expected, actual):
             log.debug("It's a match.")
             return True, SUCCESS_MSG
         else:
-            return False, "Expected '%s' to match regular expression '%s' - but didn't" % (actual, expected)
+            return (
+                False,
+                "Expected '%s' to match regular expression '%s' - but didn't"
+                % (actual, expected),
+            )
     except re.PatternError as e:
-        return False, "Invalid regular expression pattern in testcase: %s - %s" % (expected, str(e))
+        return False, "Invalid regular expression pattern in testcase: %s - %s" % (
+            expected,
+            str(e),
+        )
     except Exception as e:
         return False, "Error when parsing: %s" % (str(e))
 
@@ -142,7 +156,10 @@ def len_greater_match(expected, actual):
     expected_value = _parse_single_number(expected.strip())
     actual_value = len(actual)
 
-    return actual_value > expected_value, "Expected %s>%s" % (actual_value, expected_value)
+    return actual_value > expected_value, "Expected %s>%s" % (
+        actual_value,
+        expected_value,
+    )
 
 
 def len_less_match(expected, actual):
@@ -154,7 +171,10 @@ def len_less_match(expected, actual):
     expected_value = _parse_single_number(expected.strip())
     actual_value = len(actual)
 
-    return actual_value < expected_value, "Expected %s<%s" % (actual_value, expected_value)
+    return actual_value < expected_value, "Expected %s<%s" % (
+        actual_value,
+        expected_value,
+    )
 
 
 def approximate_match(expected, actual):
@@ -213,15 +233,21 @@ def file_writer(expected, actual):
     file_util.write_tmp(expected, actual)
     return True, SUCCESS_MSG
 
+
 def file_reader(expected, actual):
     expected = expected.strip()
     data = file_util.read_file_contents(expected)
     data = data.strip()
     is_match = str(data) == str(actual)
-    error_msg = "Files content in %s didn't match - expected: %s but got %s" % (expected, data, actual)
+    error_msg = "Files content in %s didn't match - expected: %s but got %s" % (
+        expected,
+        data,
+        actual,
+    )
     if not is_match:
         log.warning(error_msg)
     return is_match, error_msg
+
 
 def store_var(expected, actual):
     name, value = expected.strip(), actual
@@ -229,6 +255,7 @@ def store_var(expected, actual):
         return False, f"{name} is already declared in this namespace"
     store(name, actual)
     return True, SUCCESS_MSG
+
 
 def fetch_var(expected, actual):
     name, value = expected.strip(), actual
@@ -238,6 +265,7 @@ def fetch_var(expected, actual):
     if val != actual:
         return False, f"Expected {val} but got {actual}"
     return True, SUCCESS_MSG
+
 
 def _parse_single_number(expected):
     # skip characters in the beginning which aren't digits
@@ -260,8 +288,11 @@ def negating_matcher(negating_name, matcher_func):
     def do_match(expected, actual):
         result, msg = matcher_func(expected, actual)
         if result:
-            return False, "Expected negating matcher ('$!%s %s') - to be FALSE but was TRUE for: %s" % (
-                negating_name, expected, actual)
+            return (
+                False,
+                "Expected negating matcher ('$!%s %s') - to be FALSE but was TRUE for: %s"
+                % (negating_name, expected, actual),
+            )
         else:
             return True, None
 
@@ -272,7 +303,9 @@ def add_negating_matchers():
     negating_matchers = []
     for matcher_name, matcher_func in matcher_dict.items():
         matcher_name = strip_matcher_prefix(matcher_name)
-        negating_matchers.append(("!"+matcher_name, negating_matcher(matcher_name, matcher_func)))
+        negating_matchers.append(
+            ("!" + matcher_name, negating_matcher(matcher_name, matcher_func))
+        )
 
     for name, func in negating_matchers:
         add_matcher(name, func)
