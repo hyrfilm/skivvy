@@ -1,0 +1,13 @@
+{
+  "match_subsets": true,
+  "url": "/products/search?q=phone",
+  "status": 200,
+  "response": {
+    "products": [
+      {
+        "title": "Apple AirPods Max Silver",
+        "id": "$store id"
+      }
+    ]
+  }
+}

@@ -1,7 +1,8 @@
 {
+    "comment": "Failure: exact match failure due to differing casing",
     "url": "/api/fortune/1",
     "status": 200,
     "response": {
-        "wisdom": "If it seems that fates are aginst you today, they probably are."
+        "wisdom": "if it seems that fates are aginst you today, they probably are."
     }
 }

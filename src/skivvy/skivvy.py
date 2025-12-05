@@ -69,7 +69,7 @@ def log_testcase_failed(testfile, conf):
 def log_error_context(err_context, conf):
     colorize = conf.get("colorize", True)
     e, expected, actual = err_context.get("exception"), err_context.get("expected"), err_context.get("actual")
-    #log.error(str(e))
+    log.error(str(e))
     if expected:
         log.info("--------------- DIFF BEGIN ---------------")
         diff_output = str_util.pretty_diff(tojsonstr(expected), tojsonstr(actual))

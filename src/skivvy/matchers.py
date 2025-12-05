@@ -224,14 +224,14 @@ def file_reader(expected, actual):
     return is_match, error_msg
 
 def store_var(expected, actual):
-    name, value = expected, actual
+    name, value = expected.strip(), actual
     if has(name):
         return False, f"{name} is already declared in this namespace"
     store(name, actual)
     return True, SUCCESS_MSG
 
 def fetch_var(expected, actual):
-    name, value = expected, actual
+    name, value = expected.strip(), actual
     if not has(name):
         return False, f"{name} is not declared in this namespace"
     val = fetch(name)

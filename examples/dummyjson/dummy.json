@@ -1,0 +1,6 @@
+{
+  "base_url": "https://dummyjson.com",
+  "tests": "./examples/dummyjson/tests",
+  "ext": ".json",
+  "log_level": "DEBUG"
+}

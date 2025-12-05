@@ -1,7 +1,10 @@
 {
   "base_url": "https://jsonplaceholder.typicode.com",
   "brace_expansion": true,
-  "tests": "./examples/failure",
+  "auto_coerce": true,
+  "fail_fast": false,
+  "colorize": true,
+  "tests": "./examples/typicode/tests/success",
   "ext": ".json",
   "log_level": "INFO"
 }

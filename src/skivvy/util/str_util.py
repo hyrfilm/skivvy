@@ -34,7 +34,6 @@ def pretty_diff(
     actual: str,
     diff_type: str = "ndiff",
     lines: int = 3,
-    colorize: bool = True,
 ) -> str:
     """
     Diff two JSON strings using a chosen diff type.
@@ -44,38 +43,34 @@ def pretty_diff(
         actual (str): Second JSON string
         diff_type (str): "unified", "context", or "ndiff"
         lines (int): Number of context lines for unified/context
-        colorize (bool): When True, wrap diff lines in simple color markup.
 
     Returns:
         str: The diff as a string.
     """
-
-    if diff_type not in {"unified", "context", "ndiff"}:
-        raise ValueError("diff_type must be one of: unified, context, ndiff")
-
     try:
         obj1 = json.loads(expected)
-    except Exception:
+    except Exception as _e:
         obj1 = str(expected)
 
     try:
         obj2 = json.loads(actual)
-    except Exception:
+    except Exception as _e:
         obj2 = str(actual)
+
 
     # Convert objects to pretty, stable JSON lines for diffing
     j1 = json.dumps(obj1, indent=2, sort_keys=True).splitlines(keepends=True)
     j2 = json.dumps(obj2, indent=2, sort_keys=True).splitlines(keepends=True)
 
-    if diff_type == "unified":
-        diff_iter = difflib.unified_diff(j1, j2, fromfile="expected", tofile="actual", n=lines)
-    elif diff_type == "context":
-        diff_iter = difflib.context_diff(j1, j2, fromfile="expected", tofile="actual", n=lines)
-    else:  # ndiff
-        diff_iter = difflib.ndiff(j1, j2)
-
-    diff_text = "".join(diff_iter)
-    return _colorize_diff(diff_text) if colorize else diff_text
+    def _raw_diff() -> str:
+        if diff_type == "unified":
+            diff_iter = difflib.unified_diff(j1, j2, fromfile=expected, tofile=actual, n=lines)
+        elif diff_type == "context":
+            diff_iter = difflib.context_diff(j1, j2, fromfile=expected, tofile=actual, n=lines)
+        else:  # ndiff
+            diff_iter = difflib.ndiff(j1, j2)
+        return "".join(diff_iter)
+    return _colorize_diff(_raw_diff())
 
 
 def stylize(s):
@@ -123,7 +118,7 @@ def replacer(match, resolve_funcs, done_func):
     variable_name = match.group(1)
     assert variable_name is not None # should never happen
     results = [func(variable_name) for func in resolve_funcs]
-    results = [r for r in results if r is not None]
+    results = [str(r) for r in results if r is not None]
     return done_func(results, variable_name)
 
 def expand_string(s, pattern, resolve_funcs, done_func=_default_done):

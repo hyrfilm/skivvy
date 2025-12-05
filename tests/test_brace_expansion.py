@@ -66,4 +66,19 @@ def test_brace_expansion_with_variables():
     expected = '{"a":"dude@example.com","b":"666"}'
     assert test_util.json_transform_str({ "a": "<email>", "b": "<session>" }, brace_expand_string) == expected
 
+    expected = "https:examples.com/search?range=123-456"
+    scope.store("min", 123)
+    scope.store("max", 456)
+    assert brace_expand_string("https:examples.com/search?range=<min>-<max>") == expected
 
+
+def test_brace_expansion_with_auto_coerce():
+    scope.store("int_value", "42")
+    scope.store("str_value", "hello")
+
+    assert brace_expand_string("<int_value>", auto_coerce_func=auto_coercer) == 42
+    assert brace_expand_string("<str_value>", auto_coerce_func=auto_coercer) == "hello"
+    assert brace_expand_string("Value is <int_value>", auto_coerce_func=auto_coercer) == "Value is 42"
+    assert brace_expand_string("Value is <str_value>", auto_coerce_func=auto_coercer) == "Value is hello"
+
+    assert brace_expand_string("<non_existent>", auto_coerce_func=auto_coercer) == "<non_existent>"

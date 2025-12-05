@@ -1,5 +1,6 @@
 {
-  "url": "/products/<id>",
+  "brace_expansion": true,
+  "url": "/products/101",
   "response": {
     "id": 101,
     "title": "Apple AirPods Max Silver",

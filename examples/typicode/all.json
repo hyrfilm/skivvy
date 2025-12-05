@@ -1,7 +1,7 @@
 {
   "base_url": "https://jsonplaceholder.typicode.com",
   "brace_expansion": true,
-  "tests": "./examples/success",
+  "tests": "./examples/typicode/tests",
   "ext": ".json",
   "log_level": "INFO"
 }
