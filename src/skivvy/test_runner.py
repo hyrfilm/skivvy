@@ -8,7 +8,7 @@ from skivvy.skivvy_config2 import Settings, conf_get
 from skivvy.util import dict_util, log, str_util
 from skivvy.util.dict_util import get_all, subset
 
-def create_request(testcase:Dict[str, object]) -> tuple[dict, dict]:
+def create_request(testcase:Mapping[str, object]) -> tuple[dict, dict]:
     """
     Validates a test case and returns a request-dict and a testconfig-dict.
     The request-dict can be passed directly to execute while the testconfig-dict determines the behavior of the test (expected status, fields, brace expansion and so on).

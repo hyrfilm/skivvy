@@ -440,7 +440,7 @@ wheels = [
 
 [[package]]
 name = "skivvy"
-version = "0.61"
+version = "0.630"
 source = { editable = "." }
 dependencies = [
     { name = "docopt-ng" },

@@ -17,15 +17,12 @@ Options:
     -t              keep temporary files (if any)
 """
 import json
-from functools import partial
 import traceback
-from urllib.parse import urljoin
 
 from docopt import docopt
 
 from skivvy import __version__
 from skivvy.skivvy_config2 import create_testcase, conf_get, Settings, get_all_settings
-from .util import icdiff2
 from . import custom_matchers, test_runner
 from . import matchers
 from .skivvy_config import read_config
@@ -56,11 +53,6 @@ def override_default_headers(default_headers, more_headers):
     return d
 
 
-def deprecation_warnings(testcase):
-    if "url_brace_expansion" in testcase:
-        log.warning("'url_brace_expansion' has been deprecated: use 'brace_expansion' instead.")
-
-
 def log_testcase_failed(testfile, conf):
     failure_msg = "\n\n[red]%s\t%s[/red]\n\n" % (testfile, STATUS_FAILED)
     log.error(failure_msg)
@@ -84,78 +76,6 @@ def log_error_context(err_context, conf):
         log.debug("!!! actual:\n%s" % tojsonstr(actual))
         log.debug("\n" * 5)
 
-
-# def run_test(filename, conf):
-#     file_util.set_current_file(filename)
-#     testcase = configure_testcase(file_util.parse_json(filename), conf.as_dict())
-#     configure_logging(testcase)
-#
-#     # TODO: should be in a config somewhere
-#     base_url = testcase.get("base_url", "")
-#     url = testcase.get("url")
-#     brace_expansion = testcase.get("url_brace_expansion", False) or testcase.get("brace_expansion", False)
-#     auto_coerce = testcase.get("auto_coerce", True)
-#     url = urljoin(base_url, url)
-#     method = testcase.get("method", "get").lower()
-#     expected_status = testcase.get("status", 200)
-#     expected_response = testcase.get("response", {})
-#     data = testcase.get("body", None)
-#     upload = testcase.get("upload")
-#     json_encode_body = testcase.get("json_body", True)
-#     content_type = testcase.get("content_type", "application/json")
-#     headers = testcase.get("headers", {
-#         "Content-Type": content_type,
-#         "Accept": "application/json"
-#     })
-#     headers_to_write = testcase.get("write_headers", {})
-#     headers_to_read = testcase.get("read_headers", {})
-#     match_subsets = testcase.get("match_subsets", False)
-#     match_falsiness = testcase.get("match_falsiness", True)
-#
-#     match_options = {"match_subsets": match_subsets, "match_falsiness": match_falsiness}
-#
-#     deprecation_warnings(testcase)
-#
-#     if headers_to_read:
-#         headers = override_default_headers(headers, json.load(open(headers_to_read, "r")))
-#
-#     if data:
-#         headers = override_default_headers(headers, {"Content-Type": content_type})
-#
-#     if brace_expansion:
-#         brace_expander = partial(matchers.brace_expand, auto_coerce=auto_coerce)
-#     else:
-#         brace_expander = matchers.brace_expand_noop
-#
-#     # we expand potential braces in the url... (eg example.com/<replace_me>/)
-#     url = brace_expander(url)
-#     # ... and each value in the dict
-#     data = dict_util.map_nested_dicts_py(data, brace_expander)
-#     # ... and also in the headers
-#     headers = dict_util.map_nested_dicts_py(headers, brace_expander)
-#
-#     if json_encode_body:
-#         file = None
-#         body = json.dumps(data)
-#     else:
-#         file = handle_upload_file(upload)
-#         body = None
-#
-#     r = http_util.do_request(url, method, body, file, headers)
-#     status, json_response, headers_response = r.status_code, http_util.as_json(r), r.headers
-#
-#     if headers_to_write:
-#         dump_response_headers(headers_to_write, r)
-#
-#     try:
-#         verify(expected_status, status, **match_options)
-#         verify(expected_response, json_response, **match_options)
-#     except Exception as e:
-#         error_context = {"expected": expected_response, "actual": json_response, "exception": e}
-#         status = STATUS_FAILED
-#         return status, error_context
-#
-#     return " OK", None  # Yay! it passed.... nothing more to say than that
 
 def run_test(filename, env_conf):
     file_util.set_current_file(filename)
