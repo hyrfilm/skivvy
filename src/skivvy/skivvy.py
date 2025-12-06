@@ -1,11 +1,11 @@
 """skivvy
 
 Usage:
-    skivvy <cfg_file>
-    skivvy <cfg_file> [-t]
-    skivvy <cfg_file> [-t] -i path.*file...
-    skivvy <cfg_file> [-t] -e path.*file...
-    skivvy <cfg_file> [-t] -i path.*file... -e path.*file...
+    skivvy <cfg_file> [--repl]
+    skivvy <cfg_file> [--repl] [-t]
+    skivvy <cfg_file> [--repl] [-t] -i path.*file...
+    skivvy <cfg_file> [--repl] [-t] -e path.*file...
+    skivvy <cfg_file> [--repl] [-t] -i path.*file... -e path.*file...
 
     skivvy examples/example.json (run examples)
 
@@ -15,9 +15,11 @@ Options:
     -i=regexp       include only files matching provided regexp(s) [default: .*]
     -e=regexp       exclude files matching provided regexp(s)
     -t              keep temporary files (if any)
+    -r --repl       drop into a REPL when a test raises an exception
 """
 
 import json
+import sys
 import traceback
 
 from docopt import docopt
@@ -67,7 +69,8 @@ def log_error_context(err_context, conf):
         err_context.get("expected"),
         err_context.get("actual"),
     )
-    log.error(str(e))
+    tb = err_context.get("traceback")
+    log.error(tb or str(e))
     if expected:
         log.info("--------------- DIFF BEGIN ---------------")
         diff_output = str_util.pretty_diff(tojsonstr(expected), tojsonstr(actual))
@@ -83,12 +86,17 @@ def log_error_context(err_context, conf):
         log.debug("\n" * 5)
 
 
-def run_test(filename, env_conf):
+def run_test(filename, env_conf, testcase_override=None):
     file_util.set_current_file(filename)
     error_context = {}
 
+    testcase = None
+    request = None
+    testcase_config = None
+    http_envelope = None
+
     try:
-        testcase = create_testcase(filename, env_conf)
+        testcase = testcase_override or create_testcase(filename, env_conf)
         request, testcase_config = test_runner.create_request(testcase)
         expected_status = testcase_config.get("status")
         expected_response = testcase_config.get("response")
@@ -112,7 +120,15 @@ def run_test(filename, env_conf):
         if "response" in testcase_config:
             verify(testcase_config["response"], actual_response, **testcase_config)
     except Exception as e:
-        error_context["exception"] = traceback.format_exc()
+        error_context["exception"] = str(e)
+        error_context["exception_obj"] = e
+        error_context["traceback"] = traceback.format_exc()
+        error_context["locals"] = {
+            "testcase": testcase,
+            "request": request,
+            "testcase_config": testcase_config,
+            "http_envelope": http_envelope,
+        }
         return STATUS_FAILED, error_context
 
     return STATUS_OK, None
@@ -134,6 +150,61 @@ def dump_response_headers(headers_to_write, r):
         file_util.write_tmp(filename, json.dumps(headers))
 
 
+def make_rerun(testfile, env_conf, err_context):
+    """
+    Returns a helper for the REPL to re-run the current test, optionally with a modified testcase dict.
+    """
+
+    def rerun(testcase_override=None):
+        """
+        Re-run the failing test.
+
+        Pass a dict (typically a mutated `testcase`) to override the test definition, otherwise
+        the test will be reloaded from disk.
+        """
+        return run_test(testfile, env_conf, testcase_override=testcase_override)
+
+    return rerun
+
+
+def maybe_enter_repl(err_context, enabled):
+    """
+    Enter an interactive shell after a failure so the user can inspect the state.
+    Uses ptpython if available, otherwise falls back to the built-in code.interact.
+    """
+    if not enabled:
+        return
+    if not sys.stdin.isatty():
+        log.info("REPL requested but stdin is not a TTY; skipping.")
+        return
+
+    repl_locals = dict(err_context.get("locals") or {})
+    repl_locals.update(
+        {
+            "expected": err_context.get("expected"),
+            "actual": err_context.get("actual"),
+            "exception": err_context.get("exception_obj")
+            or err_context.get("exception"),
+            "traceback": err_context.get("traceback"),
+        }
+    )
+    banner = (
+        "Skivvy failure REPL. Helpful locals: "
+        + ", ".join(sorted([k for k in repl_locals.keys() if k]))
+    )
+
+    try:
+        from ptpython.repl import embed
+
+        log.info("Launching ptpython REPL (exit with Ctrl-D or exit()).")
+        embed(locals=repl_locals)
+    except Exception:
+        import code
+
+        log.info("ptpython unavailable, falling back to built-in REPL.")
+        code.interact(banner=banner, local=repl_locals)
+
+
 def run():
     arguments = docopt(__doc__, version=f"skivvy {version}")
     cfg_file = arguments.get("<cfg_file>")
@@ -144,6 +215,7 @@ def run():
     custom_matchers.load(conf)
     matchers.add_negating_matchers()
     fail_fast = conf.get("fail_fast", False)
+    repl_on_error = arguments.get("--repl")
 
     failures = 0
     num_tests = 0
@@ -176,6 +248,10 @@ def run():
                 test.ok = False
                 log_testcase_failed(testfile, conf)
                 log_error_context(err_context, conf)
+                err_locals = err_context.setdefault("locals", {})
+                err_locals.update({"testfile": testfile, "env_conf": conf})
+                err_locals["rerun"] = make_rerun(testfile, conf, err_context)
+                maybe_enter_repl(err_context, repl_on_error)
                 failures += 1
                 if fail_fast and failures > 0:
                     log.info('[red]Halting test run![/red]("fail_fast" is set to true)')
