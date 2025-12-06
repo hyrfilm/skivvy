@@ -1,7 +1,9 @@
 import json
 
+
 def identity(x):
     return x
+
 
 def json_transform_str(data, transform=identity, sort_keys=True):
     """

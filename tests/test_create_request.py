@@ -1,6 +1,7 @@
 from skivvy.test_runner import create_request
 from skivvy.util.scope import store
 
+
 def test_create_request_with_brace_expansion():
     # Set up some variables in our current scope
     store("user_id", "12345")
@@ -16,7 +17,7 @@ def test_create_request_with_brace_expansion():
         "method": "GET",
         "brace_expansion": True,
         "auto_coerce": True,
-        "write_headers": {"Authorization": "Bearer <api_key>"}
+        "write_headers": {"Authorization": "Bearer <api_key>"},
     }
 
     request_dict, complete_dict = create_request(test_config)
@@ -29,6 +30,7 @@ def test_create_request_with_brace_expansion():
     assert complete_dict["url"] == "https://api.example.com/users/12345"
     assert complete_dict["write_headers"]["Authorization"] == "Bearer s3cr3t"
 
+
 def test_brace_expansion_with_files_and_variables():
     # Set up some variables in our current scope
     store("number", "23")
@@ -38,10 +40,10 @@ def test_brace_expansion_with_files_and_variables():
     test_config = {
         "base_url": "https://api.example.com",
         "url": "<tests/fixtures/user_id.txt>/hail-satan",
-        "body": {"lucky": "<number>" },
+        "body": {"lucky": "<number>"},
         "method": "POST",
         "brace_expansion": True,
-        "auto_coercion": True
+        "auto_coercion": True,
     }
 
     request_dict, complete_dict = create_request(test_config)
@@ -49,7 +51,7 @@ def test_brace_expansion_with_files_and_variables():
     assert request_dict == {
         "method": "POST",
         "url": "https://api.example.com/666/hail-satan",
-        "body": {"lucky": 23 },
+        "body": {"lucky": 23},
     }
 
     assert complete_dict == {
@@ -57,6 +59,6 @@ def test_brace_expansion_with_files_and_variables():
         "url": "https://api.example.com/666/hail-satan",
         "method": "POST",
         "auto_coercion": True,
-        "body": {"lucky": 23 },
-        "brace_expansion": True
+        "body": {"lucky": 23},
+        "brace_expansion": True,
     }

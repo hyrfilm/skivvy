@@ -34,5 +34,5 @@ def test_storing():
     assert "dude" == scope.fetch("var2")
     assert "zup" == scope.fetch("var3")
 
-    assert scope.dump("dir1") == { "var1":  "123", "var2": "456" }
-    assert scope.dump("dir2") == { "var1":  "yo", "var2": "dude", "var3": "zup" }
+    assert scope.dump("dir1") == {"var1": "123", "var2": "456"}
+    assert scope.dump("dir2") == {"var1": "yo", "var2": "dude", "var3": "zup"}

@@ -7,6 +7,7 @@ class DummySession:
     """
     Poor man's requests-like session that echoes back the request details.
     """
+
     def get(self, **kwargs):
         return {
             "url": kwargs.get("url"),
@@ -35,6 +36,7 @@ def dummy_session():
     yield session
     # teardown
     initialize_session(None)
+
 
 def test_get_echoes_inputs(dummy_session):
     payload = {
@@ -73,6 +75,7 @@ def test_post_with_json_echoes_inputs(dummy_session):
         "params": None,
     }
 
+
 def test_post_with_form_and_params_echoes_inputs(dummy_session):
     payload = {
         "url": "https://example.com/login",
@@ -91,22 +94,27 @@ def test_post_with_form_and_params_echoes_inputs(dummy_session):
         "params": {"redirect": "/home"},
     }
 
+
 def test_mapping_skivvy_fields_to_requests_api():
     # these are the names of the fields skivvy uses:
     method, requests_api_fields = prepare_request_data(
-        {"method": "POST",
-         "url": "example.com",
-         "query": {"page": 123},
-         "upload": "some-binary-data",
-         "body": {"some": "hip JSON data"},
-         "form": {"olden": "quaint internet days"}
-         })
+        {
+            "method": "POST",
+            "url": "example.com",
+            "query": {"page": 123},
+            "upload": "some-binary-data",
+            "body": {"some": "hip JSON data"},
+            "form": {"olden": "quaint internet days"},
+        }
+    )
 
     # re-mapped to what requests expects:
-    expected_data = {'data': {'olden': 'quaint internet days'},
-                     'files': 'some-binary-data',
-                     'json': {'some': 'hip JSON data'},
-                     'params': {'page': 123},
-                     'url': 'example.com'}
+    expected_data = {
+        "data": {"olden": "quaint internet days"},
+        "files": "some-binary-data",
+        "json": {"some": "hip JSON data"},
+        "params": {"page": 123},
+        "url": "example.com",
+    }
     assert method == "post"
     assert requests_api_fields == expected_data
