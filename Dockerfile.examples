@@ -2,5 +2,4 @@ FROM astral/uv:python3.10-bookworm-slim
 WORKDIR /app
 RUN uv tool install skivvy
 COPY ./examples/ ./examples/
-ENTRYPOINT ["uv", "tool", "run", "skivvy"]
-CMD ["run", "examples/default.json"]
+CMD ["skivvy", "--version", "/bin", "bash"]

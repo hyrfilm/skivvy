@@ -42,7 +42,7 @@ jobs:
 
       - name: Commit updated tarball (if changed)
         run: |
-          if git diff --quiet -- examples.tar.gz; then
+          if ! git status --short examples.tar.gz | grep -qE '^\\?\\?|^ M '; then
             echo "No changes in examples.tar.gz"
             exit 0
           fi
@@ -51,3 +51,4 @@ jobs:
           git add examples.tar.gz
           git commit -m "chore: update packaged examples"
           git push
+

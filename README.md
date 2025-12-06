@@ -1,11 +1,11 @@
-# Skivvy — JSON-native, CLI-first integration tests for HTTP APIs
+# skivvy — JSON-native, CLI for integration tests for HTTP APIs
 
 Skivvy is a tiny, Unix-style runner for API tests where the tests themselves are **JSON**.
 
 ### What makes skivvy similar to postman / bruno / curl / jq / etc
 
 - Support for all https-verbs, http-headers, cookies handled the way you expect them to, data from responses can be passed into other requests, easy to deal with things such as OAuth etc
-- Rich support for verifying / asserting repsonses
+- Rich support for verifying / asserting responses
 - Good diffs when tests fail
 - Setup / Teardown functionality
 - Arbitary amount environment configs (eg local / staging / etc)
@@ -26,21 +26,58 @@ after you should probably stick to some other tool.
 
 At [my current company](https://www.mindmore.com/) we use it for **all backend API tests** - as far as I know there's never been a false positive (hello cypress).
 
+## try it out
+
+If you use uv, pipx, nix or docker, you don't need to install it to use it. 
+The following bash one-liners downloads the examples to `/tmp` and runs a subset of the test suite:
+### uv
+```bash
+pushd /tmp && curl -L https://raw.githubusercontent.com/hyrfilm/skivvy/refs/heads/master/examples.tar.gz | tar -xz -C . && \
+uvx skivvy examples/typicode/default.json && popd
+```
+Those tests should all pass successfully, but you tend to care more about the circumstances when a test *does not pass*,
+the following line does just that:
+
+```bash
+pushd /tmp && curl -L https://raw.githubusercontent.com/hyrfilm/skivvy/refs/heads/master/examples.tar.gz | tar -xz -C . && \
+uvx skivvy examples/typicode/failing.json && popd
+```
+### pipx
+This line runs both of the succeeding and failing suites above:
+```
+pushd /tmp && curl -L https://raw.githubusercontent.com/hyrfilm/skivvy/refs/heads/master/examples.tar.gz | tar -xz -C . && pipx run skivvy examples/typicode/all.json && popd
+```
+### Docker
+There are two docker images. One is meant to be used as playground, running and editing the examples, creating additional tests
+as a way to evaluate it and whether it would fit you:
+```
+docker run --rm -it hyrfilm/skivvy:examples
+```
+Running this container will simply just print out its version and then you're in a shell, where the examples are located.
+If you intend to run it in a CI/CD using docker the recommended way is to use the the other version with bind mounts:
+
+### running skivvy through docker (using bind mounts)
+Assuming the current directory would contain your tests and that the root of that directory would contain a
+configuration file `cfg.json` you could bind mount that directory and run skivvy like so:
+```sh
+docker run --rm --mount type=bind,source="$(pwd)",target="/app" hyrfilm/skivvy cfg.json
+```
+
+
 ## Why Skivvy (vs GUI suites)
 GUI tools (Postman/Bruno) are good for exploration, but heavier and brittle when used in an actual CI/CD envirionment for testing your entire API. But what's worse is they push you toward bad habits such as overerly complicated imperative JS hooks and snapshot-style assertions. This is just unnecessary and encourages writing bad, brittle tessts. Having JS code does also introduce its own set of issues like learning an some unwieldy API using an unwieldy languange like JS (this is not meant as a flame-bait ;) I happpen to write JS-code for a living but that doesn't have to mean that I think it's a good languange for all tasks). 
 Skivvy tests are plain json files you keep in git.
 
 ## Quick look
 
-Status only:
+Assert what you care about, whether it be only the status code:
 ```json
-{ "url": "https://api.example.com/ping", "status": 200 }
+{ "url": "/api/items", "status": 200 }
 ```
-
-Assert what you care about:
+Or whether you get back some thing particular thing among others:
 ```json
 {
-  "url": "https://api.example.com/items",
+  "url": "/api/items",
   "response": {
     "results": [{ "name": "Widget42" }]
   }
@@ -50,30 +87,31 @@ Assert what you care about:
 Or maybe you just care about:
 ```json
 {
-  "url": "https://api.example.com/items",
+  "url": "/api/items?limit=200",
   "response": {
-    "results": ""results": "$len 200""
+    "results": "$len 200"
   }
 }
 ```
 
-
-Pass state between steps (files + brace expansion):
+Pass state between steps (via variables or persisted as files):
 ```json
 {
-  "_comment": "Login and store dashboard path",
+  "_comment": "Login and retrieve user settings",
   "url": "/login",
   "method": "post",
   "response": {
-    "status": 200,
-    "dashboard": "$write_file dashboard.txt",
+    "region": "$store region",
+    "language": "$store language",
+    "dashboard": "$store dashboard-id",
     "profile": { "pic": "$valid_url" }
   }
 }
 ```
 ```json
-{ "url": "/home/<dashboard.txt>", "status": 200 }
+{ "url": "/home/<region>/<dashboard-id>?i18n=<language>", "status": 200 }
 ```
+This brace expansion aspect works consistently whether it involves checking verifying whether a field or a part of field has some value, or whether a it's something that it's something matched or returned as part of the response body from one test that should be passed passed in as some header value for another test.
 
 Match a **subset** anywhere under a node:
 ```json
@@ -222,41 +260,9 @@ Keep rockin' in the free world
 # skivvy
 A simple tool for testing JSON/HTTP APIs
 
-Skivvy was developed in order to faciliate automated testing of web-APIs. If you've written an API that consumes or
+Skivvy was developed in order to facilitate automated testing of web-APIs. If you've written an API that consumes or
 produces JSON, skivvy makes it easy to create test-suites for these APIs.
 You can think of skivvy as a more simple-minded cousin of cURL - it can't do many of the things cURL can - but the few things it can do it does well.
-
-## try it out
-#### running it through docker
-This is the simplest and the recommended way to run it
-```sh
-docker run --rm hyrfilm/skivvy skivvy run --version
-```
-See below for a more useful example on how to run it using bind mounts.
-
-#### installing it manually
-* install through PIP
-```sh
-pip install skivvy
-```
-* download some examples
-```sh
-mkdir skivvy_examples
-cd skivvy_examples
-curl -OL https://github.com/hyrfilm/skivvy/raw/master/skivvy_examples.zip
-tar xf skivvy_examples.zip
-```
-* run:
-```sh
-skivvy run cfg/example.json
-```
-
-#### running skivvy through docker (using bind mounts)
-Assuming the current directory would contain your tests and that the root of that directory would contain a
-configuration file `cfg.json` you could bind mount that directory and run skivvy like so:
-```sh
-docker run --rm --mount type=bind,source="$(pwd)",target="/app" hyrfilm/skivvy skivvy run cfg.json
-```
 
 ## what you can do with it
 
@@ -315,10 +321,6 @@ Other things supported:
 * ... and more! ;)
 
 ## Documentation
-**NOTE:** The easiest way to gain understanding of ways to use skivvy is to simply download the examples and _then_ look at the documentation.
-
-All examples as zip: https://github.com/hyrfilm/skivvy/raw/master/skivvy_examples.zip
-Or if you prefer to view them on github directly: https://github.com/hyrfilm/skivvy/tree/master/skivvy/examples
 
 ### CLI flags
 As common for most testing frameworks, you can pass a number of flags to filter what files get included in the suite
