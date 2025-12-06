@@ -11,10 +11,12 @@ def test_subset():
     result = subset(d, ["a", "x", "d"], include_none=False)
     assert result == {"a": 1}
 
+
 def test_remap_keys():
     remap = {"a": "x", "b": "y", "c": "z"}
-    d = { "a": 1, "b": 2, "c": 3, "w": 4 }
+    d = {"a": 1, "b": 2, "c": 3, "w": 4}
     assert remap_keys(d, remap) == {"x": 1, "y": 2, "z": 3, "w": 4}
+
 
 def test_map_nested_dicts_py_numbers():
     d = {
