@@ -28,7 +28,8 @@ At [my current company](https://www.mindmore.com/) we use it for **all backend A
 
 ## try it out
 
-If you use uv, pipx, nix or docker, you don't need to install it to use it. 
+
+If you use **uv**, **pipx**, **nix** or **docker**, you don't need to install skivvy. 
 The following bash one-liners downloads the examples to `/tmp` and runs a subset of the test suite:
 ### uv
 ```bash
@@ -47,7 +48,7 @@ This line runs both of the succeeding and failing suites above:
 ```
 pushd /tmp && curl -L https://raw.githubusercontent.com/hyrfilm/skivvy/refs/heads/master/examples.tar.gz | tar -xz -C . && pipx run skivvy examples/typicode/all.json && popd
 ```
-### Docker
+### docker
 There are two docker images. One is meant to be used as playground, running and editing the examples, creating additional tests
 as a way to evaluate it and whether it would fit you:
 ```
@@ -55,6 +56,15 @@ docker run --rm -it hyrfilm/skivvy:examples
 ```
 Running this container will simply just print out its version and then you're in a shell, where the examples are located.
 If you intend to run it in a CI/CD using docker the recommended way is to use the the other version with bind mounts:
+
+### pip & virtualenv
+Installing it into a new virtualenv directory `skivvy` using **pip** and **virtualenv**:
+```bash
+python -m venv skivvy && source skivvy/bin/activate && pip install skivvy
+skivvy --version
+```
+This should print out the version installed.
+You can of course install it via **pipx** or **uv**. If you're running it in a throwaway (eg. like in a CI/CD container) installing globally works fine as well.
 
 ### running skivvy through docker (using bind mounts)
 Assuming the current directory would contain your tests and that the root of that directory would contain a
