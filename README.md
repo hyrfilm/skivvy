@@ -191,6 +191,7 @@ Or specifying all currently supported settings:
   "colorize": true,
   "fail_fast": false,
   "brace_expansion": true,
+  "validate_variable_names": true,
   "auto_coerce": true,
   "matchers": "./matchers"
 ```
@@ -204,6 +205,7 @@ Or specifying all currently supported settings:
 - `match_subsets` (true by default, allows you to check fields or parts of objects, occurring somewhere in the response)
 - `match_falsiness` (true by default)
 - `brace_expansion`, (true by default, makes )
+- `validate_variable_names` (true by default) - enforces variable names starting with a letter and using only `[a-z0-9_-.,/\\]`; set to false to relax (not recommended)
 - `auto_coerce` - will make an educated guess what "field": "<variable>" should be interpreted as. If it can be parsed as a boolean (eg "true"/"false" then: "field": true, "42" would result in "field": 42 and so on). If it can't be coerced into any other JSON primitive than a string then it will simply be left as a string eg, if variable is "42 years old" then: "field": "42 years old".
 - `_comment` or `comment` or `note` or `whatever` (unrecognized top-level entries are simply ignored)
 

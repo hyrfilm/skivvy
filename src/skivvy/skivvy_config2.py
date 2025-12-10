@@ -19,6 +19,11 @@ class Settings:
     BRACE_EXPANSION = Option(
         "brace_expansion", False, "Enable brace expansion (see README.md)"
     )
+    VALIDATE_VARIABLE_NAMES = Option(
+        "validate_variable_names",
+        True,
+        "Require variables to have typical syntax (start with letter, contain only alphanumerics and _-.,/\\ characters)",
+    )
     AUTO_COERCE = Option(
         "auto_coerce",
         True,

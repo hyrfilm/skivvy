@@ -1,3 +1,5 @@
+from skivvy.skivvy_config2 import Settings
+from skivvy.util import scope
 from . import matchers
 from .util import log
 from .util.str_util import tojsonstr
@@ -77,6 +79,10 @@ def verify_matcher(expected, actual):
 
 
 def verify(expected, actual, **match_options):
+    validate_variable_names = match_options.get(
+        Settings.VALIDATE_VARIABLE_NAMES.key, True
+    )
+    scope.set_validate_variable_names(validate_variable_names)
     if is_matcher(expected):
         verify_matcher(expected, actual)
     elif type(expected) != type(actual):
