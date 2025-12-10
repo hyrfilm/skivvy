@@ -1,10 +1,10 @@
-name: CI Workflow
+name: Build Docker Images
+
 on:
   push:
     branches: [master]
-
-  pull_request:
-    types: [opened, reopened]
+  release:
+    types: [published]
 
 jobs:
   build-examples:
@@ -17,11 +17,11 @@ jobs:
 
   build-main:
     uses: ./.github/workflows/docker-build.yml
+    secrets: inherit
     with:
       dockerfile: Dockerfile
-      primary_tag: dev
-      also_latest: false
-    secrets: inherit
+      primary_tag: ${{ needs.determine-tags.outputs.primary_tag }}
+      also_latest: ${{ needs.determine-tags.outputs.also_latest == 'true' }}
 
   package-examples:
     if: github.event_name == 'push' && github.actor != 'github-actions[bot]'
@@ -51,4 +51,3 @@ jobs:
           git add examples.tar.gz
           git commit -m "chore: update packaged examples"
           git push
-
