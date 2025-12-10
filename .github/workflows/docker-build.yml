@@ -82,5 +82,3 @@ jobs:
           tags: |
             ${{ github.repository }}${{ inputs.repoSuffix }}:${{ inputs.primary_tag }}
             ${{ github.repository }}${{ inputs.repoSuffix }}:latest
-
-      - name: 
