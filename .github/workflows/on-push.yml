@@ -1,72 +1,41 @@
-name: CI Workflow
+name: Build Docker Images
+
 on:
   push:
     branches: [master]
-
-  pull_request:
-    types: [opened, reopened]
+  release:
+    types: [published]
 
 jobs:
-  get-version:
+  determine-tags:
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.get_version.outputs.version }}
+      primary_tag: ${{ steps.set.outputs.primary_tag }}
+      also_latest: ${{ steps.set.outputs.also_latest }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Read version from pyproject.toml
-        id: get_version
+      - name: Decide tags
+        id: set
         run: |
-          version=$(grep -E '^version *= *"' pyproject.toml | head -n1 | cut -d '"' -f2)
-          if [ -z "$version" ]; then
-            echo "Could not determine version from pyproject.toml"
-            exit 1
+          if [ "${GITHUB_EVENT_NAME}" = "release" ]; then
+            tag="${GITHUB_REF_NAME#v}"
+            echo "primary_tag=$tag" >> "$GITHUB_OUTPUT"
+            echo "also_latest=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "primary_tag=latest" >> "$GITHUB_OUTPUT"
+            echo "also_latest=false" >> "$GITHUB_OUTPUT"
           fi
-          echo "version=$version" >> "$GITHUB_OUTPUT"
 
-  build-image:
-    needs: get-version
-    uses: ./.github/workflows/docker-build.yml
-    with:
-      dockerfile: Dockerfile
-      primary_tag: ${{ needs.get-version.outputs.version }}
-      also_latest: true
-    secrets: inherit
-
-  run-examples:
-    runs-on: ubuntu-latest
-    needs: [build-image, get-version]
+  build-main-image:
+    needs: determine-tags
     permissions:
       contents: read
-      packages: read
-    env:
-      SKIVVY_IMAGE: ghcr.io/${{ github.repository }}:${{ needs.get-version.outputs.version }}
-    steps:
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Pull built image
-        run: docker pull "$SKIVVY_IMAGE"
-
-      - name: Run passing examples suite
-        run: docker run --rm "$SKIVVY_IMAGE" skivvy examples/typicode/passing.json
-
-      - name: Run failing examples suite (expected failure)
-        run: |
-          set +e
-          docker run --rm "$SKIVVY_IMAGE" skivvy examples/typicode/failing.json
-          status=$?
-          if [ "$status" -eq 0 ]; then
-            echo "Expected failing suite to fail but it passed."
-            exit 1
-          fi
-          echo "Failing suite failed as expected."
+      packages: write
+    uses: ./.github/workflows/docker-build.yml
+    secrets: inherit
+    with:
+      dockerfile: Dockerfile
+      primary_tag: ${{ needs.determine-tags.outputs.primary_tag }}
+      also_latest: ${{ needs.determine-tags.outputs.also_latest == 'true' }}
 
   package-examples:
     if: github.event_name == 'push' && github.actor != 'github-actions[bot]'
@@ -87,7 +56,7 @@ jobs:
 
       - name: Commit updated tarball (if changed)
         run: |
-          if git diff --quiet -- examples.tar.gz; then
+          if ! git status --short examples.tar.gz | grep -qE '^\\?\\?|^ M '; then
             echo "No changes in examples.tar.gz"
             exit 0
           fi
