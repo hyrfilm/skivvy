@@ -7,29 +7,15 @@ on:
     types: [published]
 
 jobs:
-  determine-tags:
-    runs-on: ubuntu-latest
-    outputs:
-      primary_tag: ${{ steps.set.outputs.primary_tag }}
-      also_latest: ${{ steps.set.outputs.also_latest }}
-    steps:
-      - name: Decide tags
-        id: set
-        run: |
-          if [ "${GITHUB_EVENT_NAME}" = "release" ]; then
-            tag="${GITHUB_REF_NAME#v}"
-            echo "primary_tag=$tag" >> "$GITHUB_OUTPUT"
-            echo "also_latest=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "primary_tag=latest" >> "$GITHUB_OUTPUT"
-            echo "also_latest=false" >> "$GITHUB_OUTPUT"
-          fi
+  build-examples:
+    uses: ./.github/workflows/docker-build.yml
+    with:
+      dockerfile: Dockerfile.examples
+      primary_tag: examples
+      also_latest: false
+    secrets: inherit
 
-  build-main-image:
-    needs: determine-tags
-    permissions:
-      contents: read
-      packages: write
+  build-main:
     uses: ./.github/workflows/docker-build.yml
     secrets: inherit
     with:
