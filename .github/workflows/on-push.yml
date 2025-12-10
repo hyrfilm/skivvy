@@ -7,22 +7,42 @@ on:
     types: [opened, reopened]
 
 jobs:
-  build-examples:
+  get-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read version from pyproject.toml
+        id: get_version
+        run: |
+          version=$(grep -E '^version *= *"' pyproject.toml | head -n1 | cut -d '"' -f2)
+          if [ -z "$version" ]; then
+            echo "Could not determine version from pyproject.toml"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+  build-image:
+    needs: get-version
     uses: ./.github/workflows/docker-build.yml
     with:
-      dockerfile: Dockerfile.examples
-      primary_tag: examples
-      also_latest: false
+      dockerfile: Dockerfile
+      primary_tag: ${{ needs.get-version.outputs.version }}
+      also_latest: true
     secrets: inherit
 
   run-examples:
     runs-on: ubuntu-latest
-    needs: build-examples
+    needs: [build-image, get-version]
     permissions:
       contents: read
       packages: read
     env:
-      EXAMPLES_IMAGE: ghcr.io/${{ github.repository }}:examples
+      SKIVVY_IMAGE: ghcr.io/${{ github.repository }}:${{ needs.get-version.outputs.version }}
     steps:
       - name: Log in to GHCR
         uses: docker/login-action@v3
@@ -31,30 +51,22 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Pull built examples image
-        run: docker pull "$EXAMPLES_IMAGE"
+      - name: Pull built image
+        run: docker pull "$SKIVVY_IMAGE"
 
       - name: Run passing examples suite
-        run: docker run --rm "$EXAMPLES_IMAGE" examples/typicode/passing.json
+        run: docker run --rm "$SKIVVY_IMAGE" skivvy examples/typicode/passing.json
 
       - name: Run failing examples suite (expected failure)
         run: |
           set +e
-          docker run --rm "$EXAMPLES_IMAGE" examples/typicode/failing.json
+          docker run --rm "$SKIVVY_IMAGE" skivvy examples/typicode/failing.json
           status=$?
           if [ "$status" -eq 0 ]; then
             echo "Expected failing suite to fail but it passed."
             exit 1
           fi
           echo "Failing suite failed as expected."
-
-  build-main:
-    uses: ./.github/workflows/docker-build.yml
-    with:
-      dockerfile: Dockerfile
-      primary_tag: dev
-      also_latest: false
-    secrets: inherit
 
   package-examples:
     if: github.event_name == 'push' && github.actor != 'github-actions[bot]'

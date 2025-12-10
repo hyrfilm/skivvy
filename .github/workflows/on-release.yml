@@ -61,15 +61,6 @@ jobs:
         with:
           packages-dir: dist/
 
-  build-examples-image:
-    needs: [pypi-publish, get-version]
-    uses: ./.github/workflows/docker-build.yml
-    with:
-      dockerfile: Dockerfile.examples
-      primary_tag: examples
-      also_latest: false
-    secrets: inherit
-
   build-main-image:
     needs: [pypi-publish, get-version]
     uses: ./.github/workflows/docker-build.yml

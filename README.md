@@ -111,8 +111,8 @@ Typical output (abridged):
 **Docker**
 The preferred to run it:
 ```bash
-docker run --rm hyrfilm/skivvy skivvy run --version
-docker run --rm -v "$PWD":/app -w /app hyrfilm/skivvy skivvy run cfg.json
+docker run --rm hyrfilm/skivvy
+docker run --rm -v "$PWD":/app -w /app hyrfilm/skivvy skivvy cfg.json
 ```
 
 ## Install & Run
@@ -120,12 +120,12 @@ Or through pip:
 **pip**
 ```bash
 pip install skivvy
-skivvy run cfg/example.json
+skivvy cfg/example.json
 ```
 
 ## CLI filters (this example illustrates how a setup/teardown could be implemented)
 ```bash
-skivvy run cfg.json -i '00_setup' -i '99_teardown' -e 'flaky' -i $1
+skivvy cfg.json -i '00_setup' -i '99_teardown' -e 'flaky' -i $1
 ```
 Then you can just create an alias for it and be able to do something like:
 ```bash
@@ -204,7 +204,7 @@ asciinema rec demo_fail.cast -c "bash -lc 'skivvy -c config.json tests/99_fail_d
 ## Docker & ephemeral DBs
 We often seed a DB in `00_setup/` and teardown in `9999_teardown/`. With bind mounts, state files (IDs/tokens) are inspectable:
 ```bash
-docker run --rm -v "$PWD":/work -w /work hyrfilm/skivvy skivvy -c cfg.json tests
+docker run --rm -v "$PWD":/work -w /work hyrfilm/skivvy skivvy cfg.json
 ```
 
 ## FAQ
@@ -230,8 +230,11 @@ You can think of skivvy as a more simple-minded cousin of cURL - it can't do man
 #### running it through docker
 This is the simplest and the recommended way to run it
 ```sh
-docker run --rm hyrfilm/skivvy skivvy run --version
+docker run --rm hyrfilm/skivvy
+docker run --rm hyrfilm/skivvy skivvy examples/typicode/passing.json
+docker run --rm -it hyrfilm/skivvy bash
 ```
+Running the image without arguments prints the skivvy version; attach a shell if you want to poke around.
 See below for a more useful example on how to run it using bind mounts.
 
 #### installing it manually
@@ -248,14 +251,14 @@ tar xf skivvy_examples.zip
 ```
 * run:
 ```sh
-skivvy run cfg/example.json
+skivvy cfg/example.json
 ```
 
 #### running skivvy through docker (using bind mounts)
 Assuming the current directory would contain your tests and that the root of that directory would contain a
 configuration file `cfg.json` you could bind mount that directory and run skivvy like so:
 ```sh
-docker run --rm --mount type=bind,source="$(pwd)",target="/app" hyrfilm/skivvy skivvy run cfg.json
+docker run --rm --mount type=bind,source="$(pwd)",target="/app" hyrfilm/skivvy skivvy cfg.json
 ```
 
 ## what you can do with it
@@ -324,12 +327,12 @@ Or if you prefer to view them on github directly: https://github.com/hyrfilm/ski
 As common for most testing frameworks, you can pass a number of flags to filter what files get included in the suite
 that skivvy runs. `-i regexp` is used for including files, `-e regexp`is used for excluding files.
 
-Running `skivvy run cfg.json -i file1 -i file2` only includes paths that match either the regexp `file1` or `file2`. `skivvy run cfg.json` is functionally 
-equivalent of `skivvy run cfg.json -i *.` In other words, all files that skivvy finds are included.
+Running `skivvy cfg.json -i file1 -i file2` only includes paths that match either the regexp `file1` or `file2`. `skivvy cfg.json` is functionally 
+equivalent of `skivvy cfg.json -i *.` In other words, all files that skivvy finds are included.
 
-Running `skivvy run cfg.json -e file3` excludes paths that match the `file3` regexp.
+Running `skivvy cfg.json -e file3` excludes paths that match the `file3` regexp.
 
-Stacking multiple flags is allowed: `skivvy run cfg.json -i path1.* -i path2.* -e some.*file`.
+Stacking multiple flags is allowed: `skivvy cfg.json -i path1.* -i path2.* -e some.*file`.
 The order of filtering is done by first applying the `-i` filters and then the `-e` filters.
 
 ### config settings
