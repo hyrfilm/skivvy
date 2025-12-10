@@ -73,7 +73,6 @@ configuration file `cfg.json` you could bind mount that directory and run skivvy
 docker run --rm --mount type=bind,source="$(pwd)",target="/app" hyrfilm/skivvy cfg.json
 ```
 
-
 ## Why Skivvy (vs GUI suites)
 GUI tools (Postman/Bruno) are good for exploration, but heavier and brittle when used in an actual CI/CD envirionment for testing your entire API. But what's worse is they push you toward bad habits such as overerly complicated imperative JS hooks and snapshot-style assertions. This is just unnecessary and encourages writing bad, brittle tessts. Having JS code does also introduce its own set of issues like learning an some unwieldy API using an unwieldy languange like JS (this is not meant as a flame-bait ;) I happpen to write JS-code for a living but that doesn't have to mean that I think it's a good languange for all tasks). 
 Skivvy tests are plain json files you keep in git.
