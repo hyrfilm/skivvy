@@ -7,15 +7,35 @@ on:
     types: [published]
 
 jobs:
-  build-examples:
-    uses: ./.github/workflows/docker-build.yml
-    with:
-      dockerfile: Dockerfile.examples
-      primary_tag: examples
-      also_latest: false
-    secrets: inherit
+  determine-tags:
+    runs-on: ubuntu-latest
+    outputs:
+      primary_tag: ${{ steps.set.outputs.primary_tag }}
+      also_latest: ${{ steps.set.outputs.also_latest }}
+    env:
+      RELEASE_TAG: ${{ github.event.release.tag_name }}
+    steps:
+      - name: Decide tags
+        id: set
+        run: |
+          if [ "${GITHUB_EVENT_NAME}" = "release" ]; then
+            tag="${RELEASE_TAG#v}"
+            if [ -z "$tag" ]; then
+              echo "Release tag name is empty; cannot set image tag" >&2
+              exit 1
+            fi
+            echo "primary_tag=$tag" >> "$GITHUB_OUTPUT"
+            echo "also_latest=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "primary_tag=latest" >> "$GITHUB_OUTPUT"
+            echo "also_latest=false" >> "$GITHUB_OUTPUT"
+          fi
 
-  build-main:
+  build-main-image:
+    needs: determine-tags
+    permissions:
+      contents: read
+      packages: write
     uses: ./.github/workflows/docker-build.yml
     secrets: inherit
     with:
