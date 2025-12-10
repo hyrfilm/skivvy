@@ -28,7 +28,6 @@ At [my current company](https://www.mindmore.com/) we use it for **all backend A
 
 ## try it out
 
-
 If you use **uv**, **pipx**, **nix** or **docker**, you don't need to install skivvy. 
 The following bash one-liners downloads the examples to `/tmp` and runs a subset of the test suite:
 ### uv
@@ -48,14 +47,6 @@ This line runs both of the succeeding and failing suites above:
 ```
 pushd /tmp && curl -L https://raw.githubusercontent.com/hyrfilm/skivvy/refs/heads/master/examples.tar.gz | tar -xz -C . && pipx run skivvy examples/typicode/all.json && popd
 ```
-### docker
-There are two docker images. One is meant to be used as playground, running and editing the examples, creating additional tests
-as a way to evaluate it and whether it would fit you:
-```
-docker run --rm -it hyrfilm/skivvy:examples
-```
-Running this container will simply just print out its version and then you're in a shell, where the examples are located.
-If you intend to run it in a CI/CD using docker the recommended way is to use the the other version with bind mounts:
 
 ### pip & virtualenv
 Installing it into a new virtualenv directory `skivvy` using **pip** and **virtualenv**:
@@ -66,7 +57,25 @@ skivvy --version
 This should print out the version installed.
 You can of course install it via **pipx** or **uv**. If you're running it in a throwaway (eg. like in a CI/CD container) installing globally works fine as well.
 
-### running skivvy through docker (using bind mounts)
+### docker
+```
+docker run --rm hyrfilm/skivvy:examples
+```
+Running this container will simply just print out its version.
+To run the default example tests
+```
+docker run --rm hyrfilm/skivvy:examples skivvy examples/typicode/default.json
+```
+
+If you want to poke around you can attach a interactive terminal:
+```
+docker run --rm -it hyrfilm/skivvy:examples
+```
+
+This will print out the version and then you're inside the container where the examples are located.
+
+#### running skivvy through docker (using bind mounts)
+If you have a test suite you can bind mount it into the container to run your tests.
 Assuming the current directory would contain your tests and that the root of that directory would contain a
 configuration file `cfg.json` you could bind mount that directory and run skivvy like so:
 ```sh
@@ -155,24 +164,9 @@ Typical output (abridged):
       + MKUltra
 ```
 
-**Docker**
-The preferred to run it:
-```bash
-docker run --rm hyrfilm/skivvy skivvy run --version
-docker run --rm -v "$PWD":/app -w /app hyrfilm/skivvy skivvy run cfg.json
-```
-
-## Install & Run
-Or through pip:
-**pip**
-```bash
-pip install skivvy
-skivvy run cfg/example.json
-```
-
 ## CLI filters (this example illustrates how a setup/teardown could be implemented)
 ```bash
-skivvy run cfg.json -i '00_setup' -i '99_teardown' -e 'flaky' -i $1
+skivvy cfg.json -i '00_setup' -i '99_teardown' -e 'flaky' -i $1
 ```
 Then you can just create an alias for it and be able to do something like:
 ```bash
@@ -207,11 +201,10 @@ Or specifying all currently supported settings:
 - `method` (`get` default),
 - `status` (expected HTTP status, only checked if specified)
 - `response` (object or matcher string, only checked if specified)
-- `data` (body), `headers`, `content_type`, `json_encode_body`
 - `match_subsets` (true by default, allows you to check fields or parts of objects, occurring somewhere in the response)
 - `match_falsiness` (true by default)
-- `brace_expansion`, (true by default, makes skivvy look for the content of files specified within <some_file.txt> eg /item/<item.txt> will be transformed into /item/42 if this was the content of item.txt - the .txt is just a convention by a recommended one)
-- `auto_coerce` - will try to interpret something like "field": "<item.txt>" as number, boolean, otherwise it will passed in as text
+- `brace_expansion`, (true by default, makes )
+- `auto_coerce` - will make an educated guess what "field": "<variable>" should be interpreted as. If it can be parsed as a boolean (eg "true"/"false" then: "field": true, "42" would result in "field": 42 and so on). If it can't be coerced into any other JSON primitive than a string then it will simply be left as a string eg, if variable is "42 years old" then: "field": "42 years old".
 - `_comment` or `comment` or `note` or `whatever` (unrecognized top-level entries are simply ignored)
 
 ## Built-in matchers (common)
@@ -236,29 +229,16 @@ def match(expected, actual):
     ...
 ```
 
-## Examples: JSONPlaceholder
-See `examples/jsonplaceholder/` in this repo.
-
-## Asciinema (30s success + 15s failure)
-```bash
-# success
-cd examples/jsonplaceholder
-asciinema rec demo.cast -c "bash -lc 'skivvy -c config.json tests'"
-# failure diff
-asciinema rec demo_fail.cast -c "bash -lc 'skivvy -c config.json tests/99_fail_diff_demo.json'"
-```
-
 ## Docker & ephemeral DBs
 We often seed a DB in `00_setup/` and teardown in `9999_teardown/`. With bind mounts, state files (IDs/tokens) are inspectable:
 ```bash
-docker run --rm -v "$PWD":/work -w /work hyrfilm/skivvy skivvy -c cfg.json tests
+docker run --rm -v "$PWD":/work -w /work hyrfilm/skivvy skivvy cfg.json
 ```
 
 ## FAQ
 - **Isn’t this just curl + jq / grep ?** YES, it is. Especially if you like writing a lot of bash, over time you might want reusable assertions, diffs, state, filters, CI-friendly output, and then you've ended up re-implementing something like skivvy or not, I say go for it!
-- **Why JSON (not YAML/JS)?** JSON matches your payloads; zero DSL. JS is not support as a concious decision,
-if you want a non-declarative tool for testing your APIs, there's always bruno/postman etc.
-- **Why serial by default?** Determinism is a feature. For concurrency, run multiple processes with distinct state dirs. (This might get elevated to support true concurrency in the future, if the total cost of complexity is low and
+- **Why JSON (not YAML/JS)?** JSON matches your payloads; zero DSL. JS is not supported as a concious decision, if you want a non-declarative tool for testing your APIs, there's always bruno/postman etc.
+- **Why serial by default?** Determinism. For concurrency, run multiple processes with distinct state dirs. (This might get elevated to support true concurrency in the future, if the total cost of complexity is low and
 fits with the other design-goals mentioned above).
 - **Comments?** `_comment` is supported and ignored at runtime.
 
@@ -273,61 +253,14 @@ Skivvy was developed in order to facilitate automated testing of web-APIs. If yo
 produces JSON, skivvy makes it easy to create test-suites for these APIs.
 You can think of skivvy as a more simple-minded cousin of cURL - it can't do many of the things cURL can - but the few things it can do it does well.
 
-## what you can do with it
+#### running skivvy through docker (using bind mounts)
+Assuming the current directory would contain your tests and that the root of that directory would contain a
+configuration file `cfg.json` you could bind mount that directory and run skivvy like so:
+```sh
+docker run --rm --mount type=bind,source="$(pwd)",target="/app" hyrfilm/skivvy skivvy cfg.json
+```
+This allows you to have your tests and configuration outside the container and mouting it inside the container.
 
-Let's say you've created an API for looking up definition of words. Calling the URL: ```http://example.com/words/api/skivvy``` would result in this being returned:
-
-```json
-{"word": "skivvy",
-"results": [{
-  "definition": "a female domestic servant who does all kinds of menial work",
-  "type": "noun",
-  "language": "English",
-  "dialect": "British"
-  }]
-}
-```
-With skivvy you could easily create a testcase for this in a myraid of ways depending on what you would want to test:
-#### checking the HTTP status-code
-```json
-{"url": "http://example.com/words/api/skivvy",
-"status": 200}
-```
-#### checking fields
-```json
-{"url": "http://example.com/words/api/skivvy",
-"response": {
-   "results": [{
-   "type": "noun",
-   "language": "English"
-   }]
-}
-```
-#### checking the length of the results
-```json
-{"url": "http://example.com/words/api/skivvy",
-"response": {
-  "results": "$len 1"
-  }
-}
-```
-#### checking that the response contain some particular data
-```json
-{"url": "http://example.com/words/api/skivvy",
-"response": "$contains servant who does all kinds of menial work"}
-```
-
-#### etc
-Other things supported:
-* test-suites incl using different environments (like staging / production)
-* custom matcher syntax, for checking things like urls (```$valid_url```), approximations (```$~```), date-validation (```$date```), custom python-expression (```$expr```) and more
-* ability to create extend the syntax to create own matchers easily
-* all common http-verbs (get, put, post, delete)
-* reading and writing http-headers
-* file uploads
-* dumping output from one testcase into a file and passing in parts of that data to other testcases
-* your own custom matchers
-* ... and more! ;)
 
 ## Documentation
 
@@ -335,12 +268,12 @@ Other things supported:
 As common for most testing frameworks, you can pass a number of flags to filter what files get included in the suite
 that skivvy runs. `-i regexp` is used for including files, `-e regexp`is used for excluding files.
 
-Running `skivvy run cfg.json -i file1 -i file2` only includes paths that match either the regexp `file1` or `file2`. `skivvy run cfg.json` is functionally 
-equivalent of `skivvy run cfg.json -i *.` In other words, all files that skivvy finds are included.
+Running `skivvy cfg.json -i file1 -i file2` only includes paths that match either the regexp `file1` or `file2`. `skivvy cfg.json` is functionally 
+equivalent of `skivvy cfg.json -i *.` In other words, all files that skivvy finds are included.
 
-Running `skivvy run cfg.json -e file3` excludes paths that match the `file3` regexp.
+Running `skivvy cfg.json -e file3` excludes paths that match the `file3` regexp.
 
-Stacking multiple flags is allowed: `skivvy run cfg.json -i path1.* -i path2.* -e some.*file`.
+Stacking multiple flags is allowed: `skivvy cfg.json -i path1.* -i path2.* -e some.*file`.
 The order of filtering is done by first applying the `-i` filters and then the `-e` filters.
 
 ### config settings
