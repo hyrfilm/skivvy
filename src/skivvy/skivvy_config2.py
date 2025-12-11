@@ -19,6 +19,11 @@ class Settings:
     BRACE_EXPANSION = Option(
         "brace_expansion", False, "Enable brace expansion (see README.md)"
     )
+    VALIDATE_VARIABLE_NAMES = Option(
+        "validate_variable_names",
+        True,
+        "Require variables to have typical syntax (start with letter, contain only alphanumerics and _-.,/\\ characters)",
+    )
     AUTO_COERCE = Option(
         "auto_coerce",
         True,
@@ -27,6 +32,8 @@ class Settings:
     METHOD = Option("method", "get", "HTTP method")
     STATUS = Option("status", None, "Will only be checked if specified in the test")
     RESPONSE = Option("response", {}, "Expected response body")
+    RESPONSE_HEADERS = Option("response_headers", None, "Expected response headers")
+    HEADERS = Option("headers", None, "Request headers")
     BODY = Option("body", None, "JSON Request body")
     FORM = Option("form", None, "Form body")
     UPLOAD = Option("upload", None, "File upload configuration")

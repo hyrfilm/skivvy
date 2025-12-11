@@ -25,6 +25,7 @@ def parse_json(filename):
 
 
 def write_tmp(filename, content):
+    filename = os.path.join(os.getcwd(), filename)
     with open(filename, "w") as fp:
         fp.write(str(content))
         _tmp_files.append(filename)

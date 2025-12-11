@@ -1,0 +1,13 @@
+{
+  "url": "https://dummyjson.com/auth/login",
+  "method": "post",
+  "status": 200,
+  "body": {
+    "username": "emilys",
+    "password": "emilyspass"
+  },
+  "response": {
+    "accessToken": "$store access_token",
+    "refreshToken": "$store refresh_token"
+  }
+}

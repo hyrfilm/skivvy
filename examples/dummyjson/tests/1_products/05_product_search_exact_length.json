@@ -1,0 +1,6 @@
+{
+  "url": "/products/search?q=phone&limit=3",
+  "response": {
+    "products": "$len 3"
+  }
+}

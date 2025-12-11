@@ -191,6 +191,7 @@ Or specifying all currently supported settings:
   "colorize": true,
   "fail_fast": false,
   "brace_expansion": true,
+  "validate_variable_names": true,
   "auto_coerce": true,
   "matchers": "./matchers"
 ```
@@ -204,6 +205,7 @@ Or specifying all currently supported settings:
 - `match_subsets` (true by default, allows you to check fields or parts of objects, occurring somewhere in the response)
 - `match_falsiness` (true by default)
 - `brace_expansion`, (true by default, makes )
+- `validate_variable_names` (true by default) - enforces variable names starting with a letter and using only `[a-z0-9_-.,/\\]`; set to false to relax (not recommended)
 - `auto_coerce` - will make an educated guess what "field": "<variable>" should be interpreted as. If it can be parsed as a boolean (eg "true"/"false" then: "field": true, "42" would result in "field": 42 and so on). If it can't be coerced into any other JSON primitive than a string then it will simply be left as a string eg, if variable is "42 years old" then: "field": "42 years old".
 - `_comment` or `comment` or `note` or `whatever` (unrecognized top-level entries are simply ignored)
 
@@ -303,8 +305,10 @@ a skivvy testfile, can contain the following flags that changes how the tests is
 * *json_encode_body* - setting this to false makes skivvy not json encode the body of a PUT or POST and instead sends it as form-data
 * *headers* - headers to send into the request
 * *content_type* - defaults to _"application/json"_
-* *headers_to_write* - headers that should be retrieved from the HTTP response and dumped a file, for example: ````"write_headers": {"headers.json": ["Set-Cookie", "Cache-Control"]}, ````
-* *headers_to_write* - specifies a file containing headers to be sent in the request, for example: ````"read_headers": "headers.json"````
+* *headers* - headers to send into the request
+* *write_headers* - headers that should be retrieved from the HTTP response and dumped a file, for example: ````"write_headers": {"headers.json": ["Set-Cookie", "Cache-Control"]}, ````
+* *read_headers* - specifies a file containing headers to be sent in the request, for example: ````"read_headers": "headers.json"````
+* *response_headers* - expected response headers to verify (case-insensitive keys, supports matchers)
 * *match_subsets* - (boolean, default is false) - controls whether skivvy will allow to match a subset of a dict found in a list
 * *match_falsiness* - (boolean, default is false) - controls whether skivvy will consider falsy values (such as null, and empty string, etc) as the same equivalent
 * *upload* - see below for an example of uploading files

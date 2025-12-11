@@ -1,0 +1,9 @@
+{
+  "url": "/products/<airpods-product-id>",
+  "response": {
+    "id": "$fetch airpods-product-id",
+    "title": "Apple AirPods Max Silver",
+    "description": "$contains Apple AirPods Max in Silver are premium",
+    "thumbnail": "$valid_url"
+  }
+}

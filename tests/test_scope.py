@@ -1,5 +1,14 @@
+import pytest
+
 from skivvy.util import scope
 from skivvy.util.file_util import set_current_file
+
+
+@pytest.fixture(autouse=True)
+def reset_scope_validation():
+    scope.set_validate_variable_names(True)
+    yield
+    scope.set_validate_variable_names(True)
 
 
 def test_storing():
@@ -36,3 +45,20 @@ def test_storing():
 
     assert scope.dump("dir1") == {"var1": "123", "var2": "456"}
     assert scope.dump("dir2") == {"var1": "yo", "var2": "dude", "var3": "zup"}
+
+
+def test_validation_rejects_invalid_names():
+    set_current_file("/validation/ns.json")
+    with pytest.raises(ValueError):
+        scope.store("1bad", "nope")
+    with pytest.raises(ValueError):
+        scope.store("bad$", "nope")
+
+
+def test_validation_can_be_disabled():
+    set_current_file("/validation/ns.json")
+    scope.set_validate_variable_names(False)
+    scope.store("1bad", "ok")
+    scope.store("bad$", "ok")
+    assert scope.fetch("1bad") == "ok"
+    assert scope.fetch("bad$") == "ok"

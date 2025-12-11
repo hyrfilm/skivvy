@@ -5,6 +5,14 @@ from typing import KeysView
 
 _store: dict[str, dict] = defaultdict(lambda: {})
 _allowed_key_chars = set(string.ascii_lowercase + string.digits + "_-.,/\\")
+_allowed_key_chars_pretty = "".join(sorted(_allowed_key_chars))
+_allowed_initial_key_chars = set(string.ascii_lowercase)
+_validate_variable_names = True
+
+
+def set_validate_variable_names(validate: bool):
+    global _validate_variable_names
+    _validate_variable_names = bool(validate)
 
 
 def get_current_namespace():
@@ -47,15 +55,20 @@ def _put(name, value):
 
 
 def do_variable_validation(name):
-    msg = f"""Received the variable name: '{name}' - note that variable names needs to be strings, start with an alphabetic char, and are are case-insensitive.
-    Full list of allowed chars: {_allowed_key_chars}   
-    """
+    if not _validate_variable_names:
+        return True, ""
+    
+    msg = (
+        f"Invalid variable name '{name}'. Variable names must start with a letter and "
+        f"only use: \"{_allowed_key_chars_pretty}\". "
+        'Set "validate_variable_names": false to disable this check (*not* recommended).'
+    )
     if not isinstance(name, str):
         return False, msg
 
     match list(name):
         case [head, *tail]:
-            if not head.isalpha():
+            if not head in _allowed_initial_key_chars:
                 return False, msg
             for c in tail:
                 if not c in _allowed_key_chars:

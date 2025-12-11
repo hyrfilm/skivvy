@@ -1,0 +1,9 @@
+{
+  "url": "/auth/recipes/1",
+  "method": "GET",
+  "status": 200,
+  "headers": {
+    "Authorization": "Bearer <new_access_token>"
+  },
+  "response": "$contains pizza"
+}
