@@ -59,6 +59,8 @@ def match_regexp(expected, actual):
         return False, "Error when parsing: %s" % (str(e))
 
 
+import requests
+
 def match_valid_url(expected, actual):
     try:
         # format:
@@ -225,16 +227,19 @@ def approximate_match(expected, actual):
     return is_almost_equal(expected_value, actual, threshold)
 
 
-def _coerce_to_float(value):
+def _coerce(value):
     try:
-        return float(value)
+        v = float(value)
+        if v.is_integer():
+            return int(v)
+        return v
     except Exception:
         return None
 
 
 def greater_than_match(expected, actual):
     expected_value = _parse_single_number(expected)
-    actual_value = _coerce_to_float(actual)
+    actual_value = _coerce(actual)
     if actual_value is None:
         return False, "Expected a number but got %s" % actual
     return actual_value > expected_value, "Expected %s>%s" % (
@@ -245,7 +250,7 @@ def greater_than_match(expected, actual):
 
 def less_than_match(expected, actual):
     expected_value = _parse_single_number(expected)
-    actual_value = _coerce_to_float(actual)
+    actual_value = _coerce(actual)
     if actual_value is None:
         return False, "Expected a number but got %s" % actual
     return actual_value < expected_value, "Expected %s<%s" % (
@@ -265,7 +270,7 @@ def between_match(expected, actual):
     if lower > upper:
         return False, "Lower bound %s must be <= upper bound %s" % (lower, upper)
 
-    actual_value = _coerce_to_float(actual)
+    actual_value = _coerce(actual)
     if actual_value is None:
         return False, "Expected a number but got %s" % actual
 
