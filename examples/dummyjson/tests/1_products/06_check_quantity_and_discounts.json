@@ -1,0 +1,8 @@
+{
+  "url": "/products/126",
+  "response": {
+    "id": 126,
+    "minimumOrderQuantity": "$gt 0",
+    "discountPercentage": "$lt 100"
+  }
+}
