@@ -6,13 +6,13 @@
     "description": "$contains feature-rich",
     "reviews": [
         {
-          "rating": 5
+          "rating": "$between 1 5"
         },
         {
-          "rating": 5
+          "rating": "$between 1 5"
         },
         {
-          "rating": 4
+          "rating": "$between 1 5"
         }
       ]
   }

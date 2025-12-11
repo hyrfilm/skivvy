@@ -59,11 +59,9 @@ def match_regexp(expected, actual):
         return False, "Error when parsing: %s" % (str(e))
 
 
-import requests
-
 def match_valid_url(expected, actual):
     try:
-        # Grammar:
+        # format:
         #   $valid_url [prefix <url>] [unsafe]
         tokens = expected.split()
 
@@ -195,7 +193,7 @@ def len_greater_match(expected, actual):
     except Exception as e:
         return False, str(e)
 
-    expected_value = _parse_single_number(expected.strip())
+    expected_value = _parse_single_number(expected)
     actual_value = len(actual)
 
     return actual_value > expected_value, "Expected %s>%s" % (
@@ -210,7 +208,7 @@ def len_less_match(expected, actual):
     except Exception as e:
         return False, str(e)
 
-    expected_value = _parse_single_number(expected.strip())
+    expected_value = _parse_single_number(expected)
     actual_value = len(actual)
 
     return actual_value < expected_value, "Expected %s<%s" % (
@@ -225,6 +223,60 @@ def approximate_match(expected, actual):
     expected_value = _parse_single_number(expected)
     actual = float(actual)
     return is_almost_equal(expected_value, actual, threshold)
+
+
+def _coerce_to_float(value):
+    try:
+        return float(value)
+    except Exception:
+        return None
+
+
+def greater_than_match(expected, actual):
+    expected_value = _parse_single_number(expected)
+    actual_value = _coerce_to_float(actual)
+    if actual_value is None:
+        return False, "Expected a number but got %s" % actual
+    return actual_value > expected_value, "Expected %s>%s" % (
+        actual_value,
+        expected_value,
+    )
+
+
+def less_than_match(expected, actual):
+    expected_value = _parse_single_number(expected)
+    actual_value = _coerce_to_float(actual)
+    if actual_value is None:
+        return False, "Expected a number but got %s" % actual
+    return actual_value < expected_value, "Expected %s<%s" % (
+        actual_value,
+        expected_value,
+    )
+
+
+def between_match(expected, actual):
+    parts = expected.strip().split()
+    if len(parts) != 2:
+        return False, "Expected two bounds for $between but got: %s" % expected
+
+    lower = _parse_single_number(parts[0])
+    upper = _parse_single_number(parts[1])
+
+    if lower > upper:
+        return False, "Lower bound %s must be <= upper bound %s" % (lower, upper)
+
+    actual_value = _coerce_to_float(actual)
+    if actual_value is None:
+        return False, "Expected a number but got %s" % actual
+
+    if actual_value < lower or actual_value > upper:
+        return False, "Expected %s to be between %s and %s (inclusive)" % (
+            actual_value,
+            lower,
+            upper,
+        )
+
+    return True, SUCCESS_MSG
 
 
 def date_matcher(expected, actual):
@@ -310,6 +362,7 @@ def fetch_var(expected, actual):
 
 
 def _parse_single_number(expected):
+    expected = str(expected).strip()
     # skip characters in the beginning which aren't digits
     index = 0
     for c in expected:
@@ -362,6 +415,9 @@ matcher_dict = {
     "$len_gt": len_greater_match,
     "$len_lt": len_less_match,
     "$~": approximate_match,
+    "$gt": greater_than_match,
+    "$lt": less_than_match,
+    "$between": between_match,
     "$date": date_matcher,
     "$write_file": file_writer,
     "$read_file": file_reader,
