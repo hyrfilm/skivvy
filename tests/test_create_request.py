@@ -1,3 +1,5 @@
+from wsgiref import headers
+
 from skivvy.test_runner import create_request
 from skivvy.util.scope import store
 
@@ -34,6 +36,8 @@ def test_create_request_with_brace_expansion():
 def test_brace_expansion_with_files_and_variables():
     # Set up some variables in our current scope
     store("number", "23")
+    store("access_token", "fidelio")
+
 
     # same thing as above, but now we are using the (mostly legacy) way
     # of retrieving variables from a file in our fixture dir
@@ -44,6 +48,7 @@ def test_brace_expansion_with_files_and_variables():
         "method": "POST",
         "brace_expansion": True,
         "auto_coercion": True,
+        "headers": {"Authorization": "Bearer <access_token>"},
     }
 
     request_dict, complete_dict = create_request(test_config)
@@ -52,6 +57,7 @@ def test_brace_expansion_with_files_and_variables():
         "method": "POST",
         "url": "https://api.example.com/666/hail-satan",
         "body": {"lucky": 23},
+        "headers": {"Authorization": "Bearer fidelio", 'Content-Type': 'application/json'},
     }
 
     assert complete_dict == {
@@ -61,4 +67,5 @@ def test_brace_expansion_with_files_and_variables():
         "auto_coercion": True,
         "body": {"lucky": 23},
         "brace_expansion": True,
+        "headers": {"Authorization": "Bearer fidelio", 'Content-Type': 'application/json'},
     }
