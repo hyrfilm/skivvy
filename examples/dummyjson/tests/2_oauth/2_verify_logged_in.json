@@ -1,0 +1,8 @@
+{
+  "url": "/auth/me",
+  "method": "GET",
+  "status": 200,
+  "headers": {
+    "Authorization": "Bearer <access_token>"
+  }
+}

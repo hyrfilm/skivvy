@@ -1,0 +1,11 @@
+{
+  "url": "/auth/refresh",
+  "method": "POST",
+  "status": 200,
+  "body": {
+    "refreshToken": "<refresh_token>"
+  },
+  "response": {
+    "accessToken": "$store new_access_token"
+  }
+}

@@ -59,28 +59,70 @@ def match_regexp(expected, actual):
         return False, "Error when parsing: %s" % (str(e))
 
 
+import requests
+
 def match_valid_url(expected, actual):
     try:
-        # we allow relative urls using the format "$valid_url /some_url prefix example.com" -> example.com/some_url
-        relative_url = expected.split("prefix")
-        if len(relative_url) == 2:
-            prefix = relative_url[-1]
-            prefix = prefix.strip()
-            actual = prefix + actual
+        # Grammar:
+        #   $valid_url [prefix <url>] [unsafe]
+        tokens = expected.split()
+
+        prefix = None
+        unsafe = False
+
+        # Parse modifiers (order-independent)
+        i = 0
+        while i < len(tokens):
+            tok = tokens[i]
+            if tok == "prefix" and i + 1 < len(tokens):
+                prefix = tokens[i + 1].strip()
+                i += 2
+                continue
+            if tok == "unsafe":
+                unsafe = True
+                i += 1
+                continue
+            i += 1
+
+        # Apply prefix, if any
+        if prefix:
+            actual = prefix.rstrip("/") + actual
 
         valid_status_codes = [200]
-        log.debug("Making request to %s" % actual)
-        response = requests.get(actual, verify=False)
+        verify_tls = not unsafe
+
+        log.debug("Making request to %s (verify=%s)" % (actual, verify_tls))
+        response = requests.get(actual, verify=verify_tls)
+
         if response.status_code in valid_status_codes:
             log.debug("Success.")
             return True, SUCCESS_MSG
         else:
             log.debug("Failure.")
-            return False, "Expected %s but got %s" % (valid_status_codes, actual)
+            # use status code here, not the URL
+            return False, "Expected %s but got %s" % (valid_status_codes, response.status_code)
+
     except Exception as e:
         log.debug("Failure.")
         log.debug("http call failed for: %s" % actual)
         log.debug("expected: %s" % expected)
+
+        msg = str(e).lower()
+        is_cert_error = (
+            isinstance(e, requests.exceptions.SSLError)
+            or "certificate" in msg
+            or "ssl" in msg
+        )
+
+        if is_cert_error:
+            hint = (
+                " TLS certificate verification failed. "
+                "If this endpoint is known to use an invalid or self-signed certificate, "
+                "add 'unsafe' to disable certificate verification eg $valid_url unsafe "
+                "for this specific check."
+            )
+            return False, "Failed to make request to %s: %s.%s" % (actual, e, hint)
+
         return False, "Failed to make request to %s: %s" % (actual, e)
 
 

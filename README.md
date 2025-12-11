@@ -305,8 +305,10 @@ a skivvy testfile, can contain the following flags that changes how the tests is
 * *json_encode_body* - setting this to false makes skivvy not json encode the body of a PUT or POST and instead sends it as form-data
 * *headers* - headers to send into the request
 * *content_type* - defaults to _"application/json"_
-* *headers_to_write* - headers that should be retrieved from the HTTP response and dumped a file, for example: ````"write_headers": {"headers.json": ["Set-Cookie", "Cache-Control"]}, ````
-* *headers_to_write* - specifies a file containing headers to be sent in the request, for example: ````"read_headers": "headers.json"````
+* *headers* - headers to send into the request
+* *write_headers* - headers that should be retrieved from the HTTP response and dumped a file, for example: ````"write_headers": {"headers.json": ["Set-Cookie", "Cache-Control"]}, ````
+* *read_headers* - specifies a file containing headers to be sent in the request, for example: ````"read_headers": "headers.json"````
+* *response_headers* - expected response headers to verify (case-insensitive keys, supports matchers)
 * *match_subsets* - (boolean, default is false) - controls whether skivvy will allow to match a subset of a dict found in a list
 * *match_falsiness* - (boolean, default is false) - controls whether skivvy will consider falsy values (such as null, and empty string, etc) as the same equivalent
 * *upload* - see below for an example of uploading files

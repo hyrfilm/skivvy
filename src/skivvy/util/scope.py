@@ -61,7 +61,7 @@ def do_variable_validation(name):
     msg = (
         f"Invalid variable name '{name}'. Variable names must start with a letter and "
         f"only use: \"{_allowed_key_chars_pretty}\". "
-        "Set 'validate_variable_names': false to disable this check (not recommended)."
+        'Set "validate_variable_names": false to disable this check (*not* recommended).'
     )
     if not isinstance(name, str):
         return False, msg

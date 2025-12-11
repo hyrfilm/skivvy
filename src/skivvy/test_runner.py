@@ -1,11 +1,11 @@
 import json
 from functools import partial
-from typing import Dict, Mapping, Callable
+from typing import Dict, Mapping, Callable, Any
 from urllib.parse import urljoin
 
 from skivvy.brace_expansion import brace_expand_string
 from skivvy.skivvy_config2 import Settings, conf_get
-from skivvy.util import dict_util, log, str_util
+from skivvy.util import dict_util, log, str_util, file_util
 from skivvy.util.dict_util import get_all, subset
 
 
@@ -28,6 +28,7 @@ def create_request(testcase: Mapping[str, object]) -> tuple[dict, dict]:
         Settings.BODY,
         Settings.READ_HEADERS,
         Settings.WRITE_HEADERS,
+        Settings.HEADERS,
     )
     fields_to_expand = [opt.key for opt in options]
 
@@ -45,7 +46,12 @@ def create_request(testcase: Mapping[str, object]) -> tuple[dict, dict]:
         Settings.BODY,
         Settings.FORM,
         Settings.UPLOAD,
+        Settings.HEADERS,
     ]
+    headers = build_request_headers(request_config)
+    if headers:
+        request_config[Settings.HEADERS.key] = headers
+
     request_data = subset(
         request_config, [option.key for option in request_fields], include_none=False
     )
@@ -142,3 +148,48 @@ def brace_expander(s, **kwargs):
 # identity function, when brace expansion is not enabled
 def brace_expander_noop(s, **_kwargs):
     return s
+
+
+def build_request_headers(request_config: Mapping[str, Any]) -> dict[str, str] | None:
+    headers: dict[str, str] = {}
+    headers_from_file = load_headers(conf_get(request_config, Settings.READ_HEADERS))
+    headers.update(headers_from_file)
+
+    inline_headers = conf_get(request_config, Settings.HEADERS) or {}
+    if inline_headers:
+        if not isinstance(inline_headers, Mapping):
+            raise TypeError("headers must be a mapping (got %s)" % type(inline_headers))
+        headers.update(inline_headers)
+
+    maybe_add_content_type(headers, request_config)
+    return headers or None
+
+
+def load_headers(source: Any) -> dict[str, str]:
+    if source is None:
+        return {}
+    if isinstance(source, Mapping):
+        return dict(source)
+    if isinstance(source, str):
+        return file_util.parse_json(source)
+    raise TypeError("read_headers must be a string (path) or mapping (got %s)" % type(source))
+
+
+def header_exists(headers: dict[str, str], name: str) -> bool:
+    return any(k.lower() == name.lower() for k in headers.keys())
+
+
+def maybe_add_content_type(headers: dict[str, str], request_config: Mapping[str, Any]) -> None:
+    has_payload = any(
+        [
+            conf_get(request_config, Settings.BODY),
+            conf_get(request_config, Settings.FORM),
+        ]
+    )
+    has_upload = conf_get(request_config, Settings.UPLOAD)
+    if not has_payload or has_upload:
+        return
+
+    content_type = conf_get(request_config, Settings.CONTENT_TYPE)
+    if content_type and not header_exists(headers, "content-type"):
+        headers["Content-Type"] = content_type

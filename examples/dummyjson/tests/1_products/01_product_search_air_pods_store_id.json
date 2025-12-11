@@ -1,12 +1,15 @@
 {
-  "match_subsets": true,
   "url": "/products/search?q=phone",
   "status": 200,
   "response": {
     "products": [
       {
         "title": "Apple AirPods Max Silver",
-        "id": "$store id"
+        "id": "$store airpods-product-id"
+      },
+      {
+        "id": 126,
+        "title": "$store oppo-f19-title"
       }
     ]
   }

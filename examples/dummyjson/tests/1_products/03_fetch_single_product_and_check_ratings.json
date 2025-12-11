@@ -1,0 +1,19 @@
+{
+  "url": "/products/126",
+  "response": {
+    "id": 126,
+    "title": "$fetch oppo-f19-title",
+    "description": "$contains feature-rich",
+    "reviews": [
+        {
+          "rating": 5
+        },
+        {
+          "rating": 5
+        },
+        {
+          "rating": 4
+        }
+      ]
+  }
+}

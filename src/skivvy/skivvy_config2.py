@@ -32,6 +32,8 @@ class Settings:
     METHOD = Option("method", "get", "HTTP method")
     STATUS = Option("status", None, "Will only be checked if specified in the test")
     RESPONSE = Option("response", {}, "Expected response body")
+    RESPONSE_HEADERS = Option("response_headers", None, "Expected response headers")
+    HEADERS = Option("headers", None, "Request headers")
     BODY = Option("body", None, "JSON Request body")
     FORM = Option("form", None, "Form body")
     UPLOAD = Option("upload", None, "File upload configuration")

@@ -97,20 +97,36 @@ def run_test(filename, env_conf):
             expected["status"] = expected_status
         if expected_response is not None:
             expected["response"] = expected_response
+        expected_response_headers = testcase_config.get("response_headers")
+        if expected_response_headers is not None:
+            expected["response_headers"] = expected_response_headers
         error_context["expected"] = expected
 
         http_envelope = http_util.execute(request)
         actual_status = http_envelope.status_code
         actual_response = http_envelope.json()
+        actual_headers = normalize_headers(http_envelope.headers)
+
+        headers_to_write = testcase_config.get("write_headers")
+        if headers_to_write:
+            dump_response_headers(headers_to_write, http_envelope)
+
         error_context["actual"] = {
             "status": actual_status,
             "response": actual_response,
+            "response_headers": actual_headers,
         }
 
         if "status" in testcase_config:
             verify(testcase_config["status"], actual_status, **testcase_config)
         if "response" in testcase_config:
             verify(testcase_config["response"], actual_response, **testcase_config)
+        if expected_response_headers is not None:
+            verify(
+                normalize_headers(expected_response_headers),
+                actual_headers,
+                **testcase_config,
+            )
     except Exception as e:
         error_context["exception"] = traceback.format_exc()
         return STATUS_FAILED, error_context
@@ -132,6 +148,10 @@ def dump_response_headers(headers_to_write, r):
         log.debug("writing header: %s" % filename)
         headers = dict_util.subset(r.headers, headers_to_write.get(filename, []))
         file_util.write_tmp(filename, json.dumps(headers))
+
+
+def normalize_headers(headers: dict) -> dict:
+    return {k.lower(): v for k, v in headers.items()}
 
 
 def run():
