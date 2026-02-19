@@ -85,6 +85,7 @@ def log_error_context(err_context, conf):
 
 def run_test(filename, env_conf):
     file_util.set_current_file(filename)
+    configure_logging(env_conf)
     error_context = {}
 
     try:

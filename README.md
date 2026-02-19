@@ -213,6 +213,9 @@ Or specifying all currently supported settings:
 Format: `"$matcher args..."`
 
 - `$contains <text>` — substring present
+- `$store <name>` - store a field's value in variable, variables are scoped to the current directory
+- `$fetch <name>` - value is equal to the value of a variable
+- `$gt N`, `$lt N`, `$between <min> <max>` — numeric comparisons (between is inclusive)
 - `$len N`, `$len_gt N`, `$len_lt N` — length checks
 - `$valid_url` — value is http(s) URL that returns 2xx
 - `$regexp <pattern>` — regex match
@@ -453,6 +456,19 @@ would for example pass if `foo` was
 ```json
 ["a", "b"]
 ```
+#### $gt / $lt
+Numeric comparisons (non-length). Examples:
+```
+"rating": "$gt 3"
+"discount": "$lt 0.5"
+```
+#### $between
+Numeric comparison that checks a value falls within an inclusive range.
+Example:
+```
+"rating": "$between 1 5"
+```
+passes for any value >=1 and <=5. If the lower bound exceeds the upper bound the matcher fails early.
 #### $~
 Matches an approximate value.
 Example:
