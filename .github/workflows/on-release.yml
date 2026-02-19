@@ -8,8 +8,12 @@ permissions:
 jobs:
   release-build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
 
       - uses: actions/setup-python@v5
         with:
@@ -18,16 +22,37 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v6
 
+      - name: Set version from release tag
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          VERSION="${TAG#v}"
+          uv version "$VERSION"
+
       - name: Build dist
         run: uv build
 
       - name: List artifacts
         run: ls -l dist
+
       - name: Upload distributions
         uses: actions/upload-artifact@v4
         with:
           name: release-dists
           path: dist/
+
+      - name: Commit version to pyproject.toml
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          VERSION="${TAG#v}"
+          if git diff --quiet pyproject.toml; then
+            echo "pyproject.toml already at version $VERSION, nothing to commit"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add pyproject.toml
+            git commit -m "chore: set version to $VERSION [skip ci]"
+            git push
+          fi
 
   pypi-publish:
     runs-on: ubuntu-latest
