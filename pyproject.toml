@@ -4,7 +4,7 @@ build-backend = "uv_build"
 
 [project]
 name = "skivvy"
-version = "0.704"
+version = "0.705"
 description = "A simple tool for testing JSON/HTTP APIs"
 readme = "README.md"
 requires-python = ">=3.13"
