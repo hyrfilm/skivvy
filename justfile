@@ -20,6 +20,10 @@ sync:
 lock:
 	uv lock
 
+examples:
+	uv run skivvy examples/dummyjson/dummy.json
+	uv run skivvy examples/typicode/passing.json
+
 # run via cli
 run *args:
 	uv run skivvy {{args}}

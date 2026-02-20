@@ -2,7 +2,7 @@
   "base_url": "https://dummyjson.com",
   "tests": "./examples/dummyjson/tests",
   "ext": ".json",
-  "log_level": "DEBUG",
+  "log_level": "INFO",
   "fail_fast": true,
   "brace_expansion": true,
   "match_subsets": true

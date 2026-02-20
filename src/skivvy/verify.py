@@ -37,33 +37,35 @@ def verify_list(expected, actual, **match_options):
 
     for expected_entry in expected:
         log.debug("Checking '%s'..." % expected_entry)
-        if expected_entry not in actual:
-            if match_subsets:
-                verify_list_subset(expected_entry, actual, **match_options)
-            else:
-                raise Exception(
-                    "Didn't find:\n%s\nin:\n%s"
-                    % (tojsonstr(expected_entry), tojsonstr(actual))
-                )
+        if expected_entry in actual:
+            continue  # fast path: exact Python equality
 
-
-def verify_list_subset(expected_entry, actual, **match_options):
-    if isinstance(actual, list):
-        for actual_entry in actual:
-            if isinstance(actual_entry, dict) and isinstance(expected_entry, dict):
-                e = dict(expected_entry)
-                a = dict(actual_entry)
-
-                a.update(e)
+        # Matcher-aware search: try each actual entry using verify() semantics.
+        # When match_subsets is true and both sides are dicts, use partial matching:
+        # overlay expected keys onto actual so only expected keys are checked.
+        found = False
+        if isinstance(actual, list):
+            for actual_entry in actual:
                 try:
-                    verify(a, actual_entry, **match_options)
-                    return
-                except:
+                    if (
+                        match_subsets
+                        and isinstance(expected_entry, dict)
+                        and isinstance(actual_entry, dict)
+                    ):
+                        merged = {**actual_entry, **expected_entry}
+                        verify(merged, actual_entry, **match_options)
+                    else:
+                        verify(expected_entry, actual_entry, **match_options)
+                    found = True
+                    break
+                except Exception:
                     pass
 
-    raise Exception(
-        "Didn't find:\n%s\nin:\n%s" % (tojsonstr(expected_entry), tojsonstr(actual))
-    )
+        if not found:
+            raise Exception(
+                "Didn't find:\n%s\nin:\n%s"
+                % (tojsonstr(expected_entry), tojsonstr(actual))
+            )
 
 
 def verify_matcher(expected, actual):

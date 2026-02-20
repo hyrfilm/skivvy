@@ -1,0 +1,9 @@
+{
+  "url": "/posts",
+  "response": [
+    {
+      "userId": "$between 1 10",
+      "id": "$gt 0"
+    }
+  ]
+}
