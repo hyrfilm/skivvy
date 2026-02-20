@@ -34,9 +34,18 @@ def verify_dict(expected, actual, **match_options):
 # TODO: support strict or non-strict types of comparisons of lists
 def verify_list(expected, actual, **match_options):
     match_subsets = match_options.get("match_subsets", False)
+    match_every_entry = match_options.get(Settings.MATCH_EVERY_ENTRY.key, False)
 
     for expected_entry in expected:
         log.debug("Checking '%s'..." % expected_entry)
+
+        if match_every_entry:
+            # Every actual entry must satisfy this expected template.
+            if isinstance(actual, list):
+                for actual_entry in actual:
+                    _verify_entry(expected_entry, actual_entry, **match_options)
+            continue
+
         if expected_entry in actual:
             continue  # fast path: exact Python equality
 
@@ -47,15 +56,7 @@ def verify_list(expected, actual, **match_options):
         if isinstance(actual, list):
             for actual_entry in actual:
                 try:
-                    if (
-                        match_subsets
-                        and isinstance(expected_entry, dict)
-                        and isinstance(actual_entry, dict)
-                    ):
-                        merged = {**actual_entry, **expected_entry}
-                        verify(merged, actual_entry, **match_options)
-                    else:
-                        verify(expected_entry, actual_entry, **match_options)
+                    _verify_entry(expected_entry, actual_entry, **match_options)
                     found = True
                     break
                 except Exception:
@@ -66,6 +67,21 @@ def verify_list(expected, actual, **match_options):
                 "Didn't find:\n%s\nin:\n%s"
                 % (tojsonstr(expected_entry), tojsonstr(actual))
             )
+
+
+def _verify_entry(expected_entry, actual_entry, **match_options):
+    """Verify a single expected entry against a single actual entry.
+    With match_subsets and both sides being dicts, only expected keys are checked."""
+    match_subsets = match_options.get("match_subsets", False)
+    if (
+        match_subsets
+        and isinstance(expected_entry, dict)
+        and isinstance(actual_entry, dict)
+    ):
+        merged = {**actual_entry, **expected_entry}
+        verify(merged, actual_entry, **match_options)
+    else:
+        verify(expected_entry, actual_entry, **match_options)
 
 
 def verify_matcher(expected, actual):

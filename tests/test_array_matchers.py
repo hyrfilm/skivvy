@@ -96,6 +96,62 @@ def test_matcher_in_dict_field_with_match_subsets_fails_when_no_match():
         )
 
 
+# --- match_every_entry: template must hold for all actual entries ---
+
+def test_match_every_entry_passes_when_all_match():
+    verify(
+        [{"rating": "$between 1 5"}],
+        [{"rating": 1}, {"rating": 3}, {"rating": 5}],
+        match_every_entry=True,
+    )
+
+
+def test_match_every_entry_fails_when_one_does_not_match():
+    with pytest.raises(Exception):
+        verify(
+            [{"rating": "$between 1 5"}],
+            [{"rating": 1}, {"rating": 3}, {"rating": 9}],
+            match_every_entry=True,
+        )
+
+
+def test_match_every_entry_on_scalars():
+    verify(
+        ["$gt 0"],
+        [1, 2, 3],
+        match_every_entry=True,
+    )
+
+
+def test_match_every_entry_on_scalars_fails():
+    with pytest.raises(Exception):
+        verify(
+            ["$gt 0"],
+            [1, -1, 3],
+            match_every_entry=True,
+        )
+
+
+def test_match_every_entry_combined_with_match_subsets():
+    # Partial dict matching + every entry must satisfy it
+    verify(
+        [{"active": True}],
+        [{"id": 1, "active": True}, {"id": 2, "active": True}],
+        match_every_entry=True,
+        match_subsets=True,
+    )
+
+
+def test_match_every_entry_combined_with_match_subsets_fails():
+    with pytest.raises(Exception):
+        verify(
+            [{"active": True}],
+            [{"id": 1, "active": True}, {"id": 2, "active": False}],
+            match_every_entry=True,
+            match_subsets=True,
+        )
+
+
 # --- Regression: existing exact and subset matching still works ---
 
 def test_exact_scalar_in_array_still_works():

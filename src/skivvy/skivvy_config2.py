@@ -44,6 +44,9 @@ class Settings:
     MATCH_SUBSETS = Option(
         "match_subsets", False, "Allow subset matching in verification"
     )
+    MATCH_EVERY_ENTRY = Option(
+        "match_every_entry", False, "Require every actual array entry to match the expected template"
+    )
     MATCH_FALSINESS = Option(
         "match_falsiness", True, "Match falsy values in verification"
     )

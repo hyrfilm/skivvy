@@ -1,0 +1,10 @@
+{
+  "url": "/posts",
+  "match_every_entry": true,
+  "response": [
+    {
+      "userId": "$between 1 10",
+      "id": "$gt 0"
+    }
+  ]
+}
