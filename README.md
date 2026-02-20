@@ -203,6 +203,7 @@ Or specifying all currently supported settings:
 - `status` (expected HTTP status, only checked if specified)
 - `response` (object or matcher string, only checked if specified)
 - `match_subsets` (true by default, allows you to check fields or parts of objects, occurring somewhere in the response)
+- `match_every_entry` (false by default, when true every actual array entry must satisfy the expected template — as opposed to the default "at least one" semantics)
 - `match_falsiness` (true by default)
 - `brace_expansion`, (true by default, makes )
 - `validate_variable_names` (true by default) - enforces variable names starting with a letter and using only `[a-z0-9_-.,/\\]`; set to false to relax (not recommended)
@@ -313,6 +314,7 @@ a skivvy testfile, can contain the following flags that changes how the tests is
 * *read_headers* - specifies a file containing headers to be sent in the request, for example: ````"read_headers": "headers.json"````
 * *response_headers* - expected response headers to verify (case-insensitive keys, supports matchers)
 * *match_subsets* - (boolean, default is false) - controls whether skivvy will allow to match a subset of a dict found in a list
+* *match_every_entry* - (boolean, default is false) - when true, the expected array element acts as a template that every actual array entry must satisfy (default is "at least one" semantics)
 * *match_falsiness* - (boolean, default is false) - controls whether skivvy will consider falsy values (such as null, and empty string, etc) as the same equivalent
 * *upload* - see below for an example of uploading files
 * auto_coerce - default is true, if the content of a file (read using [$read_file](#read_file) or [brace expansion](#brace-expansion)) can be interpreted as an integer it will be converted to that.
