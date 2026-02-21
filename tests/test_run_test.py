@@ -112,6 +112,24 @@ def test_brace_expansion_strict_raises_on_undefined_variable():
         create_request(testcase)
 
 
+def test_run_test_supports_brace_expansion_from_environment(httpserver, tmp_path, monkeypatch):
+    monkeypatch.setenv("USER_ID", "123")
+    httpserver.expect_request("/api/123").respond_with_json({"ok": True})
+
+    testcase = {
+        "url": "/api/<env.USER_ID>",
+        "method": "get",
+        "status": 200,
+        "brace_expansion": True,
+    }
+    testcase_file = tmp_path / "env_brace_expansion.json"
+    testcase_file.write_text(json.dumps(testcase))
+
+    status, error_context = run_test(str(testcase_file), default_cfg)
+    assert status is STATUS_OK
+    assert error_context is None
+
+
 def test_matcher_options_valid_url_protocol_relative(httpserver):
     # API returns a protocol-relative URL; matcher_options expands it to http:// before validating
     httpserver.expect_request("/api/photo").respond_with_json(
