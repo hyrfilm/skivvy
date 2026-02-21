@@ -1,0 +1,13 @@
+{
+    "_comment": "Demonstrates match_subsets + match_every_entry: entries missing an expected nested key are skipped rather than failing with a type error",
+    "url": "/api/items",
+    "match_subsets": true,
+    "match_every_entry": true,
+    "response": {
+        "items": [
+            {
+                "score": "$gt 0"
+            }
+        ]
+    }
+}

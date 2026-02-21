@@ -58,6 +58,19 @@ def test_fortune_02_match_subsets(httpserver):
     # assert error_context is None
 
 
+def test_match_subsets_missing_key(httpserver):
+    # Some entries lack the 'score' key entirely; with match_subsets they should be
+    # skipped rather than raising a type mismatch (dict vs None).
+    httpserver.expect_request("/api/items").respond_with_json(
+        {"items": [{"name": "Alice", "score": 42}, {"name": "Bob"}]}
+    )
+    status, error_context = run_test(
+        "./tests/fixtures/testcases/match_subset_missing_key.json", default_cfg
+    )
+    assert status is STATUS_OK
+    assert error_context is None
+
+
 def test_matcher_options_valid_url_protocol_relative(httpserver):
     # API returns a protocol-relative URL; matcher_options expands it to http:// before validating
     httpserver.expect_request("/api/photo").respond_with_json(

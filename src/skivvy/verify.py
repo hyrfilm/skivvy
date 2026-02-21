@@ -25,7 +25,10 @@ def is_matcher(expected):
 
 
 def verify_dict(expected, actual, **match_options):
+    match_subsets = match_options.get("match_subsets", False)
     for key in expected.keys():
+        if match_subsets and key not in actual:
+            continue  # key absent from actual; allowed when match_subsets is enabled
         log.debug("Checking '%s'..." % key)
         verify(expected.get(key), actual.get(key), **match_options)
         log.debug("Success.")
