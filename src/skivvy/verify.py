@@ -101,6 +101,7 @@ def verify(expected, actual, **match_options):
         Settings.VALIDATE_VARIABLE_NAMES.key, True
     )
     scope.set_validate_variable_names(validate_variable_names)
+    matchers.set_matcher_options(match_options.get(Settings.MATCHER_OPTIONS.key, {}))
     if is_matcher(expected):
         verify_matcher(expected, actual)
     elif type(expected) != type(actual):

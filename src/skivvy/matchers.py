@@ -1,6 +1,7 @@
 """Built-in matchers used by skivvy"""
 
 # coding=utf-8
+import inspect
 import string
 import re
 from datetime import datetime
@@ -17,6 +18,21 @@ DEFAULT_APPROXIMATE_THRESHOLD = (
 )
 SUCCESS_MSG = "OK"
 STORE = {}
+
+_matcher_options = {}
+
+
+def set_matcher_options(opts: dict):
+    global _matcher_options
+    _matcher_options = opts or {}
+
+
+def get_matcher_options_self() -> dict:
+    caller = inspect.stack()[1].function
+    for name, func in matcher_dict.items():
+        if func.__name__ == caller:
+            return _matcher_options.get(name, {})
+    return {}
 
 
 def strip_matcher_prefix(s):
@@ -65,6 +81,10 @@ def match_valid_url(expected, actual):
     try:
         # format:
         #   $valid_url [prefix <url>] [unsafe]
+        opts = get_matcher_options_self()
+        for pattern, repl in opts.get("replace", {}).items():
+            actual = re.sub(pattern, repl, actual)
+
         tokens = expected.split()
 
         prefix = None
@@ -88,7 +108,7 @@ def match_valid_url(expected, actual):
         if prefix:
             actual = prefix.rstrip("/") + actual
 
-        valid_status_codes = [200]
+        valid_status_codes = [200, 201, 202]
         verify_tls = not unsafe
 
         log.debug("Making request to %s (verify=%s)" % (actual, verify_tls))

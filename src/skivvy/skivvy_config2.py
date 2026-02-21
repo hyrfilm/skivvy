@@ -53,6 +53,7 @@ class Settings:
     COLORIZE = Option("colorize", True, "Enable colored output")
     FAIL_FAST = Option("fail_fast", False, "Stop on first failure")
     MATCHERS = Option("matchers", None, "Directory containing custom matcher files")
+    MATCHER_OPTIONS = Option("matcher_options", {}, "Per-matcher configuration options")
 
 
 def get_all_settings() -> list[Option]:

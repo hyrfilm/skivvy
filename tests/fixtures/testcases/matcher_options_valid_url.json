@@ -1,0 +1,7 @@
+{
+    "_comment": "Demonstrates matcher_options: $valid_url expands protocol-relative URLs (e.g. //host/path) to https:// before validating",
+    "url": "/api/photo",
+    "response": {
+        "url": "$valid_url"
+    }
+}

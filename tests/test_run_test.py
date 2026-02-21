@@ -56,3 +56,22 @@ def test_fortune_02_match_subsets(httpserver):
     )
     assert status is STATUS_OK
     # assert error_context is None
+
+
+def test_matcher_options_valid_url_protocol_relative(httpserver):
+    # API returns a protocol-relative URL; matcher_options expands it to http:// before validating
+    httpserver.expect_request("/api/photo").respond_with_json(
+        {"url": f"//{FAKE_SERVER}:{FAKE_PORT}/image.png"}
+    )
+    httpserver.expect_request("/image.png").respond_with_data(b"", status=200)
+    status, error_context = run_test(
+        "./tests/fixtures/testcases/matcher_options_valid_url.json",
+        {
+            **default_cfg,
+            "matcher_options": {
+                "$valid_url": {"replace": {"^//": "http://"}}
+            },
+        },
+    )
+    assert status is STATUS_OK
+    assert error_context is None
