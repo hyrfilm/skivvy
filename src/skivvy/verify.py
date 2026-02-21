@@ -26,9 +26,11 @@ def is_matcher(expected):
 
 def verify_dict(expected, actual, **match_options):
     match_subsets = match_options.get("match_subsets", False)
+    skip_empty_objects = match_options.get(Settings.SKIP_EMPTY_OBJECTS.key, False)
+    if match_subsets and skip_empty_objects and not actual:
+        return True
+
     for key in expected.keys():
-        if match_subsets and key not in actual:
-            continue  # key absent from actual; allowed when match_subsets is enabled
         log.debug("Checking '%s'..." % key)
         verify(expected.get(key), actual.get(key), **match_options)
         log.debug("Success.")
@@ -38,6 +40,9 @@ def verify_dict(expected, actual, **match_options):
 def verify_list(expected, actual, **match_options):
     match_subsets = match_options.get("match_subsets", False)
     match_every_entry = match_options.get(Settings.MATCH_EVERY_ENTRY.key, False)
+    skip_empty_arrays = match_options.get(Settings.SKIP_EMPTY_ARRAYS.key, False)
+    if match_subsets and skip_empty_arrays and not actual:
+        return True
 
     for expected_entry in expected:
         log.debug("Checking '%s'..." % expected_entry)

@@ -58,14 +58,26 @@ def test_fortune_02_match_subsets(httpserver):
     # assert error_context is None
 
 
-def test_match_subsets_missing_key(httpserver):
-    # Some entries lack the 'score' key entirely; with match_subsets they should be
-    # skipped rather than raising a type mismatch (dict vs None).
+def test_match_subsets_missing_key_fails_by_default(httpserver):
+    # Some entries lack the 'score' key entirely; with match_subsets, this should
+    # fail by default unless skip_empty_objects is enabled AND they are empty objects.
     httpserver.expect_request("/api/items").respond_with_json(
         {"items": [{"name": "Alice", "score": 42}, {"name": "Bob"}]}
     )
     status, error_context = run_test(
         "./tests/fixtures/testcases/match_subset_missing_key.json", default_cfg
+    )
+    assert status is STATUS_FAILED
+    assert error_context is not None
+
+
+def test_match_subsets_empty_object_can_be_skipped(httpserver):
+    httpserver.expect_request("/api/items").respond_with_json(
+        {"items": [{"score": 42}, {}]}
+    )
+    status, error_context = run_test(
+        "./tests/fixtures/testcases/match_subset_empty_object_skip.json",
+        default_cfg,
     )
     assert status is STATUS_OK
     assert error_context is None

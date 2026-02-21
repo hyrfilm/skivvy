@@ -202,7 +202,9 @@ Or specifying all currently supported settings:
 - `method` (`get` default),
 - `status` (expected HTTP status, only checked if specified)
 - `response` (object or matcher string, only checked if specified)
-- `match_subsets` (true by default, allows you to check fields or parts of objects, occurring somewhere in the response)
+- `match_subsets` (false by default, allows you to check fields or parts of objects, occurring somewhere in the response)
+- `skip_empty_objects` (false by default, only relevant with `match_subsets`; when true, empty objects are skipped during verification)
+- `skip_empty_arrays` (false by default, only relevant with `match_subsets`; when true, empty arrays are skipped during verification)
 - `match_every_entry` (false by default, when true every actual array entry must satisfy the expected template — as opposed to the default "at least one" semantics)
 - `match_falsiness` (true by default)
 - `brace_expansion`, (true by default, makes )
@@ -314,6 +316,8 @@ a skivvy testfile, can contain the following flags that changes how the tests is
 * *read_headers* - specifies a file containing headers to be sent in the request, for example: ````"read_headers": "headers.json"````
 * *response_headers* - expected response headers to verify (case-insensitive keys, supports matchers)
 * *match_subsets* - (boolean, default is false) - controls whether skivvy will allow to match a subset of a dict found in a list
+* *skip_empty_objects* - (boolean, default is false) - only with *match_subsets*; when true, empty objects are skipped during verification
+* *skip_empty_arrays* - (boolean, default is false) - only with *match_subsets*; when true, empty arrays are skipped during verification
 * *match_every_entry* - (boolean, default is false) - when true, the expected array element acts as a template that every actual array entry must satisfy (default is "at least one" semantics)
 * *match_falsiness* - (boolean, default is false) - controls whether skivvy will consider falsy values (such as null, and empty string, etc) as the same equivalent
 * *upload* - see below for an example of uploading files

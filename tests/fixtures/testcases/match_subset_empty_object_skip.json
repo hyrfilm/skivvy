@@ -1,8 +1,9 @@
 {
-    "_comment": "Demonstrates strict default: with match_subsets + match_every_entry, entries missing an expected nested key fail verification",
+    "_comment": "Demonstrates opt-in skip_empty_objects behavior: empty dict entries are skipped",
     "url": "/api/items",
     "match_subsets": true,
     "match_every_entry": true,
+    "skip_empty_objects": true,
     "response": {
         "items": [
             {

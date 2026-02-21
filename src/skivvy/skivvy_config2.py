@@ -44,6 +44,16 @@ class Settings:
     MATCH_SUBSETS = Option(
         "match_subsets", False, "Allow subset matching in verification"
     )
+    SKIP_EMPTY_OBJECTS = Option(
+        "skip_empty_objects",
+        False,
+        "When subset matching, skip verification for empty objects",
+    )
+    SKIP_EMPTY_ARRAYS = Option(
+        "skip_empty_arrays",
+        False,
+        "When subset matching, skip verification for empty arrays",
+    )
     MATCH_EVERY_ENTRY = Option(
         "match_every_entry", False, "Require every actual array entry to match the expected template"
     )

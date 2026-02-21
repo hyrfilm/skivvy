@@ -152,6 +152,47 @@ def test_match_every_entry_combined_with_match_subsets_fails():
         )
 
 
+def test_match_every_entry_missing_subset_key_fails_by_default():
+    with pytest.raises(Exception):
+        verify(
+            [{"score": "$gt 0"}],
+            [{"name": "Alice", "score": 42}, {"name": "Bob"}],
+            match_every_entry=True,
+            match_subsets=True,
+        )
+
+
+def test_match_every_entry_empty_object_can_be_skipped():
+    verify(
+        [{"score": "$gt 0"}],
+        [{"score": 42}, {}],
+        match_every_entry=True,
+        match_subsets=True,
+        skip_empty_objects=True,
+    )
+
+
+def test_match_every_entry_non_empty_disjoint_object_is_not_skipped():
+    with pytest.raises(Exception):
+        verify(
+            [{"a": 1}],
+            [{"b": 2}],
+            match_every_entry=True,
+            match_subsets=True,
+            skip_empty_objects=True,
+        )
+
+
+def test_match_every_entry_empty_array_can_be_skipped():
+    verify(
+        [[1]],
+        [[1], []],
+        match_every_entry=True,
+        match_subsets=True,
+        skip_empty_arrays=True,
+    )
+
+
 # --- Regression: existing exact and subset matching still works ---
 
 def test_exact_scalar_in_array_still_works():
