@@ -1,3 +1,5 @@
+import json
+import os
 from typing import NamedTuple, Dict, Any, ChainMap, Mapping
 
 from skivvy.util import file_util
@@ -80,6 +82,70 @@ def get_all_settings() -> list[Option]:
     return [
         option for _name, option in vars(Settings).items() if isinstance(option, Option)
     ]
+
+
+def get_settings_by_key() -> dict[str, Option]:
+    return {option.key: option for option in get_all_settings()}
+
+
+def coerce_override_value(raw: str) -> object:
+    value = raw.strip()
+    if value == "":
+        return value
+
+    lowered = value.lower()
+    if lowered == "true":
+        return True
+    if lowered == "false":
+        return False
+    if lowered in ("none", "null"):
+        return None
+
+    try:
+        return json.loads(value)
+    except json.JSONDecodeError:
+        return value
+
+
+def parse_cli_overrides(raw_overrides: list[str] | str | None) -> dict[str, object]:
+    if raw_overrides is None:
+        return {}
+
+    values = raw_overrides if isinstance(raw_overrides, list) else [raw_overrides]
+    known_settings = get_settings_by_key()
+    overrides: dict[str, object] = {}
+    for raw in values:
+        key, sep, value = raw.partition("=")
+        key = key.strip()
+        if sep != "=" or key == "":
+            raise ValueError(
+                f'Invalid --set value "{raw}". Expected format: key=value'
+            )
+        if key not in known_settings:
+            available = ", ".join(sorted(known_settings.keys()))
+            raise ValueError(
+                f'Unknown setting "{key}" passed via --set. Supported settings: {available}'
+            )
+        overrides[key] = coerce_override_value(value)
+
+    return overrides
+
+
+def env_var_name_for_option(option: Option, prefix: str = "SKIVVY_") -> str:
+    normalized_key = "".join(ch if ch.isalnum() else "_" for ch in option.key.upper())
+    return f"{prefix}{normalized_key}"
+
+
+def parse_env_overrides(
+    env: Mapping[str, str] | None = None, prefix: str = "SKIVVY_"
+) -> dict[str, object]:
+    source = os.environ if env is None else env
+    overrides: dict[str, object] = {}
+    for option in get_all_settings():
+        env_key = env_var_name_for_option(option, prefix=prefix)
+        if env_key in source:
+            overrides[option.key] = coerce_override_value(source[env_key])
+    return overrides
 
 
 def create_test_config(*dicts: Dict[str, object]) -> Mapping[str, object]:

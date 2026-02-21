@@ -1,19 +1,16 @@
 """skivvy
 
 Usage:
-    skivvy <cfg_file>
-    skivvy <cfg_file> [-t]
-    skivvy <cfg_file> [-t] -i path.*file...
-    skivvy <cfg_file> [-t] -e path.*file...
-    skivvy <cfg_file> [-t] -i path.*file... -e path.*file...
+    skivvy <cfg_file> [-t] [-i=regexp]... [-e=regexp]... [--set=kv]...
 
     skivvy examples/example.json (run examples)
 
 Options:
     -h --help       show this screen.
     -v --version    show version.
-    -i=regexp       include only files matching provided regexp(s) [default: .*]
+    -i=regexp       include only files matching provided regexp(s)
     -e=regexp       exclude files matching provided regexp(s)
+    --set=kv        override a setting using key=value syntax (repeatable)
     -t              keep temporary files (if any)
 """
 
@@ -23,7 +20,11 @@ import traceback
 from docopt import docopt
 
 from skivvy import __version__
-from skivvy.skivvy_config2 import create_testcase, conf_get, Settings, get_all_settings
+from skivvy.skivvy_config2 import (
+    create_testcase,
+    parse_env_overrides,
+    parse_cli_overrides,
+)
 from . import custom_matchers, test_runner
 from . import matchers
 from .skivvy_config import read_config
@@ -83,13 +84,13 @@ def log_error_context(err_context, conf):
         log.debug("\n" * 5)
 
 
-def run_test(filename, env_conf):
+def run_test(filename, env_conf, cli_overrides=None):
     file_util.set_current_file(filename)
-    configure_logging(env_conf)
     error_context = {}
 
     try:
-        testcase = create_testcase(filename, env_conf)
+        testcase = create_testcase(cli_overrides or {}, filename, env_conf)
+        configure_logging(testcase)
         request, testcase_config = test_runner.create_request(testcase)
         expected_status = testcase_config.get("status")
         expected_response = testcase_config.get("response")
@@ -158,13 +159,19 @@ def normalize_headers(headers: dict) -> dict:
 def run():
     arguments = docopt(__doc__, version=f"skivvy {version}")
     cfg_file = arguments.get("<cfg_file>")
-    log.info(f"[b]skivvy[/b] [u]{version}[/u] | config=cfg_file")
-    conf = read_config(cfg_file)
-    tests = file_util.list_files(conf.tests, conf.ext)
+    log.info(f"[b]skivvy[/b] [u]{version}[/u] | config={cfg_file}")
+    cfg_conf = read_config(cfg_file)
+    env_overrides = parse_env_overrides()
+    cli_overrides = parse_cli_overrides(arguments.get("--set"))
+
+    base_conf = create_testcase(env_overrides, cfg_conf)
+    suite_conf = create_testcase(cli_overrides, base_conf)
+
+    tests = file_util.list_files(suite_conf["tests"], suite_conf["ext"])
     log.info(f"{len(tests)} tests found.")
-    custom_matchers.load(conf)
+    custom_matchers.load(suite_conf)
     matchers.add_negating_matchers()
-    fail_fast = conf.get("fail_fast", False)
+    fail_fast = suite_conf.get("fail_fast", False)
 
     failures = 0
     num_tests = 0
@@ -172,6 +179,10 @@ def run():
     # include files - by inclusive filtering files that match the -i regexps
     # (default is ['.*'] so all files would be included in the filter)
     incl_patterns = arguments.get("-i") or []
+    if isinstance(incl_patterns, str):
+        incl_patterns = [incl_patterns]
+    if len(incl_patterns) == 0:
+        incl_patterns = [".*"]
     incl_patterns = str_util.compile_regexps(incl_patterns)
     tests = [
         testfile for testfile in tests if str_util.matches_any(testfile, incl_patterns)
@@ -179,6 +190,8 @@ def run():
 
     # exclude files - by removing any files that match the -i regexps (default is [] so no files would be excluded)
     excl_patterns = arguments.get("-e") or []
+    if isinstance(excl_patterns, str):
+        excl_patterns = [excl_patterns]
     excl_patterns = str_util.compile_regexps(excl_patterns)
     tests = [
         testfile
@@ -190,13 +203,17 @@ def run():
     for testfile in tests:
         with log.testcase_logger(testfile) as test:
             num_tests += 1
-            result, err_context = run_test(testfile, conf)
+            result, err_context = run_test(
+                testfile,
+                suite_conf,
+                cli_overrides=cli_overrides,
+            )
             if result == STATUS_OK:
                 test.ok = True
             else:
                 test.ok = False
-                log_testcase_failed(testfile, conf)
-                log_error_context(err_context, conf)
+                log_testcase_failed(testfile, suite_conf)
+                log_error_context(err_context, suite_conf)
                 failures += 1
                 if fail_fast and failures > 0:
                     log.info('[red]Halting test run![/red]("fail_fast" is set to true)')

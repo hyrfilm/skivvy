@@ -3,6 +3,10 @@ import os
 from skivvy.util import str_util, scope, file_util, log
 
 
+def is_env_variable_name(variable_name: str) -> bool:
+    return variable_name.lower().startswith("env.")
+
+
 def brace_expand_string(s, **kwargs):
     if not isinstance(s, str):
         return s
@@ -25,16 +29,31 @@ def brace_expand_string(s, **kwargs):
 
 
 def variable_resolver(variable_name):
+    if is_env_variable_name(variable_name):
+        return None
     if scope.has(variable_name):
         return scope.fetch(variable_name)
     return None
 
 
+def env_resolver(variable_name):
+    prefix = "env."
+    if not is_env_variable_name(variable_name):
+        return None
+
+    env_name = variable_name[len(prefix):]
+    if env_name == "":
+        return None
+    return os.environ.get(env_name)
+
+
 def file_resolver(variable_name):
+    if is_env_variable_name(variable_name):
+        return None
     if os.path.isfile(variable_name):
         return file_util.read_file_contents(variable_name)
     return None
 
 
-resolvers = [variable_resolver, file_resolver]
+resolvers = [env_resolver, variable_resolver, file_resolver]
 brace_expansion_regexp = r"<([^<>]+)>"

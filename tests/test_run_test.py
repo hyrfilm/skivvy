@@ -1,8 +1,10 @@
 import logging
 import os
 import pprint
+import json
 import pytest
-from skivvy.skivvy import run_test, STATUS_OK, STATUS_FAILED
+import sys
+from skivvy.skivvy import run_test, run, STATUS_OK, STATUS_FAILED
 from skivvy.skivvy_config2 import Option, Settings, create_test_config
 from skivvy.test_runner import create_request
 from skivvy.util import file_util, log, str_util
@@ -127,3 +129,59 @@ def test_matcher_options_valid_url_protocol_relative(httpserver):
     )
     assert status is STATUS_OK
     assert error_context is None
+
+
+def test_cli_overrides_take_precedence_over_test_file(httpserver, tmp_path):
+    httpserver.expect_request("/api/fortune/1").respond_with_json(
+        {"wisdom": "If it seems that fates are aginst you today, they probably are."}
+    )
+
+    testcase = {
+        "url": "/api/fortune/1",
+        "method": "get",
+        "status": 200,
+        "log_level": "DEBUG",
+    }
+    testcase_file = tmp_path / "test.json"
+    testcase_file.write_text(json.dumps(testcase))
+
+    logger = logging.getLogger("skivvy.util.log")
+    original_level = logger.level
+    try:
+        status, error_context = run_test(
+            str(testcase_file),
+            default_cfg,
+            cli_overrides={"log_level": "ERROR"},
+        )
+        assert status is STATUS_OK
+        assert error_context is None
+        assert logger.level == logging.ERROR
+    finally:
+        logger.setLevel(original_level)
+
+
+def test_run_without_include_filters_does_not_crash(tmp_path):
+    tests_dir = tmp_path / "tests"
+    tests_dir.mkdir()
+    (tests_dir / "01.json").write_text(
+        json.dumps({"url": "/api/fortune/1", "status": 200, "response": {}})
+    )
+
+    cfg = {
+        "tests": str(tests_dir),
+        "ext": ".json",
+        "base_url": "http://127.0.0.1:1",
+        "log_level": "ERROR",
+        "fail_fast": True,
+    }
+    cfg_file = tmp_path / "cfg.json"
+    cfg_file.write_text(json.dumps(cfg))
+
+    old_argv = sys.argv
+    try:
+        sys.argv = ["skivvy", str(cfg_file), "-t"]
+        result = run()
+    finally:
+        sys.argv = old_argv
+
+    assert result is False

@@ -175,6 +175,27 @@ skivvy 01_login_tests
 In your local / CI environment you could, for example, seed the database in the setup and tear it down after running the test pattern you specified
 Includes are applied first, then excludes.
 
+## Runtime overrides
+You can override settings at runtime from either CLI flags or environment variables.
+
+CLI:
+```bash
+skivvy cfg.json --set log_level=DEBUG --set fail_fast=true
+```
+
+Environment variables use the `SKIVVY_` prefix with upper-cased keys:
+```bash
+SKIVVY_LOG_LEVEL=DEBUG skivvy cfg.json
+SKIVVY_FAIL_FAST=true skivvy cfg.json
+```
+
+Precedence for settings is:
+1. CLI `--set key=value`
+2. test file
+3. environment (`SKIVVY_*`)
+4. config file (`cfg.json`)
+5. built-in defaults
+
 ## Config (high-value keys)
 A minimal config / env file might look this:
 ```json
@@ -207,7 +228,7 @@ Or specifying all currently supported settings:
 - `skip_empty_arrays` (false by default, only relevant with `match_subsets`; when true, empty arrays are skipped during verification)
 - `match_every_entry` (false by default, when true every actual array entry must satisfy the expected template — as opposed to the default "at least one" semantics)
 - `match_falsiness` (true by default)
-- `brace_expansion` (false by default) — enables `<variable>` substitution in request fields; see the brace expansion section below
+- `brace_expansion` (false by default) — enables `<variable>` substitution in request fields; supports `<env.NAME>` for environment variables
 - `brace_expansion_warnings` (true by default) — logs a warning when a `<variable>` cannot be resolved; set to false to suppress
 - `brace_expansion_strict` (false by default) — raises an exception (failing the test) when a `<variable>` cannot be resolved, instead of leaving the placeholder as-is
 - `validate_variable_names` (true by default) - enforces variable names starting with a letter and using only `[a-z0-9_-.,/\\]`; set to false to relax (not recommended)
@@ -286,6 +307,9 @@ Running `skivvy cfg.json -e file3` excludes paths that match the `file3` regexp.
 Stacking multiple flags is allowed: `skivvy cfg.json -i path1.* -i path2.* -e some.*file`.
 The order of filtering is done by first applying the `-i` filters and then the `-e` filters.
 
+You can also override settings with repeatable `--set key=value` flags, for example:
+`skivvy cfg.json --set log_level=DEBUG --set fail_fast=true`.
+
 ### config settings
 a skivvy testfile, can contain the following flags that changes how the tests is performed:
 
@@ -334,6 +358,7 @@ Parts of a request may need to vary depending on context. Skivvy provides a numb
 * If the parts of the *url of a request* should contain one or more values from a stored file, use [brace expansion](#brace-expansion)
 * If the *headers of a response* should be saved to a file, use $write_headers
 * If the *headers of a request* should be read from a file, use $read_headers
+* If a request field should use an environment variable (for example in CI), use brace expansion syntax like `<env.API_KEY>`
 
 #### brace expansion
 ```json
@@ -347,6 +372,15 @@ Parts of a request may need to vary depending on context. Skivvy provides a numb
 If you `brace_expansion` is to `true`. The value for `a` will be read from the file `foo` the value for `b`will be read from `bar`.
 The first part of the path of the url will be read replaced with the contents of the file `some` and the second part by the contents of the file `file`. The file is expected to be in the path, otherwise no brace expansion will occur and the value is set as-is.
 By default any value that can be interpreted as an integer will be coerced to an int. Disable this by setting `auto_coerce`to false.
+
+Environment variables can also be resolved via brace expansion:
+```json
+{
+  "headers": { "Authorization": "Bearer <env.API_KEY>" }
+}
+```
+
+Missing environment variables follow the same warning/strict behavior as any unresolved brace expansion variable.
 
 #### file uploads
 POSTs supports both file uploading & sending a post body as JSON. You can't have both (because that would result in conflicting HTTP-headers).

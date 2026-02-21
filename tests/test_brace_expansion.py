@@ -111,3 +111,45 @@ def test_brace_expansion_with_auto_coerce():
         brace_expand_string("<non_existent>", auto_coerce_func=auto_coercer)
         == "<non_existent>"
     )
+
+
+def test_brace_expansion_with_env_variables(monkeypatch):
+    monkeypatch.setenv("API_KEY", "s3cr3t")
+    monkeypatch.setenv("BUILD_NUMBER", "42")
+
+    assert brace_expand_string("Bearer <env.API_KEY>") == "Bearer s3cr3t"
+    assert (
+        brace_expand_string("<env.BUILD_NUMBER>", auto_coerce_func=auto_coercer) == 42
+    )
+
+
+def test_missing_env_variable_respects_strict_mode(monkeypatch):
+    monkeypatch.delenv("SKIVVY_MISSING_SECRET", raising=False)
+
+    assert (
+        brace_expand_string(
+            "<env.SKIVVY_MISSING_SECRET>",
+            warn=False,
+            strict=False,
+        )
+        == "<env.SKIVVY_MISSING_SECRET>"
+    )
+
+    with pytest.raises(ValueError):
+        brace_expand_string(
+            "<env.SKIVVY_MISSING_SECRET>",
+            warn=False,
+            strict=True,
+        )
+
+
+def test_env_namespace_does_not_collide_with_scope_or_files(monkeypatch):
+    monkeypatch.setenv("API_KEY", "from-env")
+    file_util.set_current_file("./env_namespace/1.json")
+    scope.store("env.api_key", "from-scope")
+    file_writer("env.API_KEY", "from-file")
+
+    try:
+        assert brace_expand_string("<env.API_KEY>") == "from-env"
+    finally:
+        file_util.cleanup_tmp_files(warn=False, throw=False)
