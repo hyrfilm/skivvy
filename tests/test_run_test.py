@@ -4,6 +4,7 @@ import pprint
 import pytest
 from skivvy.skivvy import run_test, STATUS_OK, STATUS_FAILED
 from skivvy.skivvy_config2 import Option, Settings, create_test_config
+from skivvy.test_runner import create_request
 from skivvy.util import file_util, log, str_util
 
 FAKE_SERVER = "localhost"
@@ -81,6 +82,32 @@ def test_match_subsets_empty_object_can_be_skipped(httpserver):
     )
     assert status is STATUS_OK
     assert error_context is None
+
+
+def test_brace_expansion_warnings_non_strict_returns_unexpanded_url():
+    testcase = create_test_config({
+        "base_url": f"http://{FAKE_SERVER}:{FAKE_PORT}",
+        "url": "<undefined_brace_expansion_var>/api/data",
+        "method": "get",
+        "brace_expansion": True,
+        "brace_expansion_warnings": True,
+        "brace_expansion_strict": False,
+    })
+    request, _ = create_request(testcase)
+    assert "<undefined_brace_expansion_var>" in request["url"]
+
+
+def test_brace_expansion_strict_raises_on_undefined_variable():
+    testcase = create_test_config({
+        "base_url": f"http://{FAKE_SERVER}:{FAKE_PORT}",
+        "url": "<undefined_brace_expansion_var>/api/data",
+        "method": "get",
+        "brace_expansion": True,
+        "brace_expansion_warnings": False,
+        "brace_expansion_strict": True,
+    })
+    with pytest.raises(ValueError):
+        create_request(testcase)
 
 
 def test_matcher_options_valid_url_protocol_relative(httpserver):

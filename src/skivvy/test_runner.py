@@ -124,7 +124,10 @@ def get_brace_expansion_func(config: Mapping[str, object]) -> Callable:
 
     if conf_get(config, Settings.BRACE_EXPANSION):
         brace_expand_func = partial(
-            brace_expand_string, auto_coerce_func=auto_coerce_func
+            brace_expand_string,
+            auto_coerce_func=auto_coerce_func,
+            warn=conf_get(config, Settings.BRACE_EXPANSION_WARNINGS),
+            strict=conf_get(config, Settings.BRACE_EXPANSION_STRICT),
         )
     else:
         brace_expand_func = brace_expander_noop

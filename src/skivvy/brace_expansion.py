@@ -7,11 +7,17 @@ def brace_expand_string(s, **kwargs):
     if not isinstance(s, str):
         return s
 
+    warn = kwargs.get("warn", True)
+    strict = kwargs.get("strict", False)
+
     pattern = str_util.compile_regexp(brace_expansion_regexp)
     try:
         s = str_util.expand_string(s, pattern, resolve_funcs=resolvers)
     except ValueError as e:
-        log.warning(str(e))
+        if warn:
+            log.warning(f"[yellow]Brace expansion warning:[/yellow] {e}")
+        if strict:
+            raise
         return s
 
     auto_coerce_func = kwargs.get("auto_coerce_func", lambda v: v)

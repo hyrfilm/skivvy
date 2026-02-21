@@ -19,6 +19,16 @@ class Settings:
     BRACE_EXPANSION = Option(
         "brace_expansion", False, "Enable brace expansion (see README.md)"
     )
+    BRACE_EXPANSION_WARNINGS = Option(
+        "brace_expansion_warnings",
+        True,
+        "Log a warning when brace expansion fails to resolve a variable",
+    )
+    BRACE_EXPANSION_STRICT = Option(
+        "brace_expansion_strict",
+        False,
+        "Raise an exception when brace expansion fails to resolve a variable",
+    )
     VALIDATE_VARIABLE_NAMES = Option(
         "validate_variable_names",
         True,
