@@ -181,12 +181,14 @@ You can override settings at runtime from either CLI flags or environment variab
 CLI:
 ```bash
 skivvy cfg.json --set log_level=DEBUG --set fail_fast=true
+skivvy cfg.json --set file_order=natural
 ```
 
 Environment variables use the `SKIVVY_` prefix with upper-cased keys:
 ```bash
 SKIVVY_LOG_LEVEL=DEBUG skivvy cfg.json
 SKIVVY_FAIL_FAST=true skivvy cfg.json
+SKIVVY_FILE_ORDER=natural skivvy cfg.json
 ```
 
 Precedence for settings is:
@@ -211,11 +213,14 @@ Or specifying all currently supported settings:
   "base_url": "https://api.example.com",
   "colorize": true,
   "fail_fast": false,
+  "file_order": "lexical",
   "brace_expansion": true,
   "validate_variable_names": true,
   "auto_coerce": true,
   "matchers": "./matchers"
 ```
+
+- `file_order` (default `lexical`) - controls deterministic test discovery/execution order. Use `natural` for human-friendly numeric ordering (e.g. `1, 2, 10` instead of `1, 10, 2`).
 
 ## Test file keys (most used)
 - `url` (string required), 
@@ -322,6 +327,7 @@ a skivvy testfile, can contain the following flags that changes how the tests is
 * *log_level* - a low value like 10, shows ALL logging, a value like 20 shows only info and more severe
 * *colorize* - terminal colors for diffs (default is true)
 * *fail_fast* - aborts the test run immediately when a testcase fails instead of running the whole suite (default is false) 
+* *file_order* - deterministic test file ordering, `lexical` (default) or `natural` (human-friendly numeric sort)
 * *matchers* - directory where you place your own matchers (eg "./matchers")
 
 #### mandatory settings for a testcase

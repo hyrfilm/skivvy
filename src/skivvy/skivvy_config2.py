@@ -74,6 +74,11 @@ class Settings:
     )
     COLORIZE = Option("colorize", True, "Enable colored output")
     FAIL_FAST = Option("fail_fast", False, "Stop on first failure")
+    FILE_ORDER = Option(
+        "file_order",
+        "lexical",
+        "Test file ordering: lexical (default) or natural",
+    )
     MATCHERS = Option("matchers", None, "Directory containing custom matcher files")
     MATCHER_OPTIONS = Option("matcher_options", {}, "Per-matcher configuration options")
 

@@ -12,12 +12,14 @@ def test_parse_cli_overrides_coerces_values():
         [
             "log_level=DEBUG",
             "fail_fast=true",
+            "file_order=natural",
             'matcher_options={"$valid_url":{"replace":{"^//":"http://"}}}',
         ]
     )
 
     assert overrides["log_level"] == "DEBUG"
     assert overrides["fail_fast"] is True
+    assert overrides["file_order"] == "natural"
     assert overrides["matcher_options"]["$valid_url"]["replace"]["^//"] == "http://"
 
 
@@ -35,6 +37,7 @@ def test_parse_env_overrides_reads_known_keys():
     env = {
         "SKIVVY_LOG_LEVEL": "WARNING",
         "SKIVVY_FAIL_FAST": "TRUE",
+        "SKIVVY_FILE_ORDER": "natural",
         "SKIVVY_MATCHER_OPTIONS": '{"$contains":{"min_len":2}}',
         "SKIVVY_NOT_A_SETTING": "ignored",
     }
@@ -44,6 +47,7 @@ def test_parse_env_overrides_reads_known_keys():
     assert overrides == {
         "log_level": "WARNING",
         "fail_fast": True,
+        "file_order": "natural",
         "matcher_options": {"$contains": {"min_len": 2}},
     }
 
