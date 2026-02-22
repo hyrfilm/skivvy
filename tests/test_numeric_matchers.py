@@ -34,3 +34,21 @@ def test_between_out_of_range():
 def test_between_lower_bound_must_not_exceed_upper():
     with pytest.raises(Exception, match="Lower bound"):
         verify("$between 5 1", 3)
+
+
+def test_approximate_match_with_explicit_threshold_passes():
+    verify("$~ 100 threshold 0.1", 108)
+
+
+def test_approximate_match_with_explicit_threshold_fails():
+    with pytest.raises(Exception, match="Expected 100.0"):
+        verify("$~ 100 threshold 0.01", 103)
+
+
+def test_len_match_supports_threshold_syntax():
+    verify("$len ~10 threshold 0.2", "x" * 11)
+
+
+def test_len_match_reports_error_for_non_sized_actual():
+    with pytest.raises(Exception, match="has no len"):
+        verify("$len 3", 123)

@@ -71,6 +71,7 @@ def log_error_context(err_context, conf):
     log.error(str(e))
     if expected:
         log.info("--------------- DIFF BEGIN ---------------")
+        # TODO: Should we support both of these diffs or only one?
         diff_output = str_util.pretty_diff(tojsonstr(expected), tojsonstr(actual))
         # diff_output = icdiff2
         # differ = icdiff2.RichConsoleDiff()
@@ -158,6 +159,7 @@ def normalize_headers(headers: dict) -> dict:
 
 def run():
     arguments = docopt(__doc__, version=f"skivvy {version}")
+    # TODO: Since we started supporting env variables & --set we don't strictly require a cfg file anymore and it makes sense to not require it
     cfg_file = arguments.get("<cfg_file>")
     log.info(f"[b]skivvy[/b] [u]{version}[/u] | config={cfg_file}")
     cfg_conf = read_config(cfg_file)
@@ -167,19 +169,24 @@ def run():
     base_conf = create_testcase(env_overrides, cfg_conf)
     suite_conf = create_testcase(cli_overrides, base_conf)
 
+    # TODO: Place these in Settings
     tests = file_util.list_files(
+        # TODO: should be required
         suite_conf["tests"],
-        suite_conf["ext"],
+        # TODO: should not be required (should default to ".json")
+        suite_conf["ext"],        
         file_order=suite_conf["file_order"],
     )
     log.info(f"{len(tests)} tests found.")
     custom_matchers.load(suite_conf)
     matchers.add_negating_matchers()
+    # TODO: Use Settings.FAIL_FAST instead of hard-coded string
     fail_fast = suite_conf.get("fail_fast", False)
 
     failures = 0
     num_tests = 0
 
+    # TODO: The handling of -i/-e is a bit gnarly and not DRY, at least move the relevant parts out into one of the utils
     # include files - by inclusive filtering files that match the -i regexps
     # (default is ['.*'] so all files would be included in the filter)
     incl_patterns = arguments.get("-i") or []

@@ -170,6 +170,41 @@ def test_matcher_options_valid_url_protocol_relative(httpserver):
     assert error_context is None
 
 
+def test_run_loads_and_uses_custom_matcher_from_matchers_directory(httpserver, tmp_path):
+    httpserver.expect_request("/api/custom-matcher").respond_with_json({"n": 4})
+
+    matchers_dir = tmp_path / "matchers"
+    matchers_dir.mkdir()
+    (matchers_dir / "is_even.py").write_text(
+        "def match(expected, actual):\n"
+        "    return (isinstance(actual, int) and actual % 2 == 0, 'expected an even integer')\n"
+    )
+
+    tests_dir = tmp_path / "tests"
+    tests_dir.mkdir()
+    write_json_file(
+        tests_dir / "01_custom_matcher.json",
+        {
+            "url": "/api/custom-matcher",
+            "status": 200,
+            "response": {"n": "$is_even"},
+        },
+    )
+    cfg_file = write_json_file(
+        tmp_path / "cfg.json",
+        {
+            "tests": str(tests_dir),
+            "ext": ".json",
+            "matchers": str(matchers_dir),
+            "base_url": f"http://{FAKE_SERVER}:{FAKE_PORT}",
+            "log_level": "ERROR",
+            "file_order": "lexical",
+        },
+    )
+
+    assert run_cli_with_args(cfg_file, "-t") is True
+
+
 def test_cli_overrides_take_precedence_over_test_file(httpserver, tmp_path):
     httpserver.expect_request("/api/fortune/1").respond_with_json(
         {"wisdom": "If it seems that fates are aginst you today, they probably are."}

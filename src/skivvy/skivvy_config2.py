@@ -4,7 +4,8 @@ from typing import NamedTuple, Dict, Any, ChainMap, Mapping
 
 from skivvy.util import file_util
 
-
+# TODO: Allow for specifying one of N option eg "DEBUG" "INFO" etc
+# TODO: For a large chunk of the settings we could easily provide some validation for dev ergonomics (booleans, lists, dicts) and also allow judgemental coercion only where it's really useful (boolean MIGHT fit that scenario, so that you can override something with an env variable and it might make more sense to allow 1/0... maybe?)
 class Option(NamedTuple):
     key: str
     default: Any
@@ -14,6 +15,8 @@ class Option(NamedTuple):
         return config_dict.get(self.key, self.default)
 
 
+# TODO: It would be nice if these were listed as part of the help
+# Perhaps the currently shown help is displayed when typing skivvy and these would be shown as an own section since you can use --set option but it should be mentioned that they can be specified in a config file and overridden per test as well
 class Settings:
     LOG_LEVEL = Option("log_level", "INFO", "Logging level")
     BASE_URL = Option("base_url", "", "Base URL for requests")

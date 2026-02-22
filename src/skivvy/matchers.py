@@ -75,7 +75,7 @@ def match_regexp(expected, actual):
         return False, "Error when parsing: %s" % (str(e))
 
 
-import requests
+#import requests
 
 def match_valid_url(expected, actual):
     try:
@@ -399,9 +399,10 @@ def _parse_single_number(expected):
 
 
 def add_matcher(matcher_name, matcher_func):
-    if matcher_name in matcher_dict:
+    key = "$" + matcher_name
+    if key in matcher_dict:
         raise AssertionError("Duplicate matcher: %s" % matcher_name)
-    matcher_dict["$" + matcher_name] = matcher_func
+    matcher_dict[key] = matcher_func
 
 
 def negating_matcher(negating_name, matcher_func):
@@ -422,10 +423,13 @@ def negating_matcher(negating_name, matcher_func):
 def add_negating_matchers():
     negating_matchers = []
     for matcher_name, matcher_func in matcher_dict.items():
+        if matcher_name.startswith("$!"):
+            continue
         matcher_name = strip_matcher_prefix(matcher_name)
-        negating_matchers.append(
-            ("!" + matcher_name, negating_matcher(matcher_name, matcher_func))
-        )
+        negated_name = "!" + matcher_name
+        if "$" + negated_name in matcher_dict:
+            continue
+        negating_matchers.append((negated_name, negating_matcher(matcher_name, matcher_func)))
 
     for name, func in negating_matchers:
         add_matcher(name, func)
