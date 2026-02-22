@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from skivvy.util.file_util import list_files
+from skivvy.util.file_util import list_files, strip_filename
 
 
 def _relative_paths(base: Path, files: list[str]) -> list[str]:
@@ -46,3 +46,15 @@ def test_list_files_supports_natural_order(tmp_path):
 def test_list_files_rejects_unknown_file_order(tmp_path):
     with pytest.raises(ValueError, match="Unknown file_order"):
         list_files(str(tmp_path), ".json", file_order="weird")
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("my_file", "my_file"),
+        ("./my_file.png", "my_file.png"),
+        ("some/path/here/my_file.png", "my_file.png"),
+    ],
+)
+def test_strip_filename_returns_last_path_component(raw, expected):
+    assert strip_filename(raw) == expected

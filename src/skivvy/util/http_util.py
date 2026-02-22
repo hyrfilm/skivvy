@@ -1,6 +1,6 @@
 from typing import Dict, Callable
 import requests
-from skivvy.util import dict_util
+from skivvy.util import dict_util, file_util
 from dataclasses import dataclass
 from typing import Mapping, Any, Optional
 import json
@@ -79,6 +79,7 @@ def initialize_session(session=None):
 
 def execute(request: dict[str, object]) -> HttpEnvelope:
     method, payload = prepare_request_data(request)
+    payload = prepare_upload_files(payload)
     r = do_request(method, **payload)
     return HttpEnvelope.from_requests(r)
 
@@ -88,6 +89,21 @@ def prepare_request_data(request_data: dict[str, object]) -> tuple[str, dict]:
     request_data = dict_util.remap_keys(request_data, remap)
     method = request_data.pop("method", "").lower()
     return method, request_data
+
+
+def prepare_upload_files(payload: dict[str, object]) -> dict[str, object]:
+    files = payload.get("files", {})
+    prepared_files = {
+        field: (
+            file_util.strip_filename(filename),
+            file_util.read_file_contents(filename, binary=True),
+        )
+        for field, filename in files.items()
+    }
+
+    next_payload = dict(payload)
+    next_payload["files"] = prepared_files
+    return next_payload
 
 
 def do_request(method, **payload: Dict[str, Any]) -> requests.Request:

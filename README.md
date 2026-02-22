@@ -399,8 +399,8 @@ Enabling a file upload would look like this:
 }
 ```
 When seeing an upload field skivvy like above skivvy will try to open that file and pass it along in the field specified ("file"
-in the example above). Currently only one upload is supported.
-The file needs to either be a absolute path or relative to where skivvy is executing. If the file can't be found skivvy will
+in the example above).
+Each file needs to either be a absolute path or relative to where skivvy is executing. If a file can't be found skivvy will
 complain and mark the as failed.
 
 ### matchers

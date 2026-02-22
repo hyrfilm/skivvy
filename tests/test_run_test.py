@@ -624,7 +624,6 @@ def test_run_test_sends_form_payload_end_to_end(httpserver, tmp_path):
     assert error_context is None
     assert captured == {"username": "alice", "password": "s3cr3t"}
 
-# TODO: This is a known bug - fix: https://github.com/hyrfilm/skivvy/issues/38
 def test_run_test_form_payload_does_not_default_to_json_content_type(httpserver, tmp_path):
     captured = {}
 
@@ -658,10 +657,6 @@ def test_run_test_form_payload_does_not_default_to_json_content_type(httpserver,
     assert not captured["content_type"].lower().startswith("application/json")
 
 # TODO: Known bug, fix - https://github.com/hyrfilm/skivvy/issues/39
-@pytest.mark.xfail(
-    strict=True,
-    reason="upload currently sends the configured file path string instead of opening and uploading file contents",
-)
 def test_run_test_upload_should_send_file_contents(httpserver, tmp_path):
     upload_file = tmp_path / "payload.txt"
     upload_file.write_text("hello upload")

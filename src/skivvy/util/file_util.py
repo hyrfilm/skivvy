@@ -44,7 +44,7 @@ def list_files(path, include_ext, file_order="lexical"):
 
 
 def parse_json(filename):
-    with codecs.open(filename, "r", encoding="utf8") as f:
+    with open(filename, "r", encoding="utf8") as f:
         return json.load(f)
 
 
@@ -69,9 +69,15 @@ def cleanup_tmp_files(warn: bool = False, throw: bool = True) -> None:
         raise ExceptionGroup("Missing file(s) when cleaning up:", missing)
 
 
-def read_file_contents(filename):
-    with open(filename) as fp:
+def read_file_contents(filename, binary: bool = False):
+    mode = "rb" if binary else "r"
+    kwargs = {} if binary else {"encoding": "utf8"}
+    with open(filename, mode, **kwargs) as fp:
         return fp.read()
+
+
+def strip_filename(filename: str) -> str:
+    return os.path.basename(filename)
 
 
 # TODO: Move to something like an environment kind of file
