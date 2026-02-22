@@ -42,6 +42,11 @@ def run_cli_with_args(cfg_file, *args):
         sys.argv = old_argv
 
 
+def clear_tmp_file_registry():
+    # file_util tracks temp files globally across tests; clear it to keep run() cleanup isolated
+    file_util._tmp_files.clear()
+
+
 def test_fortune_01_successful(httpserver):
     httpserver.expect_request("/api/fortune/1").respond_with_json(
         {"wisdom": "If it seems that fates are aginst you today, they probably are."}
@@ -432,6 +437,270 @@ def test_run_applies_include_then_exclude_filters_in_order(httpserver, tmp_path)
     assert call_counts == {"target": 1, "drop": 0}
 
 
+def test_run_with_t_keeps_temp_files_created_by_write_headers(httpserver, tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    clear_tmp_file_registry()
+
+    httpserver.expect_request("/api/temp-headers").respond_with_json(
+        {"ok": True},
+        headers={"X-Token": "abc123"},
+    )
+
+    tests_dir = tmp_path / "tests"
+    tests_dir.mkdir()
+    write_json_file(
+        tests_dir / "01_write_headers.json",
+        {
+            "url": "/api/temp-headers",
+            "status": 200,
+            "response": {"ok": True},
+            "write_headers": {"headers.json": ["X-Token"]},
+        },
+    )
+    cfg_file = write_json_file(
+        tmp_path / "cfg.json",
+        {
+            "tests": str(tests_dir),
+            "ext": ".json",
+            "base_url": f"http://{FAKE_SERVER}:{FAKE_PORT}",
+            "log_level": "ERROR",
+        },
+    )
+
+    try:
+        result = run_cli_with_args(cfg_file, "-t")
+        assert result is True
+        assert (tmp_path / "headers.json").is_file()
+        assert json.loads((tmp_path / "headers.json").read_text()) == {"X-Token": "abc123"}
+    finally:
+        file_util.cleanup_tmp_files(warn=False, throw=False)
+        clear_tmp_file_registry()
+
+
+def test_run_without_t_cleans_up_temp_files_created_by_write_headers(httpserver, tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    clear_tmp_file_registry()
+
+    httpserver.expect_request("/api/temp-headers-cleanup").respond_with_json(
+        {"ok": True},
+        headers={"X-Token": "gone-soon"},
+    )
+
+    tests_dir = tmp_path / "tests"
+    tests_dir.mkdir()
+    write_json_file(
+        tests_dir / "01_write_headers.json",
+        {
+            "url": "/api/temp-headers-cleanup",
+            "status": 200,
+            "response": {"ok": True},
+            "write_headers": {"headers.json": ["X-Token"]},
+        },
+    )
+    cfg_file = write_json_file(
+        tmp_path / "cfg.json",
+        {
+            "tests": str(tests_dir),
+            "ext": ".json",
+            "base_url": f"http://{FAKE_SERVER}:{FAKE_PORT}",
+            "log_level": "ERROR",
+        },
+    )
+
+    try:
+        result = run_cli_with_args(cfg_file)
+        assert result is True
+        assert not (tmp_path / "headers.json").exists()
+    finally:
+        file_util.cleanup_tmp_files(warn=False, throw=False)
+        clear_tmp_file_registry()
+
+
+def test_run_test_status_only_passes_for_204_without_response_body(httpserver, tmp_path):
+    httpserver.expect_request("/api/no-content").respond_with_data("", status=204)
+    testcase_file = write_json_file(
+        tmp_path / "no_content.json",
+        {
+            "url": "/api/no-content",
+            "method": "get",
+            "status": 204,
+        },
+    )
+
+    status, error_context = run_test(str(testcase_file), default_cfg)
+
+    assert status is STATUS_OK
+    assert error_context is None
+
+
+def test_run_test_sends_query_params_end_to_end(httpserver, tmp_path):
+    httpserver.expect_request(
+        "/api/search",
+        query_string={"q": "skivvy", "page": "2"},
+    ).respond_with_json({"ok": True})
+
+    testcase_file = write_json_file(
+        tmp_path / "query_params.json",
+        {
+            "url": "/api/search",
+            "method": "get",
+            "status": 200,
+            "query": {"q": "skivvy", "page": 2},
+            "response": {"ok": True},
+        },
+    )
+
+    status, error_context = run_test(str(testcase_file), default_cfg)
+
+    assert status is STATUS_OK
+    assert error_context is None
+
+
+def test_run_test_inline_headers_override_headers_loaded_from_file(httpserver, tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    write_json_file(tmp_path / "headers.json", {"X-Auth": "from-file", "X-Other": "keep"})
+
+    captured = {}
+
+    def headers_handler(request):
+        captured["x-auth"] = request.headers.get("X-Auth")
+        captured["x-other"] = request.headers.get("X-Other")
+        return Response(
+            response=json.dumps({"ok": True}),
+            status=200,
+            content_type="application/json",
+        )
+
+    httpserver.expect_request("/api/with-read-headers").respond_with_handler(headers_handler)
+
+    testcase_file = write_json_file(
+        tmp_path / "header_override.json",
+        {
+            "url": "/api/with-read-headers",
+            "method": "get",
+            "status": 200,
+            "read_headers": "headers.json",
+            "headers": {"X-Auth": "inline"},
+            "response": {"ok": True},
+        },
+    )
+
+    status, error_context = run_test(str(testcase_file), default_cfg)
+
+    assert status is STATUS_OK
+    assert error_context is None
+    assert captured == {"x-auth": "inline", "x-other": "keep"}
+
+
+def test_run_test_sends_form_payload_end_to_end(httpserver, tmp_path):
+    captured = {}
+
+    def form_handler(request):
+        captured["username"] = request.form.get("username")
+        captured["password"] = request.form.get("password")
+        return Response(
+            response=json.dumps({"ok": True}),
+            status=200,
+            content_type="application/json",
+        )
+
+    httpserver.expect_request("/api/login-form", method="POST").respond_with_handler(form_handler)
+
+    testcase_file = write_json_file(
+        tmp_path / "form_payload.json",
+        {
+            "url": "/api/login-form",
+            "method": "post",
+            "status": 200,
+            "form": {"username": "alice", "password": "s3cr3t"},
+            "headers": {"Content-Type": "application/x-www-form-urlencoded"},
+            "response": {"ok": True},
+        },
+    )
+
+    status, error_context = run_test(str(testcase_file), default_cfg)
+
+    assert status is STATUS_OK
+    assert error_context is None
+    assert captured == {"username": "alice", "password": "s3cr3t"}
+
+# TODO: This is a known bug - fix: https://github.com/hyrfilm/skivvy/issues/38
+@pytest.mark.xfail(
+    strict=True,
+    reason="form payloads currently default to Content-Type: application/json",
+)
+def test_run_test_form_payload_should_not_default_to_json_content_type(httpserver, tmp_path):
+    captured = {}
+
+    def form_header_handler(request):
+        captured["content_type"] = request.headers.get("Content-Type", "")
+        return Response(
+            response=json.dumps({"ok": True}),
+            status=200,
+            content_type="application/json",
+        )
+
+    httpserver.expect_request("/api/form-content-type", method="POST").respond_with_handler(
+        form_header_handler
+    )
+
+    testcase_file = write_json_file(
+        tmp_path / "form_content_type.json",
+        {
+            "url": "/api/form-content-type",
+            "method": "post",
+            "status": 200,
+            "form": {"hello": "world"},
+            "response": {"ok": True},
+        },
+    )
+
+    status, error_context = run_test(str(testcase_file), default_cfg)
+
+    assert status is STATUS_OK
+    assert error_context is None
+    assert not captured["content_type"].lower().startswith("application/json")
+
+# TODO: Known bug, fix - https://github.com/hyrfilm/skivvy/issues/39
+@pytest.mark.xfail(
+    strict=True,
+    reason="upload currently sends the configured file path string instead of opening and uploading file contents",
+)
+def test_run_test_upload_should_send_file_contents(httpserver, tmp_path):
+    upload_file = tmp_path / "payload.txt"
+    upload_file.write_text("hello upload")
+    captured = {}
+
+    def upload_handler(request):
+        file_part = request.files["file"]
+        captured["filename"] = file_part.filename
+        captured["content"] = file_part.read()
+        return Response(
+            response=json.dumps({"ok": True}),
+            status=200,
+            content_type="application/json",
+        )
+
+    httpserver.expect_request("/api/upload", method="POST").respond_with_handler(upload_handler)
+
+    testcase_file = write_json_file(
+        tmp_path / "upload.json",
+        {
+            "url": "/api/upload",
+            "method": "post",
+            "status": 200,
+            "upload": {"file": str(upload_file)},
+            "response": {"ok": True},
+        },
+    )
+
+    status, error_context = run_test(str(testcase_file), default_cfg)
+
+    assert status is STATUS_OK
+    assert error_context is None
+    assert captured["content"] == b"hello upload"
+
+#TODO: This is a known bug: https://github.com/hyrfilm/skivvy/issues/5
 @pytest.mark.xfail(
     strict=True,
     reason="$write_file should fail instead of silently overwriting an existing temp file",
