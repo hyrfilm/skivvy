@@ -4,6 +4,8 @@ import pprint
 import json
 import pytest
 import sys
+from werkzeug.wrappers import Response
+
 from skivvy.skivvy import run_test, run, STATUS_OK, STATUS_FAILED
 from skivvy.skivvy_config2 import Option, Settings, create_test_config
 from skivvy.test_runner import create_request
@@ -24,6 +26,20 @@ default_cfg = {"base_url": f"http://{FAKE_SERVER}:{FAKE_PORT}", "log_level": "DE
 @pytest.fixture(scope="session")
 def httpserver_listen_address():
     return (FAKE_SERVER, FAKE_PORT)
+
+
+def write_json_file(filename, data):
+    filename.write_text(json.dumps(data))
+    return filename
+
+
+def run_cli_with_args(cfg_file, *args):
+    old_argv = sys.argv
+    try:
+        sys.argv = ["skivvy", str(cfg_file), *args]
+        return run()
+    finally:
+        sys.argv = old_argv
 
 
 def test_fortune_01_successful(httpserver):
@@ -203,3 +219,254 @@ def test_run_without_include_filters_does_not_crash(tmp_path):
         sys.argv = old_argv
 
     assert result is False
+
+
+def test_run_test_verifies_response_headers_case_insensitively(httpserver, tmp_path):
+    httpserver.expect_request("/api/headers").respond_with_json(
+        {"ok": True},
+        headers={"x-trace-id": "trace-123"},
+    )
+    testcase_file = write_json_file(
+        tmp_path / "response_headers_ok.json",
+        {
+            "url": "/api/headers",
+            "method": "get",
+            "status": 200,
+            "response_headers": {"X-Trace-Id": "trace-123"},
+        },
+    )
+
+    status, error_context = run_test(str(testcase_file), default_cfg)
+
+    assert status is STATUS_OK
+    assert error_context is None
+
+
+def test_run_test_response_headers_mismatch_populates_error_context(httpserver, tmp_path):
+    httpserver.expect_request("/api/headers-mismatch").respond_with_json(
+        {"ok": True},
+        headers={"x-trace-id": "actual-trace"},
+    )
+    testcase_file = write_json_file(
+        tmp_path / "response_headers_fail.json",
+        {
+            "url": "/api/headers-mismatch",
+            "method": "get",
+            "status": 200,
+            "response_headers": {"X-Trace-Id": "expected-trace"},
+        },
+    )
+
+    status, error_context = run_test(str(testcase_file), default_cfg)
+
+    assert status is STATUS_FAILED
+    assert error_context is not None
+    assert error_context["expected"]["response_headers"]["X-Trace-Id"] == "expected-trace"
+    assert error_context["actual"]["response_headers"]["x-trace-id"] == "actual-trace"
+
+
+def test_run_test_write_headers_then_read_headers_roundtrip(httpserver, tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+
+    httpserver.expect_request("/api/login").respond_with_json(
+        {"ok": True},
+        headers={"X-Auth": "Bearer abc123", "X-Ignored": "ignored"},
+    )
+
+    seen_request_headers = {}
+
+    def protected_handler(request):
+        seen_request_headers["x-auth"] = request.headers.get("X-Auth")
+        return Response(
+            response=json.dumps({"ok": True}),
+            status=200,
+            content_type="application/json",
+        )
+
+    httpserver.expect_request("/api/protected").respond_with_handler(protected_handler)
+
+    tests_dir = tmp_path / "tests"
+    tests_dir.mkdir()
+    write_case = write_json_file(
+        tests_dir / "01_write_headers.json",
+        {
+            "url": "/api/login",
+            "method": "get",
+            "status": 200,
+            "response": {"ok": True},
+            "write_headers": {"headers.json": ["X-Auth"]},
+        },
+    )
+    read_case = write_json_file(
+        tests_dir / "02_read_headers.json",
+        {
+            "url": "/api/protected",
+            "method": "get",
+            "status": 200,
+            "response": {"ok": True},
+            "read_headers": "headers.json",
+        },
+    )
+
+    try:
+        status1, error_context1 = run_test(str(write_case), default_cfg)
+        assert status1 is STATUS_OK
+        assert error_context1 is None
+
+        saved_headers = json.loads((tmp_path / "headers.json").read_text())
+        assert saved_headers == {"X-Auth": "Bearer abc123"}
+
+        status2, error_context2 = run_test(str(read_case), default_cfg)
+        assert status2 is STATUS_OK
+        assert error_context2 is None
+        assert seen_request_headers["x-auth"] == "Bearer abc123"
+    finally:
+        file_util.cleanup_tmp_files(warn=False, throw=False)
+
+
+def test_run_fail_fast_stops_before_second_test(httpserver, tmp_path):
+    httpserver.expect_request("/api/fail-fast/1").respond_with_json({"ok": False})
+
+    call_counts = {"second": 0}
+
+    def second_handler(_request):
+        call_counts["second"] += 1
+        return Response(
+            response=json.dumps({"ok": True}),
+            status=200,
+            content_type="application/json",
+        )
+
+    httpserver.expect_request("/api/fail-fast/2").respond_with_handler(second_handler)
+
+    tests_dir = tmp_path / "tests"
+    tests_dir.mkdir()
+    write_json_file(
+        tests_dir / "01_fail.json",
+        {
+            "url": "/api/fail-fast/1",
+            "status": 200,
+            "response": {"ok": True},
+        },
+    )
+    write_json_file(
+        tests_dir / "02_should_not_run.json",
+        {
+            "url": "/api/fail-fast/2",
+            "status": 200,
+            "response": {"ok": True},
+        },
+    )
+
+    cfg_file = write_json_file(
+        tmp_path / "cfg.json",
+        {
+            "tests": str(tests_dir),
+            "ext": ".json",
+            "base_url": f"http://{FAKE_SERVER}:{FAKE_PORT}",
+            "log_level": "ERROR",
+            "fail_fast": True,
+        },
+    )
+
+    result = run_cli_with_args(cfg_file, "-t")
+
+    assert result is False
+    assert call_counts["second"] == 0
+
+
+def test_run_applies_include_then_exclude_filters_in_order(httpserver, tmp_path):
+    call_counts = {"target": 0, "drop": 0}
+
+    def target_handler(_request):
+        call_counts["target"] += 1
+        return Response(
+            response=json.dumps({"ok": True}),
+            status=200,
+            content_type="application/json",
+        )
+
+    def drop_handler(_request):
+        call_counts["drop"] += 1
+        return Response(
+            response=json.dumps({"ok": True}),
+            status=200,
+            content_type="application/json",
+        )
+
+    httpserver.expect_request("/api/filter/target").respond_with_handler(target_handler)
+    httpserver.expect_request("/api/filter/drop").respond_with_handler(drop_handler)
+
+    tests_dir = tmp_path / "tests"
+    tests_dir.mkdir()
+    write_json_file(
+        tests_dir / "01_target.json",
+        {
+            "url": "/api/filter/target",
+            "status": 200,
+            "response": {"ok": True},
+        },
+    )
+    write_json_file(
+        tests_dir / "02_drop.json",
+        {
+            "url": "/api/filter/drop",
+            "status": 200,
+            "response": {"ok": True},
+        },
+    )
+
+    cfg_file = write_json_file(
+        tmp_path / "cfg.json",
+        {
+            "tests": str(tests_dir),
+            "ext": ".json",
+            "base_url": f"http://{FAKE_SERVER}:{FAKE_PORT}",
+            "log_level": "ERROR",
+        },
+    )
+
+    result = run_cli_with_args(cfg_file, "-t", "-i", "target|drop", "-e", "drop")
+
+    assert result is True
+    assert call_counts == {"target": 1, "drop": 0}
+
+
+@pytest.mark.xfail(
+    strict=True,
+    reason="$write_file should fail instead of silently overwriting an existing temp file",
+)
+def test_run_test_duplicate_write_file_filename_should_fail_second_test(httpserver, tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    httpserver.expect_request("/api/write-file/1").respond_with_json({"token": "alpha"})
+    httpserver.expect_request("/api/write-file/2").respond_with_json({"token": "beta"})
+
+    tests_dir = tmp_path / "tests"
+    tests_dir.mkdir()
+    first_case = write_json_file(
+        tests_dir / "01_write_file.json",
+        {
+            "url": "/api/write-file/1",
+            "status": 200,
+            "response": {"token": "$write_file shared-token.txt"},
+        },
+    )
+    second_case = write_json_file(
+        tests_dir / "02_write_file_again.json",
+        {
+            "url": "/api/write-file/2",
+            "status": 200,
+            "response": {"token": "$write_file shared-token.txt"},
+        },
+    )
+
+    try:
+        status1, error_context1 = run_test(str(first_case), default_cfg)
+        status2, error_context2 = run_test(str(second_case), default_cfg)
+
+        assert status1 is STATUS_OK
+        assert error_context1 is None
+        assert status2 is STATUS_FAILED
+        assert error_context2 is not None
+    finally:
+        file_util.cleanup_tmp_files(warn=False, throw=False)
