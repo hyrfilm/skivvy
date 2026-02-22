@@ -167,7 +167,11 @@ def run():
     base_conf = create_testcase(env_overrides, cfg_conf)
     suite_conf = create_testcase(cli_overrides, base_conf)
 
-    tests = file_util.list_files(suite_conf["tests"], suite_conf["ext"])
+    tests = file_util.list_files(
+        suite_conf["tests"],
+        suite_conf["ext"],
+        file_order=suite_conf["file_order"],
+    )
     log.info(f"{len(tests)} tests found.")
     custom_matchers.load(suite_conf)
     matchers.add_negating_matchers()

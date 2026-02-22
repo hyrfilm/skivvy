@@ -2,17 +2,41 @@ import codecs
 import json
 import os
 import pathlib
+import re
 
 from skivvy.util import log
 
 _tmp_files = []
+_natural_sort_re = re.compile(r"(\d+)")
 
 
-def list_files(path, include_ext):
+def _natural_sort_key(value: str):
+    parts = _natural_sort_re.split(value)
+    key = []
+    for part in parts:
+        if part.isdigit():
+            key.append((0, int(part), part))
+        else:
+            key.append((1, part.casefold(), part))
+    return tuple(key)
+
+
+def _sort_key(file_order: str):
+    if file_order == "lexical":
+        return None
+    if file_order == "natural":
+        return _natural_sort_key
+    raise ValueError(
+        f'Unknown file_order "{file_order}". Supported values: lexical, natural'
+    )
+
+
+def list_files(path, include_ext, file_order="lexical"):
+    key = _sort_key(file_order)
     result = []
     for root, subdirs, files in os.walk(path):
-        subdirs.sort()
-        for filename in sorted(files):
+        subdirs.sort(key=key)
+        for filename in sorted(files, key=key):
             if filename.endswith(include_ext):
                 result.append(os.path.join(root, filename))
 
