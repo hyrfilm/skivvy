@@ -625,11 +625,7 @@ def test_run_test_sends_form_payload_end_to_end(httpserver, tmp_path):
     assert captured == {"username": "alice", "password": "s3cr3t"}
 
 # TODO: This is a known bug - fix: https://github.com/hyrfilm/skivvy/issues/38
-@pytest.mark.xfail(
-    strict=True,
-    reason="form payloads currently default to Content-Type: application/json",
-)
-def test_run_test_form_payload_should_not_default_to_json_content_type(httpserver, tmp_path):
+def test_run_test_form_payload_does_not_default_to_json_content_type(httpserver, tmp_path):
     captured = {}
 
     def form_header_handler(request):
