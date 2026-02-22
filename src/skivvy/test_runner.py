@@ -183,14 +183,12 @@ def header_exists(headers: dict[str, str], name: str) -> bool:
 
 
 def maybe_add_content_type(headers: dict[str, str], request_config: Mapping[str, Any]) -> None:
-    has_payload = any(
-        [
-            conf_get(request_config, Settings.BODY),
-            conf_get(request_config, Settings.FORM),
-        ]
-    )
+    has_json_body = conf_get(request_config, Settings.BODY) is not None
     has_upload = conf_get(request_config, Settings.UPLOAD)
-    if not has_payload or has_upload:
+    # Only auto-add the configured content type for JSON-style bodies.
+    # Form payloads are sent via requests' ``data=`` and should typically let
+    # requests assign ``application/x-www-form-urlencoded`` automatically.
+    if not has_json_body or has_upload:
         return
 
     content_type = conf_get(request_config, Settings.CONTENT_TYPE)
