@@ -1,5 +1,4 @@
 from typing import Dict, Callable
-import os
 import requests
 from skivvy.util import dict_util, file_util
 from dataclasses import dataclass
