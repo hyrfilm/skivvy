@@ -1,6 +1,13 @@
+import os
+
 import pytest
 
-from skivvy.util.http_util import initialize_session, do_request, prepare_request_data
+from skivvy.util.http_util import (
+    initialize_session,
+    do_request,
+    prepare_request_data,
+    prepare_upload_files,
+)
 
 
 class DummySession:
@@ -118,3 +125,14 @@ def test_mapping_skivvy_fields_to_requests_api():
     }
     assert method == "post"
     assert requests_api_fields == expected_data
+
+
+def test_prepare_upload_files_reads_bytes_and_preserves_filename(tmp_path):
+    upload_file = tmp_path / "payload.bin"
+    upload_file.write_bytes(b"hello")
+
+    payload = {"files": {"file": str(upload_file)}}
+
+    prepared = prepare_upload_files(payload)
+
+    assert prepared["files"]["file"] == (os.path.basename(str(upload_file)), b"hello")
