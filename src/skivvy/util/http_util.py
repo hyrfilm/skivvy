@@ -96,7 +96,7 @@ def prepare_upload_files(payload: dict[str, object]) -> dict[str, object]:
     files = payload.get("files", {})
     prepared_files = {
         field: (
-            file_util.strip_filename(os.fspath(filename)),
+            file_util.strip_filename(filename),
             file_util.read_file_contents(filename, binary=True),
         )
         for field, filename in files.items()
