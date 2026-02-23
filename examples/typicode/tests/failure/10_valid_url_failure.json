@@ -1,0 +1,7 @@
+{
+  "url": "/posts/1",
+  "response": {
+    "userId": 1,
+    "thumbnailUrl": "$valid_url"
+  }
+}

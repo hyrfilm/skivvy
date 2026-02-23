@@ -4,6 +4,7 @@ import unicodedata
 from typing import Iterable, List, Optional, Tuple
 
 from rich.console import Console
+from rich.box import Box
 from rich.table import Table
 from rich.text import Text
 
@@ -11,6 +12,21 @@ from rich.text import Text
 EXIT_CODE_SUCCESS = 0
 EXIT_CODE_DIFF = 1
 EXIT_CODE_ERROR = 2
+
+SQUARE_NO_HEADER_RULE = Box(
+    "\n".join(
+        [
+            "┌─┬┐",  # top
+            "│ ││",  # head
+            "│ ││",  # head_row (no horizontal rule)
+            "│ ││",  # mid
+            "├─┼┤",  # row
+            "├─┼┤",  # foot_row
+            "│ ││",  # foot
+            "└─┴┘",  # bottom
+        ]
+    )
+)
 
 
 class RichConsoleDiff:
@@ -188,6 +204,7 @@ class RichConsoleDiff:
             show_header=True,
             header_style=self.styles["description"],
             show_lines=False,
+            box=SQUARE_NO_HEADER_RULE,
         )
 
         left_header = fromdesc or "Left"

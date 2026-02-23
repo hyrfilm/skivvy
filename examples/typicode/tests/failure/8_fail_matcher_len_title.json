@@ -1,0 +1,8 @@
+{
+  "_comment": "Intentional matcher failure: title length is not approximately 5",
+  "url": "/posts/1",
+  "status": 200,
+  "response": {
+    "title": "$len ~5 threshold 0.1"
+  }
+}

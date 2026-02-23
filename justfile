@@ -27,3 +27,11 @@ examples:
 # run via cli
 run *args:
 	uv run skivvy {{args}}
+
+# Prototype: compare different diff renderings for each failing testcase
+diff-examples *args:
+	uv run python scripts/compare_failure_diffs.py {{args}}
+
+# Prototype: compact-first diff comparison for huge failures (projected diffs first)
+diff-examples-compact *args:
+	uv run python scripts/compare_failure_diffs.py --compact-mode {{args}}

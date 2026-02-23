@@ -1,0 +1,8 @@
+{
+  "_comment": "Intentional matcher failure: email does not match impossible regexp",
+  "url": "/comments/1",
+  "status": 200,
+  "response": {
+    "email": "$regexp ^not-a-real-email$"
+  }
+}

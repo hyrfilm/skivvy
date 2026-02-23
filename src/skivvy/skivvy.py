@@ -16,6 +16,7 @@ Options:
 
 import json
 import traceback
+import time
 
 from docopt import docopt
 
@@ -27,6 +28,7 @@ from skivvy.skivvy_config2 import (
 )
 from . import custom_matchers, test_runner
 from . import matchers
+from . import events
 from .skivvy_config import read_config
 from .util import file_util, http_util, dict_util, str_util
 from .util import log
@@ -90,9 +92,11 @@ def run_test(filename, env_conf, cli_overrides=None):
     error_context = {}
 
     try:
-        testcase = create_testcase(cli_overrides or {}, filename, env_conf)
+        with events.phase_span("create_testcase", testfile=filename):
+            testcase = create_testcase(cli_overrides or {}, filename, env_conf)
         configure_logging(testcase)
-        request, testcase_config = test_runner.create_request(testcase)
+        with events.phase_span("create_request", testfile=filename):
+            request, testcase_config = test_runner.create_request(testcase)
         expected_status = testcase_config.get("status")
         expected_response = testcase_config.get("response")
         expected = {}
@@ -102,10 +106,15 @@ def run_test(filename, env_conf, cli_overrides=None):
             expected["response"] = expected_response
         expected_response_headers = testcase_config.get("response_headers")
         if expected_response_headers is not None:
-            expected["response_headers"] = expected_response_headers
+            # TODO(prototype): Exclude response headers from error_context/diff payloads for now.
+            # Real solution should support phase-aware diff projection (e.g. diff only headers for
+            # verify_response_headers failures, and omit noisy headers for response/status failures).
+            # expected["response_headers"] = expected_response_headers
+            pass
         error_context["expected"] = expected
 
-        http_envelope = http_util.execute(request)
+        with events.phase_span("http_execute", testfile=filename):
+            http_envelope = http_util.execute(request)
         actual_status = http_envelope.status_code
         actual_response = http_envelope.json()
         actual_headers = normalize_headers(http_envelope.headers)
@@ -117,19 +126,24 @@ def run_test(filename, env_conf, cli_overrides=None):
         error_context["actual"] = {
             "status": actual_status,
             "response": actual_response,
-            "response_headers": actual_headers,
+            # TODO(prototype): Exclude response headers from error_context/diff payloads for now.
+            # Keep actual_headers local for verification, but do not include in generic failure diff.
+            # "response_headers": actual_headers,
         }
 
         if "status" in testcase_config:
-            verify(testcase_config["status"], actual_status, **testcase_config)
+            with events.phase_span("verify_status", testfile=filename):
+                verify(testcase_config["status"], actual_status, **testcase_config)
         if "response" in testcase_config:
-            verify(testcase_config["response"], actual_response, **testcase_config)
+            with events.phase_span("verify_response", testfile=filename):
+                verify(testcase_config["response"], actual_response, **testcase_config)
         if expected_response_headers is not None:
-            verify(
-                normalize_headers(expected_response_headers),
-                actual_headers,
-                **testcase_config,
-            )
+            with events.phase_span("verify_response_headers", testfile=filename):
+                verify(
+                    normalize_headers(expected_response_headers),
+                    actual_headers,
+                    **testcase_config,
+                )
     except Exception as e:
         error_context["exception"] = traceback.format_exc()
         return STATUS_FAILED, error_context
@@ -158,6 +172,8 @@ def normalize_headers(headers: dict) -> dict:
 
 
 def run():
+    run_started = time.perf_counter()
+    run_id = events.new_run_id()
     arguments = docopt(__doc__, version=f"skivvy {version}")
     # TODO: Since we started supporting env variables & --set we don't strictly require a cfg file anymore and it makes sense to not require it
     cfg_file = arguments.get("<cfg_file>")
@@ -210,19 +226,48 @@ def run():
         if not str_util.matches_any(testfile, excl_patterns)
     ]
     log.adjust_col_width(tests)
+    events.emit(
+        events.RUN_STARTED,
+        run_id=run_id,
+        config_file=cfg_file,
+        test_count=len(tests),
+    )
 
-    for testfile in tests:
+    for index, testfile in enumerate(tests, start=1):
+        test_started = time.perf_counter()
+        test_id = testfile
         with log.testcase_logger(testfile) as test:
             num_tests += 1
-            result, err_context = run_test(
-                testfile,
-                suite_conf,
-                cli_overrides=cli_overrides,
-            )
+            with events.with_context(run_id=run_id, test_id=test_id, testfile=testfile):
+                events.emit(
+                    events.TEST_STARTED,
+                    index=index,
+                    testfile=testfile,
+                )
+                result, err_context = run_test(
+                    testfile,
+                    suite_conf,
+                    cli_overrides=cli_overrides,
+                )
+                elapsed_ms = (time.perf_counter() - test_started) * 1000
             if result == STATUS_OK:
                 test.ok = True
+                events.emit(
+                    events.TEST_PASSED,
+                    testfile=testfile,
+                    elapsed_ms=elapsed_ms,
+                )
             else:
                 test.ok = False
+                events.emit(
+                    events.TEST_FAILED,
+                    testfile=testfile,
+                    elapsed_ms=elapsed_ms,
+                    error_context=err_context,
+                    exception=(err_context or {}).get("exception"),
+                    expected=(err_context or {}).get("expected"),
+                    actual=(err_context or {}).get("actual"),
+                )
                 log_testcase_failed(testfile, suite_conf)
                 log_error_context(err_context, suite_conf)
                 failures += 1
@@ -234,7 +279,16 @@ def run():
         log.debug("Removing temporary files...")
         file_util.cleanup_tmp_files()
 
-    return summary(failures, num_tests)
+    result = summary(failures, num_tests)
+    events.emit(
+        events.RUN_FINISHED,
+        run_id=run_id,
+        num_tests=num_tests,
+        failures=failures,
+        success=result,
+        elapsed_ms=(time.perf_counter() - run_started) * 1000,
+    )
+    return result
 
 
 def summary(failures, num_tests):

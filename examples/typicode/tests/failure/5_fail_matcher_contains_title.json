@@ -1,0 +1,8 @@
+{
+  "_comment": "Intentional matcher failure: title does not contain this substring",
+  "url": "/posts/1",
+  "status": 200,
+  "response": {
+    "title": "$contains definitely-not-in-this-title"
+  }
+}
