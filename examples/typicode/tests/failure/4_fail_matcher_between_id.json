@@ -1,0 +1,8 @@
+{
+  "_comment": "Intentional matcher failure: numeric matcher on response field",
+  "url": "/posts/1",
+  "status": 200,
+  "response": {
+    "id": "$between 10 20"
+  }
+}

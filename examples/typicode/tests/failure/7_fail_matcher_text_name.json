@@ -1,0 +1,8 @@
+{
+  "_comment": "Intentional matcher failure: comment name includes spaces/punctuation so $text should fail",
+  "url": "/comments/1",
+  "status": 200,
+  "response": {
+    "name": "$text"
+  }
+}
