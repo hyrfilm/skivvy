@@ -1,6 +1,7 @@
 from typing import Dict, Callable
 import requests
 from skivvy.util import dict_util, file_util
+from skivvy import events
 from dataclasses import dataclass
 from typing import Mapping, Any, Optional
 import json
@@ -112,7 +113,12 @@ def do_request(method, **payload: Dict[str, Any]) -> requests.Request:
 
     request_function: Callable = getattr(_session, method)
     assert callable(request_function), f"Session function {method} is not callable"
-    return request_function(**payload)
+    with events.phase_span(
+        "http_transport",
+        http_method=method,
+        url=payload.get("url"),
+    ):
+        return request_function(**payload)
 
 
 initialize_session()
