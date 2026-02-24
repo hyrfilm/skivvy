@@ -778,9 +778,11 @@ def test_run_test_duplicate_write_file_filename_should_fail_second_test(httpserv
 @pytest.fixture(autouse=False)
 def clean_event_context():
     """Reset event context between tests to prevent leakage."""
-    token = events._event_context.set({})
+    previous = dict(events._context)
+    events._context.clear()
     yield
-    events._event_context.reset(token)
+    events._context.clear()
+    events._context.update(previous)
 
 
 def _connect(signal_name, receiver):

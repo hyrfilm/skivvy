@@ -1,45 +1,14 @@
 from __future__ import annotations
 
-import contextvars
 import logging
 import time
 import uuid
 from contextlib import contextmanager
-from typing import Any, Callable
+from typing import Any
 
 _logger = logging.getLogger(__name__)
 
-try:
-    from blinker import Namespace  # type: ignore
-except ModuleNotFoundError:
-    # Fallback for environments where blinker has not been installed yet.
-    class _Signal:
-        def __init__(self):
-            self._receivers: list[Callable[..., Any]] = []
-
-        def connect(self, receiver: Callable[..., Any]):
-            if receiver not in self._receivers:
-                self._receivers.append(receiver)
-            return receiver
-
-        def disconnect(self, receiver: Callable[..., Any]):
-            self._receivers = [r for r in self._receivers if r is not receiver]
-
-        def send(self, sender: object | None = None, **kwargs):
-            results = []
-            for receiver in list(self._receivers):
-                results.append((receiver, receiver(sender, **kwargs)))
-            return results
-
-    class Namespace:  # type: ignore[override]
-        def __init__(self):
-            self._signals: dict[str, _Signal] = {}
-
-        def signal(self, name: str) -> _Signal:
-            if name not in self._signals:
-                self._signals[name] = _Signal()
-            return self._signals[name]
-
+from blinker import Namespace
 
 RUN_STARTED = "run.started"
 TEST_STARTED = "test.started"
@@ -51,9 +20,7 @@ TEST_PHASE_FINISHED = "test.phase.finished"
 TEST_PHASE_FAILED = "test.phase.failed"
 
 _ns = Namespace()
-_event_context: contextvars.ContextVar[dict[str, Any]] = contextvars.ContextVar(
-    "skivvy_event_context", default={}
-)
+_context: dict[str, Any] = {}
 
 
 def now_ms() -> int:
@@ -69,18 +36,18 @@ def signal(name: str):
 
 
 def current_context() -> dict[str, Any]:
-    return dict(_event_context.get())
+    return dict(_context)
 
 
 @contextmanager
 def with_context(**kwargs):
-    merged = current_context()
-    merged.update({k: v for k, v in kwargs.items() if v is not None})
-    token = _event_context.set(merged)
+    previous = dict(_context)
+    _context.update({k: v for k, v in kwargs.items() if v is not None})
     try:
-        yield merged
+        yield _context
     finally:
-        _event_context.reset(token)
+        _context.clear()
+        _context.update(previous)
 
 
 def emit(name: str, **payload):
