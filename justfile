@@ -7,7 +7,9 @@ test:
 
 # Run tests with coverage
 cov:
-	uv run pytest --cov=src --cov-report=term-missing
+	uv run pytest --cov=src --cov-branch --cov-report=term-missing --cov-report=xml
+
+alias coverage := cov
 
 # format code
 fmt:
