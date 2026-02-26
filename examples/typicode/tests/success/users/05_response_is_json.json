@@ -1,0 +1,8 @@
+{
+  "_comment": "Assert on response headers and body in the same test — the API advertises JSON and delivers 10 users",
+  "url": "/users",
+  "response_headers": {
+    "Content-Type": "$contains application/json"
+  },
+  "response": "$len 10"
+}

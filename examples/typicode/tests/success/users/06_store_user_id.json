@@ -1,0 +1,8 @@
+{
+  "_comment": "Store user 3's id for use in the next test — $store captures the value, $contains checks we got the right user",
+  "url": "/users/3",
+  "response": {
+    "id": "$store user_id",
+    "name": "$contains Clementine"
+  }
+}

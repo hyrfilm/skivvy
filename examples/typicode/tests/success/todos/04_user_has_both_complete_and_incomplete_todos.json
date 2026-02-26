@@ -1,0 +1,5 @@
+{
+  "_comment": "User 1 has both completed and incomplete todos — filtering by completed= query param works in both directions",
+  "url": "/todos?userId=1&completed=true",
+  "response": "$len_gt 0"
+}

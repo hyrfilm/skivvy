@@ -1,0 +1,5 @@
+{
+  "_comment": "Filtering by userId returns a subset — $len_lt confirms it's fewer than the 200 total",
+  "url": "/todos?userId=1",
+  "response": "$len_lt 200"
+}

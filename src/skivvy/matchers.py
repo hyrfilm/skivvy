@@ -2,8 +2,8 @@
 
 # coding=utf-8
 import inspect
-import string
 import re
+import uuid as uuid_module
 from datetime import datetime
 from math import fabs
 
@@ -150,11 +150,40 @@ def match_text(expected, actual):
     if not actual:
         return False, "Expected %s but got %s" % (expected, actual)
 
-    for c in actual:
-        if c not in string.ascii_letters:
-            return False, "Expected %s but got %s" % (expected, actual)
+    for c in str(actual):
+        if not c.isprintable():
+            return False, "Expected printable text but got non-printable character %r in: %s" % (c, actual)
 
     return True, SUCCESS_MSG
+
+
+def match_uuid(expected, actual):
+    try:
+        parsed = uuid_module.UUID(str(actual))
+    except ValueError:
+        return False, "Expected a valid UUID but got %r" % actual
+
+    version = expected.strip()
+    if version:
+        try:
+            required = int(version)
+        except ValueError:
+            return False, "Invalid UUID version: %r" % version
+        try:
+            actual_version = parsed.version
+        except ValueError:
+            return False, "Could not determine UUID version for %s" % actual
+        if actual_version != required:
+            return False, "Expected UUID v%d but got v%d: %s" % (required, actual_version, actual)
+
+    return True, SUCCESS_MSG
+
+
+def match_in(expected, actual):
+    allowed = expected.strip().split()
+    if str(actual) in allowed:
+        return True, SUCCESS_MSG
+    return False, "Expected one of [%s] but got %r" % (", ".join(allowed), actual)
 
 
 def match_contains(expected, actual):
@@ -453,6 +482,8 @@ matcher_dict = {
     "$valid_ip": match_valid_ip,
     "$expects": match_expression,
     "$text": match_text,
+    "$uuid": match_uuid,
+    "$in": match_in,
     "$regexp": match_regexp,
     "$expr": match_expression,
 }

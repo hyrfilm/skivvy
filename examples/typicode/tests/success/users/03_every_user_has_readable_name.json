@@ -1,0 +1,11 @@
+{
+  "_comment": "Every user's name is human-readable text — catches corrupted or binary-garbage fields across the whole collection",
+  "url": "/users",
+  "match_every_entry": true,
+  "match_subsets": true,
+  "response": [
+    {
+      "name": "$text"
+    }
+  ]
+}
