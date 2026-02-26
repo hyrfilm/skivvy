@@ -1,5 +1,7 @@
 # skivvy — JSON-native, CLI for integration tests for HTTP APIs
 
+[![codecov](https://codecov.io/gh/hyrfilm/skivvy/graph/badge.svg)](https://codecov.io/gh/hyrfilm/skivvy)
+
 Skivvy is a tiny, Unix-style runner for API tests where the tests themselves are **JSON**.
 
 ### What makes skivvy similar to postman / bruno / curl / jq / etc
