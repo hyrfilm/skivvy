@@ -1,0 +1,6 @@
+{
+  "_comment": "Sanity check: the API has exactly 10 users",
+  "url": "/users",
+  "status": 200,
+  "response": "$len 10"
+}

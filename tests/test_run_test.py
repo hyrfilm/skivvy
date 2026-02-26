@@ -863,18 +863,16 @@ def test_with_context_skips_none_values(clean_event_context):
     assert "b" not in ctx
 
 
-def test_emit_catches_subscriber_exception(clean_event_context):
+def test_emit_propagates_subscriber_exception(clean_event_context):
     def bad_receiver(_sender, **kw):
         raise RuntimeError("boom")
 
     disconnect = _connect("test.boom", bad_receiver)
     try:
-        result = events.emit("test.boom")
+        with pytest.raises(RuntimeError, match="boom"):
+            events.emit("test.boom")
     finally:
         disconnect()
-
-    # Should not raise, returns empty list on error
-    assert result == []
 
 
 def test_phase_span_emits_started_and_finished(clean_event_context):

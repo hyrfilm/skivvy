@@ -1,0 +1,12 @@
+{
+  "_comment": "Type safety: every todo's completed field is a real boolean, not a string 'true'/'false' — checks all 200 in one test",
+  "url": "/todos",
+  "match_every_entry": true,
+  "match_subsets": true,
+  "response": [
+    {
+      "completed": "$expr type(actual) is bool",
+      "id": "$gt 0"
+    }
+  ]
+}

@@ -1,23 +1,26 @@
 from __future__ import annotations
 
-import logging
 import time
 import uuid
 from contextlib import contextmanager
 from typing import Any
 
-_logger = logging.getLogger(__name__)
-
 from blinker import Namespace
 
 RUN_STARTED = "run.started"
+RUN_PASSED = "run.passed"
+RUN_FAILED = "run.failed"
+RUN_FINISHED = "run.finished"
+
 TEST_STARTED = "test.started"
 TEST_PASSED = "test.passed"
 TEST_FAILED = "test.failed"
-RUN_FINISHED = "run.finished"
+TEST_FINISHED = "test.finished"
+
 TEST_PHASE_STARTED = "test.phase.started"
-TEST_PHASE_FINISHED = "test.phase.finished"
+TEST_PHASE_PASSED = "test.phase.passed"
 TEST_PHASE_FAILED = "test.phase.failed"
+TEST_PHASE_FINISHED = "test.phase.finished"
 
 _ns = Namespace()
 _context: dict[str, Any] = {}
@@ -54,12 +57,8 @@ def emit(name: str, **payload):
     msg = current_context()
     msg.update(payload)
     msg.setdefault("ts", now_ms())
-    try:
-        return signal(name).send(None, event=name, **msg)
-    except Exception as e:
-        # Receiver failures must not break the test run.
-        _logger.debug("Event subscriber error for %s: %s", name, e, exc_info=True)
-        return []
+    # TODO: Revisit per-sink fatal vs isolated failure behavior after sink architecture stabilizes.
+    return signal(name).send(None, event=name, **msg)
 
 
 @contextmanager
@@ -81,4 +80,5 @@ def phase_span(phase_name: str, **payload):
         raise
     else:
         elapsed_ms = (time.perf_counter() - start) * 1000
+        emit(TEST_PHASE_PASSED, phase=phase_name, elapsed_ms=elapsed_ms, **payload)
         emit(TEST_PHASE_FINISHED, phase=phase_name, elapsed_ms=elapsed_ms, **payload)

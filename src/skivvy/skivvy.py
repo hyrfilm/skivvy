@@ -29,6 +29,7 @@ from skivvy.skivvy_config2 import (
 from . import custom_matchers, test_runner
 from . import matchers
 from . import events
+from . import sinks
 from .skivvy_config import read_config
 from .util import file_util, http_util, dict_util, str_util
 from .util import log
@@ -85,6 +86,8 @@ def log_error_context(err_context, conf):
         log.debug("**************  ACTUAL *****************")
         log.debug("!!! actual:\n%s" % tojsonstr(actual))
         log.debug("\n" * 5)
+        # TODO: Replace legacy direct diff logging with sink-driven configurable rendering
+        # after the final logging/timing/diffs config design is chosen.
 
 
 def run_test(filename, env_conf, cli_overrides=None):
@@ -168,120 +171,155 @@ def normalize_headers(headers: dict) -> dict:
 def run():
     run_started = time.perf_counter()
     run_id = events.new_run_id()
-    arguments = docopt(__doc__, version=f"skivvy {version}")
-    # TODO: Since we started supporting env variables & --set we don't strictly require a cfg file anymore and it makes sense to not require it
-    cfg_file = arguments.get("<cfg_file>")
-    log.info(f"[b]skivvy[/b] [u]{version}[/u] | config={cfg_file}")
-    cfg_conf = read_config(cfg_file)
-    env_overrides = parse_env_overrides()
-    cli_overrides = parse_cli_overrides(arguments.get("--set"))
-
-    base_conf = create_testcase(env_overrides, cfg_conf)
-    suite_conf = create_testcase(cli_overrides, base_conf)
-
-    # TODO: Place these in Settings
-    tests = file_util.list_files(
-        # TODO: should be required
-        suite_conf["tests"],
-        # TODO: should not be required (should default to ".json")
-        suite_conf["ext"],        
-        file_order=suite_conf["file_order"],
-    )
-    log.info(f"{len(tests)} tests found.")
-    custom_matchers.load(suite_conf)
-    matchers.add_negating_matchers()
-    # TODO: Use Settings.FAIL_FAST instead of hard-coded string
-    fail_fast = suite_conf.get("fail_fast", False)
-
+    arguments = None
+    cfg_file = None
     failures = 0
     num_tests = 0
+    result = None
+    sink_installation = None
 
-    # TODO: The handling of -i/-e is a bit gnarly and not DRY, at least move the relevant parts out into one of the utils
-    # include files - by inclusive filtering files that match the -i regexps
-    # (default is ['.*'] so all files would be included in the filter)
-    incl_patterns = arguments.get("-i") or []
-    if isinstance(incl_patterns, str):
-        incl_patterns = [incl_patterns]
-    if len(incl_patterns) == 0:
-        incl_patterns = [".*"]
-    incl_patterns = str_util.compile_regexps(incl_patterns)
-    tests = [
-        testfile for testfile in tests if str_util.matches_any(testfile, incl_patterns)
-    ]
+    try:
+        arguments = docopt(__doc__, version=f"skivvy {version}")
+        # TODO: Since we started supporting env variables & --set we don't strictly require a cfg file anymore and it makes sense to not require it
+        cfg_file = arguments.get("<cfg_file>")
+        log.info(f"[b]skivvy[/b] [u]{version}[/u] | config={cfg_file}")
+        cfg_conf = read_config(cfg_file)
+        env_overrides = parse_env_overrides()
+        cli_overrides = parse_cli_overrides(arguments.get("--set"))
 
-    # exclude files - by removing any files that match the -i regexps (default is [] so no files would be excluded)
-    excl_patterns = arguments.get("-e") or []
-    if isinstance(excl_patterns, str):
-        excl_patterns = [excl_patterns]
-    excl_patterns = str_util.compile_regexps(excl_patterns)
-    tests = [
-        testfile
-        for testfile in tests
-        if not str_util.matches_any(testfile, excl_patterns)
-    ]
-    log.adjust_col_width(tests)
-    events.emit(
-        events.RUN_STARTED,
-        run_id=run_id,
-        config_file=cfg_file,
-        test_count=len(tests),
-    )
+        base_conf = create_testcase(env_overrides, cfg_conf)
+        suite_conf = create_testcase(cli_overrides, base_conf)
 
-    for index, testfile in enumerate(tests, start=1):
-        test_started = time.perf_counter()
-        with log.testcase_logger(testfile) as test:
-            num_tests += 1
-            with events.with_context(run_id=run_id, test_id=testfile, testfile=testfile):
-                events.emit(
-                    events.TEST_STARTED,
-                    index=index,
-                    testfile=testfile,
-                )
-                result, err_context = run_test(
-                    testfile,
-                    suite_conf,
-                    cli_overrides=cli_overrides,
-                )
-                elapsed_ms = (time.perf_counter() - test_started) * 1000
-                if result == STATUS_OK:
-                    test.ok = True
+        # TODO: Temporary experimental flags (_rich/_timing/_http_timing) are read here
+        # until we finalize the real logging/timing/diffs config design.
+        sink_installation = sinks.install_runtime_sinks(suite_conf)
+
+        # TODO: Place these in Settings
+        tests = file_util.list_files(
+            # TODO: should be required
+            suite_conf["tests"],
+            # TODO: should not be required (should default to ".json")
+            suite_conf["ext"],
+            file_order=suite_conf["file_order"],
+        )
+        log.info(f"{len(tests)} tests found.")
+        custom_matchers.load(suite_conf)
+        matchers.add_negating_matchers()
+        # TODO: Use Settings.FAIL_FAST instead of hard-coded string
+        fail_fast = suite_conf.get("fail_fast", False)
+
+        # TODO: The handling of -i/-e is a bit gnarly and not DRY, at least move the relevant parts out into one of the utils
+        # include files - by inclusive filtering files that match the -i regexps
+        # (default is ['.*'] so all files would be included in the filter)
+        incl_patterns = arguments.get("-i") or []
+        if isinstance(incl_patterns, str):
+            incl_patterns = [incl_patterns]
+        if len(incl_patterns) == 0:
+            incl_patterns = [".*"]
+        incl_patterns = str_util.compile_regexps(incl_patterns)
+        tests = [
+            testfile for testfile in tests if str_util.matches_any(testfile, incl_patterns)
+        ]
+
+        # exclude files - by removing any files that match the -i regexps (default is [] so no files would be excluded)
+        excl_patterns = arguments.get("-e") or []
+        if isinstance(excl_patterns, str):
+            excl_patterns = [excl_patterns]
+        excl_patterns = str_util.compile_regexps(excl_patterns)
+        tests = [
+            testfile
+            for testfile in tests
+            if not str_util.matches_any(testfile, excl_patterns)
+        ]
+        log.adjust_col_width(tests)
+        events.emit(
+            events.RUN_STARTED,
+            run_id=run_id,
+            config_file=cfg_file,
+            test_count=len(tests),
+        )
+
+        for index, testfile in enumerate(tests, start=1):
+            test_started = time.perf_counter()
+            with log.testcase_logger(testfile) as test:
+                num_tests += 1
+                with events.with_context(run_id=run_id, test_id=testfile, testfile=testfile):
                     events.emit(
-                        events.TEST_PASSED,
+                        events.TEST_STARTED,
+                        index=index,
+                        testfile=testfile,
+                    )
+                    test_result, err_context = run_test(
+                        testfile,
+                        suite_conf,
+                        cli_overrides=cli_overrides,
+                    )
+                    elapsed_ms = (time.perf_counter() - test_started) * 1000
+                    if test_result == STATUS_OK:
+                        test.ok = True
+                        events.emit(
+                            events.TEST_PASSED,
+                            testfile=testfile,
+                            elapsed_ms=elapsed_ms,
+                        )
+                    else:
+                        test.ok = False
+                        events.emit(
+                            events.TEST_FAILED,
+                            testfile=testfile,
+                            elapsed_ms=elapsed_ms,
+                            error_context=err_context,
+                            exception=(err_context or {}).get("exception"),
+                            expected=(err_context or {}).get("expected"),
+                            actual=(err_context or {}).get("actual"),
+                        )
+                        log_testcase_failed(testfile, suite_conf)
+                        log_error_context(err_context, suite_conf)
+                        failures += 1
+                        if fail_fast and failures > 0:
+                            log.info('[red]Halting test run![/red]("fail_fast" is set to true)')
+                            events.emit(
+                                events.TEST_FINISHED,
+                                testfile=testfile,
+                                elapsed_ms=elapsed_ms,
+                                success=False,
+                            )
+                            break
+                    events.emit(
+                        events.TEST_FINISHED,
                         testfile=testfile,
                         elapsed_ms=elapsed_ms,
+                        success=(test_result == STATUS_OK),
                     )
-                else:
-                    test.ok = False
-                    events.emit(
-                        events.TEST_FAILED,
-                        testfile=testfile,
-                        elapsed_ms=elapsed_ms,
-                        error_context=err_context,
-                        exception=(err_context or {}).get("exception"),
-                        expected=(err_context or {}).get("expected"),
-                        actual=(err_context or {}).get("actual"),
-                    )
-                    log_testcase_failed(testfile, suite_conf)
-                    log_error_context(err_context, suite_conf)
-                    failures += 1
-                    if fail_fast and failures > 0:
-                        log.info('[red]Halting test run![/red]("fail_fast" is set to true)')
-                        break
 
-    if not arguments.get("-t"):
-        log.debug("Removing temporary files...")
-        file_util.cleanup_tmp_files()
+        if not arguments.get("-t"):
+            log.debug("Removing temporary files...")
+            file_util.cleanup_tmp_files()
 
-    result = summary(failures, num_tests)
-    events.emit(
-        events.RUN_FINISHED,
-        run_id=run_id,
-        num_tests=num_tests,
-        failures=failures,
-        success=result,
-        elapsed_ms=(time.perf_counter() - run_started) * 1000,
-    )
-    return result
+        result = summary(failures, num_tests)
+        events.emit(
+            events.RUN_PASSED if result else events.RUN_FAILED,
+            run_id=run_id,
+            num_tests=num_tests,
+            failures=failures,
+            success=result,
+        )
+        return result
+    finally:
+        try:
+            # TODO: Expand run.finished semantics for unexpected top-level exceptions if needed.
+            events.emit(
+                events.RUN_FINISHED,
+                run_id=run_id,
+                config_file=cfg_file,
+                num_tests=num_tests,
+                failures=failures,
+                success=result,
+                elapsed_ms=(time.perf_counter() - run_started) * 1000,
+            )
+        finally:
+            if sink_installation is not None:
+                sink_installation.close()
 
 
 def summary(failures, num_tests):

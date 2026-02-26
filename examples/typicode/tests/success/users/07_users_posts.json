@@ -1,0 +1,5 @@
+{
+  "_comment": "Use the stored id directly in the URL — state flows naturally from the previous test without any glue code",
+  "url": "/posts?userId=<user_id>",
+  "response": "$len_gt 0"
+}

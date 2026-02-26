@@ -1,0 +1,16 @@
+{
+  "_comment": "Deep structural check: every user's geo coordinates look like valid numbers — match_subsets means we don't need to specify street, city, zip etc.",
+  "url": "/users",
+  "match_every_entry": true,
+  "match_subsets": true,
+  "response": [
+    {
+      "address": {
+        "geo": {
+          "lat": "$regexp ^-?\\d+\\.\\d+$",
+          "lng": "$regexp ^-?\\d+\\.\\d+$"
+        }
+      }
+    }
+  ]
+}
