@@ -110,7 +110,6 @@ class TimingSink(BaseSink):
         self._connect(events.TEST_FINISHED, self._on_test_finished)
         self._connect(events.TEST_PHASE_STARTED, self._on_phase_started)
         self._connect(events.TEST_PHASE_FINISHED, self._on_phase_finished)
-        self._connect(events.TEST_PHASE_FAILED, self._on_phase_finished)
         return self
 
     def _test_key(self, kw: dict) -> str | None:
