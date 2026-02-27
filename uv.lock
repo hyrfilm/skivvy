@@ -490,7 +490,7 @@ wheels = [
 
 [[package]]
 name = "skivvy"
-version = "0.709"
+version = "0.710"
 source = { editable = "." }
 dependencies = [
     { name = "blinker" },

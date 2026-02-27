@@ -108,6 +108,8 @@ class TimingSink(BaseSink):
     def install(self):
         self._connect(events.TEST_STARTED, self._on_test_started)
         self._connect(events.TEST_FINISHED, self._on_test_finished)
+        self._connect(events.TEST_PASSED, self._on_test_finished)
+        self._connect(events.TEST_FAILED, self._on_test_finished)
         self._connect(events.TEST_PHASE_STARTED, self._on_phase_started)
         self._connect(events.TEST_PHASE_FINISHED, self._on_phase_finished)
         self._connect(events.TEST_PHASE_FAILED, self._on_phase_finished)
