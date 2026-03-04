@@ -82,6 +82,13 @@ def execute(request: dict[str, object]) -> HttpEnvelope:
     method, payload = prepare_request_data(request)
     payload = prepare_upload_files(payload)
     r = do_request(method, **payload)
+    events.emit(
+        events.HTTP_RESPONSE,
+        http_status=getattr(r, "status_code", None),
+        url=getattr(r, "url", payload.get("url")),
+        response_headers=dict(getattr(r, "headers", {}) or {}),
+        response_body=getattr(r, "text", ""),
+    )
     return HttpEnvelope.from_requests(r)
 
 
@@ -113,40 +120,19 @@ def do_request(method, **payload: Dict[str, Any]) -> requests.Request:
 
     request_function: Callable = getattr(_session, method)
     assert callable(request_function), f"Session function {method} is not callable"
-    with events.phase_span(
-        "http_transport",
+    files = payload.get("files")
+    upload_fields = list(files.keys()) if isinstance(files, dict) else None
+    events.emit(
+        events.HTTP_TRANSPORT,
         http_method=method,
         url=payload.get("url"),
-    ):
-        return request_function(**payload)
+        request_headers=dict(payload.get("headers") or {}),
+        request_query=payload.get("params"),
+        request_json=payload.get("json"),
+        request_data=payload.get("data"),
+        request_upload_fields=upload_fields,
+    )
+    return request_function(**payload)
 
 
 initialize_session()
-
-
-# TODO: This kind of functionality was support in the old http_util - add something similar but better for being able to just turn it on and generate a test case
-# log.debug("\n")
-# log.debug("--- REQUEST ---")
-# log.debug("%s: %s" % (method.upper(), url))
-# if upload_file:
-#     log.debug( "file: %s" % upload_file)
-# elif data:
-#     log.debug(" body: %s" % data)
-# log.debug(" headers: %s" % tojsonstr(headers))
-# log.debug("----------------")
-# log.debug("\n")
-
-
-# it's not possible to both upload a file & provide json data
-# if upload_file:
-#     r = http_verb(url, files=upload_file, headers=headers)
-# else:
-#     r = http_verb(url, data=data, headers=headers)
-
-# log.debug("\n")
-# log.debug("--- RESPONSE ---")
-# log.debug("status: %s" % r.status_code)
-# log.debug("json: %s" % tojsonstr(as_json(r)))
-# log.debug("headers: %s" % tojsonstr(dict(r.headers)))
-# log.debug("----------------")
-# log.debug("\n")

@@ -15,7 +15,6 @@ Options:
 """
 
 import json
-import time
 import traceback
 
 from docopt import docopt
@@ -30,10 +29,10 @@ from . import custom_matchers, test_runner
 from . import matchers
 from . import events
 from . import sinks
+from .errors import ExpectedTestFailure
 from .skivvy_config import read_config
 from .util import file_util, http_util, dict_util, str_util
 from .util import log
-from .util.str_util import tojsonstr
 from .verify import verify
 
 version = __version__
@@ -59,47 +58,24 @@ def override_default_headers(default_headers, more_headers):
     return d
 
 
-def log_testcase_failed(testfile, conf):
-    failure_msg = "\n\n[red]%s\t%s[/red]\n\n" % (testfile, STATUS_FAILED)
-    log.error(failure_msg)
-
-
-def log_error_context(err_context, conf):
-    colorize = conf.get("colorize", True)
-    e, expected, actual = (
-        err_context.get("exception"),
-        err_context.get("expected"),
-        err_context.get("actual"),
-    )
-    log.error(str(e))
-    if expected:
-        log.info("--------------- DIFF BEGIN ---------------")
-        # TODO: Should we support both of these diffs or only one?
-        diff_output = str_util.pretty_diff(tojsonstr(expected), tojsonstr(actual))
-        # diff_output = icdiff2
-        # differ = icdiff2.RichConsoleDiff()
-        # log.info(differ.print_table(expected, actual))
-        log.info(diff_output)
-        log.info("--------------- DIFF END -----------------")
-        log.debug("************** EXPECTED *****************")
-        log.debug("!!! expected:\n%s" % tojsonstr(expected))
-        log.debug("**************  ACTUAL *****************")
-        log.debug("!!! actual:\n%s" % tojsonstr(actual))
-        log.debug("\n" * 5)
-        # TODO: Replace legacy direct diff logging with sink-driven configurable rendering
-        # after the final logging/timing/diffs config design is chosen.
-
-
 def run_test(filename, env_conf, cli_overrides=None):
     file_util.set_current_file(filename)
     error_context = {}
+    current_step = None
 
     try:
-        with events.phase_span("create_testcase", testfile=filename):
-            testcase = create_testcase(cli_overrides or {}, filename, env_conf)
+        current_step = events.CREATE_TESTCASE
+        events.emit(current_step)
+        testcase = create_testcase(cli_overrides or {}, filename, env_conf)
+        current_step = None
+
         configure_logging(testcase)
-        with events.phase_span("create_request", testfile=filename):
-            request, testcase_config = test_runner.create_request(testcase)
+
+        current_step = events.CREATE_REQUEST
+        events.emit(current_step)
+        request, testcase_config = test_runner.create_request(testcase)
+        current_step = None
+
         expected_status = testcase_config.get("status")
         expected_response = testcase_config.get("response")
         expected = {}
@@ -112,8 +88,11 @@ def run_test(filename, env_conf, cli_overrides=None):
             expected["response_headers"] = expected_response_headers
         error_context["expected"] = expected
 
-        with events.phase_span("http_execute", testfile=filename):
-            http_envelope = http_util.execute(request)
+        current_step = events.EXECUTE_REQUEST
+        events.emit(current_step)
+        http_envelope = http_util.execute(request)
+        current_step = None
+
         actual_status = http_envelope.status_code
         actual_response = http_envelope.json()
         actual_headers = normalize_headers(http_envelope.headers)
@@ -129,20 +108,36 @@ def run_test(filename, env_conf, cli_overrides=None):
         }
 
         if "status" in testcase_config:
-            with events.phase_span("verify_status", testfile=filename):
-                verify(testcase_config["status"], actual_status, **testcase_config)
+            current_step = events.VERIFY_STATUS
+            events.emit(current_step)
+            verify(testcase_config["status"], actual_status, **testcase_config)
+            current_step = None
+
         if "response" in testcase_config:
-            with events.phase_span("verify_response", testfile=filename):
-                verify(testcase_config["response"], actual_response, **testcase_config)
+            current_step = events.VERIFY_RESPONSE
+            events.emit(current_step)
+            verify(testcase_config["response"], actual_response, **testcase_config)
+            current_step = None
+
         if expected_response_headers is not None:
-            with events.phase_span("verify_response_headers", testfile=filename):
-                verify(
-                    normalize_headers(expected_response_headers),
-                    actual_headers,
-                    **testcase_config,
-                )
+            current_step = events.VERIFY_RESPONSE_HEADERS
+            events.emit(current_step)
+            verify(
+                normalize_headers(expected_response_headers),
+                actual_headers,
+                **testcase_config,
+            )
+            current_step = None
     except Exception as e:
-        error_context["exception"] = traceback.format_exc()
+        if current_step is not None:
+            error_context["failed_step"] = current_step
+        error_context["exception"] = str(e)
+        if isinstance(e, ExpectedTestFailure):
+            error_context["expected_failure"] = True
+            if log.is_debug_enabled():
+                error_context["traceback"] = traceback.format_exc()
+        else:
+            error_context["traceback"] = traceback.format_exc()
         return STATUS_FAILED, error_context
 
     return STATUS_OK, None
@@ -169,8 +164,8 @@ def normalize_headers(headers: dict) -> dict:
 
 
 def run():
-    run_started = time.perf_counter()
     run_id = events.new_run_id()
+    events.reset_runtime_listener()
     arguments = None
     cfg_file = None
     failures = 0
@@ -182,7 +177,6 @@ def run():
         arguments = docopt(__doc__, version=f"skivvy {version}")
         # TODO: Since we started supporting env variables & --set we don't strictly require a cfg file anymore and it makes sense to not require it
         cfg_file = arguments.get("<cfg_file>")
-        log.info(f"[b]skivvy[/b] [u]{version}[/u] | config={cfg_file}")
         cfg_conf = read_config(cfg_file)
         env_overrides = parse_env_overrides()
         cli_overrides = parse_cli_overrides(arguments.get("--set"))
@@ -190,7 +184,7 @@ def run():
         base_conf = create_testcase(env_overrides, cfg_conf)
         suite_conf = create_testcase(cli_overrides, base_conf)
 
-        # TODO: Temporary experimental flags (_rich/_timing/_http_timing) are read here
+        # TODO: Temporary experimental flags (_timing/_http_timing) are read here
         # until we finalize the real logging/timing/diffs config design.
         sink_installation = sinks.install_runtime_sinks(suite_conf)
 
@@ -202,7 +196,6 @@ def run():
             suite_conf["ext"],
             file_order=suite_conf["file_order"],
         )
-        log.info(f"{len(tests)} tests found.")
         custom_matchers.load(suite_conf)
         matchers.add_negating_matchers()
         # TODO: Use Settings.FAIL_FAST instead of hard-coded string
@@ -231,72 +224,54 @@ def run():
             for testfile in tests
             if not str_util.matches_any(testfile, excl_patterns)
         ]
-        log.adjust_col_width(tests)
         events.emit(
             events.RUN_STARTED,
             run_id=run_id,
+            version=version,
             config_file=cfg_file,
             test_count=len(tests),
         )
 
         for index, testfile in enumerate(tests, start=1):
-            test_started = time.perf_counter()
-            with log.testcase_logger(testfile) as test:
-                num_tests += 1
-                with events.with_context(run_id=run_id, test_id=testfile, testfile=testfile):
-                    events.emit(
-                        events.TEST_STARTED,
-                        index=index,
-                        testfile=testfile,
-                    )
-                    test_result, err_context = run_test(
-                        testfile,
-                        suite_conf,
-                        cli_overrides=cli_overrides,
-                    )
-                    elapsed_ms = (time.perf_counter() - test_started) * 1000
-                    if test_result == STATUS_OK:
-                        test.ok = True
-                        events.emit(
-                            events.TEST_PASSED,
-                            testfile=testfile,
-                            elapsed_ms=elapsed_ms,
-                        )
-                    else:
-                        test.ok = False
-                        events.emit(
-                            events.TEST_FAILED,
-                            testfile=testfile,
-                            elapsed_ms=elapsed_ms,
-                            error_context=err_context,
-                            exception=(err_context or {}).get("exception"),
-                            expected=(err_context or {}).get("expected"),
-                            actual=(err_context or {}).get("actual"),
-                        )
-                        log_testcase_failed(testfile, suite_conf)
-                        log_error_context(err_context, suite_conf)
-                        failures += 1
-                        if fail_fast and failures > 0:
-                            log.info('[red]Halting test run![/red]("fail_fast" is set to true)')
-                            events.emit(
-                                events.TEST_FINISHED,
-                                testfile=testfile,
-                                elapsed_ms=elapsed_ms,
-                                success=False,
-                            )
-                            break
+            num_tests += 1
+            events.emit(
+                events.TEST_STARTED,
+                index=index,
+                testfile=testfile,
+                test_id=testfile,
+            )
+            test_result, err_context = run_test(
+                testfile,
+                suite_conf,
+                cli_overrides=cli_overrides,
+            )
+            if test_result == STATUS_OK:
+                events.emit(events.TEST_PASSED)
+            else:
+                events.emit(
+                    events.TEST_FAILED,
+                    error_context=err_context,
+                    exception=(err_context or {}).get("exception"),
+                    expected=(err_context or {}).get("expected"),
+                    actual=(err_context or {}).get("actual"),
+                )
+                failures += 1
+                if fail_fast and failures > 0:
                     events.emit(
                         events.TEST_FINISHED,
-                        testfile=testfile,
-                        elapsed_ms=elapsed_ms,
-                        success=(test_result == STATUS_OK),
+                        success=False,
                     )
+                    break
+            events.emit(
+                events.TEST_FINISHED,
+                success=(test_result == STATUS_OK),
+            )
 
         if not arguments.get("-t"):
             log.debug("Removing temporary files...")
             file_util.cleanup_tmp_files()
 
-        result = summary(failures, num_tests)
+        result = summarize_result(failures, num_tests)
         events.emit(
             events.RUN_PASSED if result else events.RUN_FAILED,
             run_id=run_id,
@@ -315,24 +290,14 @@ def run():
                 num_tests=num_tests,
                 failures=failures,
                 success=result,
-                elapsed_ms=(time.perf_counter() - run_started) * 1000,
             )
         finally:
             if sink_installation is not None:
                 sink_installation.close()
 
 
-def summary(failures, num_tests):
-    if failures > 0:
-        log.info("%s testcases of %s failed. :(" % (failures, num_tests))
-        return False
-    elif num_tests == 0:
-        log.info("No tests found!")
-        return False
-    else:
-        log.info("All %s tests passed." % num_tests)
-        log.info("Lookin' good!")
-        return True
+def summarize_result(failures, num_tests):
+    return failures == 0 and num_tests > 0
 
 
 def run_skivvy():

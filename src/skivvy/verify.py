@@ -1,6 +1,7 @@
 from skivvy.skivvy_config2 import Settings
 from skivvy.util import scope
 from . import matchers
+from .errors import VerificationFailure
 from .util import log
 from .util.str_util import tojsonstr
 
@@ -67,11 +68,11 @@ def verify_list(expected, actual, **match_options):
                     _verify_entry(expected_entry, actual_entry, **match_options)
                     found = True
                     break
-                except Exception:
+                except VerificationFailure:
                     pass
 
         if not found:
-            raise Exception(
+            raise VerificationFailure(
                 "Didn't find:\n%s\nin:\n%s"
                 % (tojsonstr(expected_entry), tojsonstr(actual))
             )
@@ -99,7 +100,7 @@ def verify_matcher(expected, actual):
             matcher_func = matchers.matcher_dict.get(matcher)
             result, msg = matcher_func(expected, actual)
             if not result:
-                raise Exception(msg)
+                raise VerificationFailure(msg)
 
     return matchers.default_matcher(expected, actual)
 
@@ -116,12 +117,12 @@ def verify(expected, actual, **match_options):
         if not actual and not expected:
             if match_options.get("match_falsiness"):
                 return True
-        raise Exception("%s is not the same type as %s" % (expected, actual))
+        raise VerificationFailure("%s is not the same type as %s" % (expected, actual))
     elif isinstance(expected, dict):
         return verify_dict(expected, actual, **match_options)
     elif isinstance(expected, list):
         return verify_list(expected, actual, **match_options)
     elif expected != actual:
-        raise Exception("expected %s but was %s" % (expected, actual))
+        raise VerificationFailure("expected %s but was %s" % (expected, actual))
     else:
         return True
