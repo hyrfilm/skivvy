@@ -4,6 +4,7 @@ from skivvy.config import (
     create_testcase,
     parse_cli_overrides,
     parse_env_overrides,
+    read_config,
 )
 
 
@@ -96,6 +97,18 @@ def test_parse_env_overrides_reads_known_keys():
         "matcher_options": {"$contains": {"min_len": 2}},
         "http_headers_level": "OFF",
     }
+
+
+def test_read_config_returns_empty_dict_when_no_config():
+    assert read_config(None) == {}
+    assert read_config("") == {}
+
+
+def test_read_config_reads_json_file(tmp_path):
+    cfg = tmp_path / "test.json"
+    cfg.write_text('{"base_url": "https://example.com", "fail_fast": true}')
+    result = read_config(str(cfg))
+    assert result == {"base_url": "https://example.com", "fail_fast": True}
 
 
 def test_merge_precedence_cli_over_test_over_env_over_cfg():
