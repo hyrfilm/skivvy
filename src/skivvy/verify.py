@@ -1,4 +1,4 @@
-from skivvy.skivvy_config2 import Settings
+from skivvy.config import Settings
 from skivvy.util import scope
 from . import matchers
 from .errors import VerificationFailure
