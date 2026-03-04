@@ -1,0 +1,6 @@
+{
+  "_comment": "All fortunes are returned",
+  "url": "http://127.0.0.1:8080/fortunes",
+  "status": 200,
+  "response": "$len 3"
+}
