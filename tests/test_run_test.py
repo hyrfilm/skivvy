@@ -777,12 +777,10 @@ def test_run_test_duplicate_write_file_filename_should_fail_second_test(httpserv
 
 @pytest.fixture(autouse=False)
 def clean_event_context():
-    """Reset event context between tests to prevent leakage."""
-    previous = dict(events._context)
-    events._context.clear()
+    """Reset runtime event listener state between tests."""
+    events.reset_runtime_listener()
     yield
-    events._context.clear()
-    events._context.update(previous)
+    events.reset_runtime_listener()
 
 
 def _connect(signal_name, receiver):
@@ -824,43 +822,35 @@ def test_emit_includes_timestamp(clean_event_context):
     assert before <= ts <= after
 
 
-def test_emit_merges_context(clean_event_context):
+def test_emit_enriches_with_runtime_listener_context(clean_event_context):
     captured = []
-    disconnect = _connect("test.ctx", lambda _s, **kw: captured.append(kw))
+    disconnect = _connect(events.CREATE_REQUEST, lambda _s, **kw: captured.append(kw))
     try:
-        with events.with_context(run_id="abc"):
-            events.emit("test.ctx", extra="val")
+        events.emit(events.RUN_STARTED, run_id="abc")
+        events.emit(events.TEST_STARTED, testfile="tests/case.json", test_id="tests/case.json")
+        events.emit(events.CREATE_REQUEST)
     finally:
         disconnect()
 
     assert captured[0]["run_id"] == "abc"
-    assert captured[0]["extra"] == "val"
+    assert captured[0]["test_id"] == "tests/case.json"
+    assert captured[0]["testfile"] == "tests/case.json"
 
 
-def test_with_context_nesting_and_restore(clean_event_context):
+def test_emit_clears_test_context_after_test_finished(clean_event_context):
     captured = []
-    disconnect = _connect("test.nest", lambda _s, **kw: captured.append(kw))
+    disconnect = _connect(events.CREATE_TESTCASE, lambda _s, **kw: captured.append(kw))
     try:
-        with events.with_context(a="1"):
-            with events.with_context(b="2"):
-                events.emit("test.nest")
-            events.emit("test.nest")
+        events.emit(events.RUN_STARTED, run_id="abc")
+        events.emit(events.TEST_STARTED, testfile="tests/case.json", test_id="tests/case.json")
+        events.emit(events.TEST_FINISHED, success=True)
+        events.emit(events.CREATE_TESTCASE)
     finally:
         disconnect()
 
-    # Inner: both a and b
-    assert captured[0]["a"] == "1"
-    assert captured[0]["b"] == "2"
-    # Outer: only a (b restored away)
-    assert captured[1]["a"] == "1"
-    assert "b" not in captured[1]
-
-
-def test_with_context_skips_none_values(clean_event_context):
-    with events.with_context(a="1", b=None):
-        ctx = events.current_context()
-    assert ctx["a"] == "1"
-    assert "b" not in ctx
+    assert captured[0]["run_id"] == "abc"
+    assert "test_id" not in captured[0]
+    assert "testfile" not in captured[0]
 
 
 def test_emit_propagates_subscriber_exception(clean_event_context):
@@ -875,56 +865,6 @@ def test_emit_propagates_subscriber_exception(clean_event_context):
         disconnect()
 
 
-def test_phase_span_emits_started_and_finished(clean_event_context):
-    captured = []
-    disc1 = _connect(events.TEST_PHASE_STARTED, lambda _s, **kw: captured.append(("started", kw)))
-    disc2 = _connect(events.TEST_PHASE_FINISHED, lambda _s, **kw: captured.append(("finished", kw)))
-    try:
-        with events.phase_span("my_phase", testfile="f.json"):
-            pass
-    finally:
-        disc1()
-        disc2()
-
-    assert len(captured) == 2
-    assert captured[0][0] == "started"
-    assert captured[0][1]["phase"] == "my_phase"
-    assert captured[0][1]["testfile"] == "f.json"
-    assert captured[1][0] == "finished"
-    assert captured[1][1]["phase"] == "my_phase"
-    assert captured[1][1]["elapsed_ms"] >= 0
-
-
-def test_phase_span_emits_failed_on_exception(clean_event_context):
-    captured = []
-    disc1 = _connect(events.TEST_PHASE_FAILED, lambda _s, **kw: captured.append(kw))
-    try:
-        with pytest.raises(ValueError, match="boom"):
-            with events.phase_span("bad_phase"):
-                raise ValueError("boom")
-    finally:
-        disc1()
-
-    assert len(captured) == 1
-    assert captured[0]["phase"] == "bad_phase"
-    assert captured[0]["error"] == "boom"
-    assert captured[0]["error_type"] == "ValueError"
-    assert captured[0]["elapsed_ms"] >= 0
-
-
-def test_phase_span_does_not_emit_finished_on_exception(clean_event_context):
-    finished = []
-    disc1 = _connect(events.TEST_PHASE_FINISHED, lambda _s, **kw: finished.append(kw))
-    try:
-        with pytest.raises(ValueError):
-            with events.phase_span("bad_phase"):
-                raise ValueError("boom")
-    finally:
-        disc1()
-
-    assert finished == []
-
-
 def test_signal_returns_same_instance():
     assert events.signal("same_name") is events.signal("same_name")
 
@@ -932,109 +872,143 @@ def test_signal_returns_same_instance():
 # ── events: integration tests with run_test() ───────────────────────────
 
 
-def test_run_test_emits_phase_events_on_success(httpserver):
+def test_run_test_emits_step_events_on_success(httpserver):
     httpserver.expect_request("/api/fortune/1").respond_with_json(
         {"wisdom": "If it seems that fates are aginst you today, they probably are."}
     )
 
     captured = []
-    disc1 = _connect(events.TEST_PHASE_STARTED, lambda _s, **kw: captured.append(("started", kw["phase"])))
-    disc2 = _connect(events.TEST_PHASE_FINISHED, lambda _s, **kw: captured.append(("finished", kw["phase"])))
+    step_events = [
+        events.CREATE_TESTCASE,
+        events.CREATE_REQUEST,
+        events.EXECUTE_REQUEST,
+        events.HTTP_TRANSPORT,
+        events.VERIFY_STATUS,
+    ]
+    disconnects = [
+        _connect(signal_name, lambda _s, signal_name=signal_name, **kw: captured.append((signal_name, kw)))
+        for signal_name in step_events
+    ]
     try:
         status, _ = run_test(
             "./tests/fixtures/testcases/check_status.json", default_cfg
         )
     finally:
-        disc1()
-        disc2()
+        for disconnect in reversed(disconnects):
+            disconnect()
 
     assert status is STATUS_OK
-    phases = [name for _, name in captured]
-    # Core phases in order
-    assert "create_testcase" in phases
-    assert "create_request" in phases
-    assert "http_execute" in phases
-    assert "http_transport" in phases
-    assert "verify_status" in phases
-    # Each started has a matching finished
-    started_phases = [name for kind, name in captured if kind == "started"]
-    finished_phases = [name for kind, name in captured if kind == "finished"]
-    for phase in started_phases:
-        assert phase in finished_phases
+    seen_steps = [event_name for event_name, _ in captured]
+    assert seen_steps == step_events
 
 
-def test_run_test_emits_phase_failed_on_verify_mismatch(httpserver):
+def test_run_test_sets_failed_step_on_verify_mismatch(httpserver):
     httpserver.expect_request("/api/fortune/1").respond_with_json(
         {"wisdom": "If it seems that fates are aginst you today, they probably are."}
     )
 
-    failed_phases = []
-    disc = _connect(events.TEST_PHASE_FAILED, lambda _s, **kw: failed_phases.append(kw))
-    try:
-        status, err_context = run_test(
-            "./tests/fixtures/testcases/check_exact_match.json", default_cfg
-        )
-    finally:
-        disc()
+    status, err_context = run_test(
+        "./tests/fixtures/testcases/check_exact_match.json", default_cfg
+    )
 
     assert status is STATUS_FAILED
-    assert len(failed_phases) == 1
-    assert failed_phases[0]["phase"] == "verify_response"
-    assert "error" in failed_phases[0]
-    assert "error_type" in failed_phases[0]
-    assert failed_phases[0]["elapsed_ms"] >= 0
+    assert err_context["failed_step"] == events.VERIFY_RESPONSE
 
 
-def test_run_test_successful_phases_still_finish_before_failure(httpserver):
+def test_run_test_expected_failure_omits_traceback_on_info(httpserver):
     httpserver.expect_request("/api/fortune/1").respond_with_json(
         {"wisdom": "If it seems that fates are aginst you today, they probably are."}
     )
 
-    finished = []
-    failed = []
-    disc1 = _connect(events.TEST_PHASE_FINISHED, lambda _s, **kw: finished.append(kw["phase"]))
-    disc2 = _connect(events.TEST_PHASE_FAILED, lambda _s, **kw: failed.append(kw["phase"]))
-    try:
-        status, _ = run_test(
-            "./tests/fixtures/testcases/check_exact_match.json", default_cfg
-        )
-    finally:
-        disc1()
-        disc2()
+    status, err_context = run_test(
+        "./tests/fixtures/testcases/check_exact_match.json",
+        {**default_cfg, "log_level": "INFO"},
+    )
 
     assert status is STATUS_FAILED
-    # Earlier phases completed successfully
-    assert "create_testcase" in finished
-    assert "create_request" in finished
-    assert "http_execute" in finished
-    assert "http_transport" in finished
-    assert "verify_status" in finished
-    # The failing phase did not finish — it failed
-    assert "verify_response" not in finished
-    assert "verify_response" in failed
+    assert err_context["failed_step"] == events.VERIFY_RESPONSE
+    assert err_context["expected_failure"] is True
+    assert "traceback" not in err_context
+    assert "expected" in err_context["exception"].lower()
 
 
-def test_run_test_phase_events_carry_testfile(httpserver):
+def test_run_test_expected_failure_includes_traceback_on_debug(httpserver):
+    httpserver.expect_request("/api/fortune/1").respond_with_json(
+        {"wisdom": "If it seems that fates are aginst you today, they probably are."}
+    )
+
+    status, err_context = run_test(
+        "./tests/fixtures/testcases/check_exact_match.json",
+        {**default_cfg, "log_level": "DEBUG"},
+    )
+
+    assert status is STATUS_FAILED
+    assert err_context["failed_step"] == events.VERIFY_RESPONSE
+    assert err_context["expected_failure"] is True
+    assert "traceback" in err_context
+    assert "Traceback" in err_context["traceback"]
+
+
+def test_run_test_emits_steps_in_order_before_failure(httpserver):
     httpserver.expect_request("/api/fortune/1").respond_with_json(
         {"wisdom": "If it seems that fates are aginst you today, they probably are."}
     )
 
     captured = []
-    disc = _connect(events.TEST_PHASE_STARTED, lambda _s, **kw: captured.append(kw))
+    step_events = [
+        events.CREATE_TESTCASE,
+        events.CREATE_REQUEST,
+        events.EXECUTE_REQUEST,
+        events.HTTP_TRANSPORT,
+        events.VERIFY_STATUS,
+        events.VERIFY_RESPONSE,
+    ]
+    disconnects = [
+        _connect(signal_name, lambda _s, signal_name=signal_name, **kw: captured.append(signal_name))
+        for signal_name in step_events
+    ]
+    try:
+        status, err_context = run_test(
+            "./tests/fixtures/testcases/check_exact_match.json", default_cfg
+        )
+    finally:
+        for disconnect in reversed(disconnects):
+            disconnect()
+
+    assert status is STATUS_FAILED
+    assert captured == step_events
+    assert err_context["failed_step"] == events.VERIFY_RESPONSE
+
+
+def test_run_test_step_events_include_transport_details(httpserver):
+    httpserver.expect_request("/api/fortune/1").respond_with_json(
+        {"wisdom": "If it seems that fates are aginst you today, they probably are."}
+    )
+
+    captured = []
+    step_events = [
+        events.CREATE_TESTCASE,
+        events.CREATE_REQUEST,
+        events.EXECUTE_REQUEST,
+        events.HTTP_TRANSPORT,
+        events.VERIFY_STATUS,
+    ]
+    disconnects = [
+        _connect(signal_name, lambda _s, **kw: captured.append(kw))
+        for signal_name in step_events
+    ]
     try:
         run_test("./tests/fixtures/testcases/check_status.json", default_cfg)
     finally:
-        disc()
+        for disconnect in reversed(disconnects):
+            disconnect()
 
     assert len(captured) > 0
-    # Phases instrumented in run_test() carry testfile explicitly
-    phases_with_testfile = [e for e in captured if "testfile" in e]
-    assert len(phases_with_testfile) >= 3  # at least create_testcase, create_request, http_execute
-    assert all(
-        e["testfile"] == "./tests/fixtures/testcases/check_status.json"
-        for e in phases_with_testfile
-    )
-    # http_transport (in http_util.py) carries http_method/url instead
-    transport_phases = [e for e in captured if e["phase"] == "http_transport"]
-    assert len(transport_phases) == 1
-    assert "http_method" in transport_phases[0]
+    transport_events = [
+        event_payload
+        for event_payload in captured
+        if event_payload["event"] == events.HTTP_TRANSPORT
+    ]
+    assert len(transport_events) == 1
+    assert "http_method" in transport_events[0]
+    assert "url" in transport_events[0]

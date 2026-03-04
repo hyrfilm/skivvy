@@ -8,6 +8,6 @@
   "diff_ndiff": true,
   "diff_unified": false,
   "diff_table": false,
-  "diff_full": false,
+  "diff_full": true,
   "diff_compact_lists": true
 }

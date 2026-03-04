@@ -75,7 +75,35 @@ class Settings:
     MATCH_FALSINESS = Option(
         "match_falsiness", True, "Match falsy values in verification"
     )
-    COLORIZE = Option("colorize", True, "Enable colored output")
+    DIFF_ENABLED = Option("diff_enabled", True, "Enable diff output for failures")
+    DIFF_NDIFF = Option("diff_ndiff", True, "Show ndiff view for failure diffs")
+    DIFF_UNIFIED = Option("diff_unified", False, "Show unified diff view for failures")
+    DIFF_TABLE = Option("diff_table", False, "Show side-by-side table diff view")
+    DIFF_FULL = Option(
+        "diff_full",
+        False,
+        "Show full expected/actual payloads without projection or compaction",
+    )
+    DIFF_COMPACT_LISTS = Option(
+        "diff_compact_lists",
+        True,
+        "Compact very long actual lists in failure diffs",
+    )
+    HTTP_REQUEST_LEVEL = Option(
+        "http_request_level",
+        "DEBUG",
+        "Log level for request method/url/payload output (set null/OFF to disable)",
+    )
+    HTTP_RESPONSE_LEVEL = Option(
+        "http_response_level",
+        "DEBUG",
+        "Log level for response status/body output (set null/OFF to disable)",
+    )
+    HTTP_HEADERS_LEVEL = Option(
+        "http_headers_level",
+        "DEBUG",
+        "Log level for request/response header output (set null/OFF to disable)",
+    )
     FAIL_FAST = Option("fail_fast", False, "Stop on first failure")
     FILE_ORDER = Option(
         "file_order",

@@ -44,6 +44,20 @@ the following line does just that:
 pushd /tmp && curl -L https://raw.githubusercontent.com/hyrfilm/skivvy/refs/heads/master/examples.tar.gz | tar -xz -C . && \
 uvx skivvy examples/typicode/failing.json && popd
 ```
+Alternative failing-suite output styles:
+```bash
+pushd /tmp && curl -L https://raw.githubusercontent.com/hyrfilm/skivvy/refs/heads/master/examples.tar.gz | tar -xz -C . && \
+uvx skivvy examples/typicode/failing_unified.json && popd
+
+pushd /tmp && curl -L https://raw.githubusercontent.com/hyrfilm/skivvy/refs/heads/master/examples.tar.gz | tar -xz -C . && \
+uvx skivvy examples/typicode/failing_table.json && popd
+
+pushd /tmp && curl -L https://raw.githubusercontent.com/hyrfilm/skivvy/refs/heads/master/examples.tar.gz | tar -xz -C . && \
+uvx skivvy examples/typicode/failing_unified_table.json && popd
+
+pushd /tmp && curl -L https://raw.githubusercontent.com/hyrfilm/skivvy/refs/heads/master/examples.tar.gz | tar -xz -C . && \
+uvx skivvy examples/typicode/failing_raw_diff.json && popd
+```
 ### pipx
 This line runs both of the succeeding and failing suites above:
 ```
@@ -213,9 +227,17 @@ Or specifying all currently supported settings:
 ```
   "ext": ".json",
   "base_url": "https://api.example.com",
-  "colorize": true,
   "fail_fast": false,
   "file_order": "lexical",
+  "diff_enabled": true,
+  "diff_ndiff": true,
+  "diff_unified": false,
+  "diff_table": false,
+  "diff_full": false,
+  "diff_compact_lists": true,
+  "http_request_level": "DEBUG",
+  "http_response_level": "DEBUG",
+  "http_headers_level": "DEBUG",
   "brace_expansion": true,
   "validate_variable_names": true,
   "auto_coerce": true,
@@ -327,9 +349,17 @@ a skivvy testfile, can contain the following flags that changes how the tests is
 
 ##### optional config settings
 * *log_level* - a low value like 10, shows ALL logging, a value like 20 shows only info and more severe
-* *colorize* - terminal colors for diffs (default is true)
 * *fail_fast* - aborts the test run immediately when a testcase fails instead of running the whole suite (default is false) 
 * *file_order* - deterministic test file ordering, `lexical` (default) or `natural` (human-friendly numeric sort)
+* *diff_enabled* - master switch for printing failure diffs (default is true)
+* *diff_ndiff* - print ndiff view for failures (default is true)
+* *diff_unified* - print unified diff view for failures (default is false)
+* *diff_table* - print side-by-side table diff (default is false)
+* *diff_full* - print full expected/actual payloads (no projection/compaction) (default is false)
+* *diff_compact_lists* - compact very large actual lists in diff projection (default is true)
+* *http_request_level* - log level for HTTP request method/url/payload output, set `null` or `OFF` to disable (default is `DEBUG`)
+* *http_response_level* - log level for HTTP response status/body output, set `null` or `OFF` to disable (default is `DEBUG`)
+* *http_headers_level* - log level for request/response header output, set `null` or `OFF` to disable (default is `DEBUG`)
 * *matchers* - directory where you place your own matchers (eg "./matchers")
 
 #### mandatory settings for a testcase

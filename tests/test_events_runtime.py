@@ -36,11 +36,9 @@ def _connect(signal_name, receiver):
 
 @pytest.fixture
 def clean_event_context():
-    previous = dict(events._context)
-    events._context.clear()
+    events.reset_runtime_listener()
     yield
-    events._context.clear()
-    events._context.update(previous)
+    events.reset_runtime_listener()
 
 
 @pytest.fixture(scope="session")
@@ -74,7 +72,7 @@ def test_emit_propagates_subscriber_exception(clean_event_context):
         disconnect()
 
 
-def test_run_test_emits_phase_events_on_success(httpserver, tmp_path, clean_event_context):
+def test_run_test_emits_step_events_on_success(httpserver, tmp_path, clean_event_context):
     httpserver.expect_request("/api/ok").respond_with_json({"ok": True})
     testcase_file = write_json_file(
         tmp_path / "ok.json",
@@ -82,26 +80,31 @@ def test_run_test_emits_phase_events_on_success(httpserver, tmp_path, clean_even
     )
 
     captured = []
-    disc1 = _connect(events.TEST_PHASE_STARTED, lambda _s, **kw: captured.append(("started", kw)))
-    disc2 = _connect(events.TEST_PHASE_FINISHED, lambda _s, **kw: captured.append(("finished", kw)))
+    step_events = [
+        events.CREATE_TESTCASE,
+        events.CREATE_REQUEST,
+        events.EXECUTE_REQUEST,
+        events.HTTP_TRANSPORT,
+        events.VERIFY_STATUS,
+        events.VERIFY_RESPONSE,
+    ]
+    disconnects = [
+        _connect(signal_name, lambda _s, signal_name=signal_name, **kw: captured.append((signal_name, kw)))
+        for signal_name in step_events
+    ]
     try:
         status, err = run_test(
             str(testcase_file),
             {"base_url": _base_url(httpserver), "log_level": "ERROR"},
         )
     finally:
-        disc1()
-        disc2()
+        for disconnect in reversed(disconnects):
+            disconnect()
 
     assert status is STATUS_OK
     assert err is None
-    phases = [entry[1]["phase"] for entry in captured]
-    assert "create_testcase" in phases
-    assert "create_request" in phases
-    assert "http_execute" in phases
-    assert "http_transport" in phases
-    assert "verify_status" in phases
-    assert "verify_response" in phases
+    seen_steps = [event_name for event_name, _ in captured]
+    assert seen_steps == step_events
 
 
 def test_subscriber_failure_during_testcase_event_fails_run_test(tmp_path, clean_event_context):
@@ -113,7 +116,7 @@ def test_subscriber_failure_during_testcase_event_fails_run_test(tmp_path, clean
     def bad_receiver(_sender, **kw):
         raise RuntimeError("sink boom")
 
-    disc = _connect(events.TEST_PHASE_STARTED, bad_receiver)
+    disc = _connect(events.CREATE_TESTCASE, bad_receiver)
     try:
         status, err = run_test(
             str(testcase_file),
@@ -125,25 +128,52 @@ def test_subscriber_failure_during_testcase_event_fails_run_test(tmp_path, clean
     assert status is STATUS_FAILED
     assert err is not None
     assert "sink boom" in err["exception"]
+    assert "traceback" in err
+    assert "Traceback" in err["traceback"]
+    assert err["failed_step"] == events.CREATE_TESTCASE
 
 
-def test_install_runtime_sinks_temporary_flags_toggle_paths(clean_event_context):
-    install = sinks.install_runtime_sinks({"_rich": True, "_timing": True, "_http_timing": True})
+def test_install_runtime_sinks_installs_console_and_optional_timing(clean_event_context):
+    install = sinks.install_runtime_sinks({"_timing": True, "_http_timing": True})
     try:
-        assert install.terminal_sink is not None
-        assert install.error_sink is not None
+        assert install.console_sink is not None
         assert install.timing_sink is not None
-        assert install.terminal_sink.renderer == "rich"
+        assert isinstance(install.console_sink, sinks.ConsoleOutputSink)
         assert install.timing_sink.http_timing is True
     finally:
         install.close()
 
-    install = sinks.install_runtime_sinks({"_rich": False})
+    install = sinks.install_runtime_sinks({})
     try:
-        assert install.terminal_sink is not None
-        assert install.error_sink is not None
-        assert install.terminal_sink.renderer == "plain"
+        assert install.console_sink is not None
+        assert isinstance(install.console_sink, sinks.ConsoleOutputSink)
         assert install.timing_sink is None
+    finally:
+        install.close()
+
+    install = sinks.install_runtime_sinks(
+        {
+            "diff_enabled": True,
+            "diff_ndiff": False,
+            "diff_unified": True,
+            "diff_table": True,
+            "diff_full": True,
+            "diff_compact_lists": False,
+            "http_request_level": "INFO",
+            "http_response_level": "WARNING",
+            "http_headers_level": None,
+        }
+    )
+    try:
+        assert install.console_sink.diff_enabled is True
+        assert install.console_sink.diff_ndiff is False
+        assert install.console_sink.diff_unified is True
+        assert install.console_sink.diff_table is True
+        assert install.console_sink.diff_full is True
+        assert install.console_sink.diff_compact_lists is False
+        assert install.console_sink.http_request_level == "INFO"
+        assert install.console_sink.http_response_level == "WARNING"
+        assert install.console_sink.http_headers_level is None
     finally:
         install.close()
 
@@ -157,22 +187,256 @@ def test_install_runtime_sinks_temporary_flags_toggle_paths(clean_event_context)
 def test_timing_sink_computes_from_ts_not_elapsed_ms(clean_event_context):
     timing_sink = sinks.TimingSink(http_timing=True).install()
     try:
-        with events.with_context(test_id="case-1", testfile="case-1"):
-            events.emit(events.TEST_STARTED, ts=1000)
-            events.emit(events.TEST_PHASE_STARTED, phase="http_transport", ts=1010)
-            events.emit(
-                events.TEST_PHASE_FINISHED,
-                phase="http_transport",
-                ts=1045,
-                elapsed_ms=999999,
-            )
-            events.emit(events.TEST_FINISHED, ts=1125, elapsed_ms=1, success=True)
+        events.emit(events.TEST_STARTED, test_id="case-1", testfile="case-1", ts=1000)
+        events.emit(events.HTTP_TRANSPORT, ts=1010)
+        events.emit(events.VERIFY_STATUS, ts=1045)
+        events.emit(events.TEST_FINISHED, ts=1125, success=True)
     finally:
         timing_sink.close()
 
     assert timing_sink.test_totals_ms["case-1"] == 125
-    assert timing_sink.phase_durations_ms["case-1"]["http_transport"] == 35
+    assert timing_sink.phase_durations_ms["case-1"][events.HTTP_TRANSPORT] == 35
     assert timing_sink.http_phase_durations_ms["case-1"] == [35]
+
+
+def test_project_failure_payload_status_focuses_only_status():
+    expected, actual = sinks._project_failure_payload(
+        {
+            "failed_step": events.VERIFY_STATUS,
+            "expected": {
+                "status": 200,
+                "response": {"ok": True},
+                "response_headers": {"x": "1"},
+            },
+            "actual": {
+                "status": 500,
+                "response": {"ok": False},
+                "response_headers": {"x": "2"},
+            },
+        }
+    )
+
+    assert expected == {"status": 200}
+    assert actual == {"status": 500}
+
+
+def test_project_failure_payload_response_prunes_equal_fields():
+    expected, actual = sinks._project_failure_payload(
+        {
+            "failed_step": events.VERIFY_RESPONSE,
+            "expected": {
+                "response": {
+                    "a": 1,
+                    "b": 2,
+                    "nested": {"x": 1, "y": 2},
+                }
+            },
+            "actual": {
+                "response": {
+                    "a": 1,
+                    "b": 3,
+                    "nested": {"x": 1, "y": 9},
+                    "ignored": True,
+                }
+            },
+        }
+    )
+
+    assert expected == {"response": {"b": 2, "nested": {"y": 2}}}
+    assert actual == {"response": {"b": 3, "nested": {"y": 9}}}
+
+
+def test_project_failure_payload_headers_focuses_only_headers():
+    expected, actual = sinks._project_failure_payload(
+        {
+            "failed_step": events.VERIFY_RESPONSE_HEADERS,
+            "expected": {
+                "status": 200,
+                "response_headers": {"x": "1"},
+            },
+            "actual": {
+                "status": 200,
+                "response_headers": {"x": "2"},
+            },
+        }
+    )
+
+    assert expected == {"response_headers": {"x": "1"}}
+    assert actual == {"response_headers": {"x": "2"}}
+
+
+def test_project_failure_payload_response_compacts_large_actual_lists():
+    expected, actual = sinks._project_failure_payload(
+        {
+            "failed_step": events.VERIFY_RESPONSE,
+            "expected": {
+                "response": [
+                    {
+                        "id": 1,
+                        "name": "alpha",
+                    }
+                ]
+            },
+            "actual": {
+                "response": [
+                    {
+                        "id": index,
+                        "name": "name-value-that-is-quite-long-to-trigger-compaction",
+                        "ignored": "x" * 20,
+                    }
+                    for index in range(500)
+                ]
+            },
+        }
+    )
+
+    assert expected == {"response": [{"id": 1, "name": "alpha"}]}
+    compacted_list = actual["response"]
+    assert len(compacted_list) == 5
+    assert compacted_list[-1]["__omitted_items__"] == 496
+    assert compacted_list[-1]["total_items"] == 500
+    omitted_markers = sinks._collect_omitted_markers(actual)
+    assert len(omitted_markers) == 1
+
+
+def test_project_failure_payload_response_keeps_small_lists_uncompacted():
+    expected, actual = sinks._project_failure_payload(
+        {
+            "failed_step": events.VERIFY_RESPONSE,
+            "expected": {
+                "response": [
+                    {"id": 1},
+                    {"id": 2},
+                ]
+            },
+            "actual": {
+                "response": [
+                    {"id": 1},
+                    {"id": 3},
+                ]
+            },
+        }
+    )
+
+    assert expected == {"response": [{"id": 1}, {"id": 2}]}
+    assert actual == {"response": [{"id": 1}, {"id": 3}]}
+    assert sinks._collect_omitted_markers(actual) == []
+
+
+def test_project_failure_payload_can_disable_list_compaction():
+    expected, actual = sinks._project_failure_payload(
+        {
+            "failed_step": events.VERIFY_RESPONSE,
+            "expected": {"response": [{"id": 1}]},
+            "actual": {
+                "response": [{"id": idx, "ignored": "x" * 100} for idx in range(100)]
+            },
+        },
+        compact_lists=False,
+    )
+
+    assert expected == {"response": [{"id": 1}]}
+    assert len(actual["response"]) == 100
+    assert sinks._collect_omitted_markers(actual) == []
+
+
+def test_console_sink_uses_table_renderer_when_enabled(monkeypatch):
+    rendered = []
+
+    def capture_render(renderable):
+        rendered.append(renderable)
+
+    monkeypatch.setattr(sinks.log, "render", capture_render)
+    monkeypatch.setattr(sinks.log, "info", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(sinks.log, "error", lambda *_args, **_kwargs: None)
+
+    sink = sinks.ConsoleOutputSink(
+        {
+            "diff_ndiff": False,
+            "diff_unified": False,
+            "diff_table": True,
+            "diff_full": False,
+        }
+    )
+    sink._log_failure_context(
+        {
+            "failed_step": events.VERIFY_RESPONSE,
+            "exception": "boom",
+            "expected": {"response": {"a": 1}},
+            "actual": {"response": {"a": 2}},
+        }
+    )
+
+    assert len(rendered) == 1
+
+
+def test_console_sink_diff_full_bypasses_projection(monkeypatch):
+    monkeypatch.setattr(
+        sinks,
+        "_project_failure_payload",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(AssertionError("unexpected")),
+    )
+    monkeypatch.setattr(sinks.log, "info", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(sinks.log, "error", lambda *_args, **_kwargs: None)
+
+    sink = sinks.ConsoleOutputSink(
+        {
+            "diff_ndiff": False,
+            "diff_unified": False,
+            "diff_table": False,
+            "diff_full": True,
+        }
+    )
+    sink._log_failure_context(
+        {
+            "failed_step": events.VERIFY_RESPONSE,
+            "exception": "boom",
+            "expected": {"response": {"a": 1, "same": 10}},
+            "actual": {"response": {"a": 2, "same": 10}},
+        }
+    )
+
+
+def test_console_sink_http_logging_uses_individual_levels(monkeypatch):
+    emitted = []
+
+    def capture(level, msg, new_line=True):
+        if level is None:
+            return
+        emitted.append((level, msg, new_line))
+
+    monkeypatch.setattr(sinks.log, "log_at", capture)
+
+    sink = sinks.ConsoleOutputSink(
+        {
+            "http_request_level": "INFO",
+            "http_response_level": None,
+            "http_headers_level": "WARNING",
+        }
+    )
+    sink._on_http_transport(
+        None,
+        http_method="get",
+        url="http://example.test/api",
+        request_query={"a": 1},
+        request_headers={"x-request": "123"},
+    )
+    sink._on_http_response(
+        None,
+        http_status=200,
+        url="http://example.test/api",
+        response_body='{"ok": true}',
+        response_headers={"x-response": "456"},
+    )
+
+    assert any(level == "INFO" and "http request" in msg for level, msg, _ in emitted)
+    assert any(
+        level == "WARNING" and "request headers" in msg for level, msg, _ in emitted
+    )
+    assert any(
+        level == "WARNING" and "response headers" in msg for level, msg, _ in emitted
+    )
+    assert not any("http response" in msg for _level, msg, _ in emitted)
 
 
 def test_run_emits_run_passed_then_finished_with_timestamps(httpserver, tmp_path, clean_event_context):
@@ -212,7 +476,7 @@ def test_run_emits_run_passed_then_finished_with_timestamps(httpserver, tmp_path
     assert seen[-1][1]["success"] is True
     assert seen[-1][1]["num_tests"] == 1
     assert seen[-1][1]["failures"] == 0
-    assert seen[-1][1]["elapsed_ms"] >= 0
+    assert "elapsed_ms" not in seen[-1][1]
 
 
 def test_run_emits_run_failed_then_finished(httpserver, tmp_path, clean_event_context):

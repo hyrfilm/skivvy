@@ -5,9 +5,9 @@
   "ext": ".json",
   "log_level": "INFO",
   "diff_enabled": true,
-  "diff_ndiff": true,
-  "diff_unified": false,
-  "diff_table": false,
+  "diff_ndiff": false,
+  "diff_unified": true,
+  "diff_table": true,
   "diff_full": false,
   "diff_compact_lists": true
 }
