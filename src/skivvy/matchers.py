@@ -109,7 +109,7 @@ def match_valid_url(expected, actual):
         verify_tls = not unsafe
 
         log.debug("Making request to %s (verify=%s)" % (actual, verify_tls))
-        response = requests.get(actual, verify=verify_tls)
+        response = requests.get(actual, verify=verify_tls, timeout=30)
 
         if response.status_code in valid_status_codes:
             log.debug("Success.")

@@ -109,6 +109,10 @@ class Settings:
     )
     MATCHERS = Option("matchers", None, "Directory containing custom matcher files")
     MATCHER_OPTIONS = Option("matcher_options", {}, "Per-matcher configuration options")
+    EXT = Option("ext", ".json", "File extension for test files")
+    TIMING = Option("timing", False, "Enable timing output for each test")
+    HTTP_TIMING = Option("http_timing", False, "Enable HTTP transport timing breakdown")
+    TIMEOUT = Option("timeout", 30, "HTTP request timeout in seconds")
 
 
 def read_config(config_name: str | None) -> dict:

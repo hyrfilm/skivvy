@@ -14,7 +14,7 @@ def has_matcher_syntax(expected, matcher):
         if isinstance(expected, str) and first_word == matcher:
             return True
         return False
-    except:
+    except Exception:
         return False
 
 

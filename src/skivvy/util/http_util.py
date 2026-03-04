@@ -78,10 +78,10 @@ def initialize_session(session=None):
     _session = session or requests.Session()
 
 
-def execute(request: dict[str, object]) -> HttpEnvelope:
+def execute(request: dict[str, object], timeout: int | float | None = None) -> HttpEnvelope:
     method, payload = prepare_request_data(request)
     payload = prepare_upload_files(payload)
-    r = do_request(method, **payload)
+    r = do_request(method, timeout=timeout, **payload)
     events.emit(
         events.HTTP_RESPONSE,
         http_status=getattr(r, "status_code", None),
@@ -114,7 +114,7 @@ def prepare_upload_files(payload: dict[str, object]) -> dict[str, object]:
     return next_payload
 
 
-def do_request(method, **payload: Dict[str, Any]) -> requests.Request:
+def do_request(method, timeout=None, **payload: Dict[str, Any]) -> requests.Request:
     assert method, "missing method"
     assert method in _supported_methods, f"unsupported method: {method}"
 
@@ -132,7 +132,7 @@ def do_request(method, **payload: Dict[str, Any]) -> requests.Request:
         request_data=payload.get("data"),
         request_upload_fields=upload_fields,
     )
-    return request_function(**payload)
+    return request_function(timeout=timeout, **payload)
 
 
 initialize_session()
