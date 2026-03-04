@@ -479,6 +479,42 @@ def test_run_emits_run_passed_then_finished_with_timestamps(httpserver, tmp_path
     assert "elapsed_ms" not in seen[-1][1]
 
 
+def test_run_accepts_test_directory_target(httpserver, tmp_path, clean_event_context):
+    httpserver.expect_request("/api/pass").respond_with_json({"ok": True})
+
+    tests_dir = tmp_path / "tests"
+    tests_dir.mkdir()
+    write_json_file(
+        tests_dir / "01.json",
+        {"url": "/api/pass", "status": 200, "response": {"ok": True}},
+    )
+
+    seen = []
+    discs = [
+        _connect(events.RUN_STARTED, lambda _s, **kw: seen.append(("run.started", kw))),
+        _connect(events.RUN_FINISHED, lambda _s, **kw: seen.append(("run.finished", kw))),
+    ]
+    try:
+        assert (
+            run_cli_with_args(
+                tests_dir,
+                "-t",
+                "--set",
+                f"base_url={_base_url(httpserver)}",
+                "--set",
+                "log_level=ERROR",
+            )
+            is True
+        )
+    finally:
+        for disc in reversed(discs):
+            disc()
+
+    assert [name for name, _ in seen] == ["run.started", "run.finished"]
+    assert seen[0][1]["config_file"] == str(tests_dir)
+    assert seen[1][1]["success"] is True
+
+
 def test_run_emits_run_failed_then_finished(httpserver, tmp_path, clean_event_context):
     httpserver.expect_request("/api/fail").respond_with_json({"ok": True})
 

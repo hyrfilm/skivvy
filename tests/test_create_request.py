@@ -69,3 +69,18 @@ def test_brace_expansion_with_files_and_variables():
         "brace_expansion": True,
         "headers": {"Authorization": "Bearer fidelio", 'Content-Type': 'application/json'},
     }
+
+
+def test_create_request_allows_full_url_without_base_url():
+    test_config = {
+        "url": "http://127.0.0.1:8080/fortunes/1",
+        "method": "GET",
+    }
+
+    request_dict, complete_dict = create_request(test_config)
+
+    assert request_dict == {
+        "method": "GET",
+        "url": "http://127.0.0.1:8080/fortunes/1",
+    }
+    assert complete_dict["url"] == "http://127.0.0.1:8080/fortunes/1"

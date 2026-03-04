@@ -14,12 +14,12 @@ def create_request(testcase: Mapping[str, object]) -> tuple[dict, dict]:
     Validates a test case and returns a request-dict and a testconfig-dict.
     The request-dict can be passed directly to execute while the testconfig-dict determines the behavior of the test (expected status, fields, brace expansion and so on).
     """
-    # TODO: Before we reach here we should have just already have this dict filled with
-    # TODO: the necessary values by just iterating over the dict and for each option either it would have a default or we would raise a validation exception
-    required_fields = (Settings.BASE_URL.key, Settings.URL.key, Settings.METHOD.key)
-    base_url, url, method = dict_util.get_all(testcase, *required_fields)
+    base_url = conf_get(testcase, Settings.BASE_URL)
+    url = testcase[Settings.URL.key]
+    method = conf_get(testcase, Settings.METHOD)
     url = urljoin(base_url, url)
     testcase[Settings.URL.key] = url
+    testcase[Settings.METHOD.key] = method
     log.debug(f"Creating request {method}: {url}")
 
     # apply for these fields, the ones not present will just be ignored

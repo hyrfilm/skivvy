@@ -1,20 +1,24 @@
 """skivvy
 
 Usage:
-    skivvy <cfg_file> [-t] [-i=regexp]... [-e=regexp]... [--set=kv]...
+    skivvy <target> [-t] [-i=regexp]... [-e=regexp]... [--set=kv]...
 
-    skivvy examples/example.json (run examples)
+    skivvy examples/dev_server/cfg.json
+    skivvy examples/dev_server/tests
 
 Options:
     -h --help       show this screen.
     -v --version    show version.
+    <target>        path to a config JSON file or a test directory
     -i=regexp       include only files matching provided regexp(s)
     -e=regexp       exclude files matching provided regexp(s)
-    --set=kv        override a setting using key=value syntax (repeatable)
+    --set=kv        override a setting using key=value syntax (repeatable);
+                    environment overrides use SKIVVY_<SETTING>
     -t              keep temporary files (if any)
 """
 
 import json
+import os
 import traceback
 
 from docopt import docopt
@@ -148,7 +152,7 @@ def run():
     run_id = events.new_run_id()
     events.reset_runtime_listener()
     arguments = None
-    cfg_file = None
+    target = None
     failures = 0
     num_tests = 0
     result = None
@@ -156,9 +160,11 @@ def run():
 
     try:
         arguments = docopt(__doc__, version=f"skivvy {version}")
-        # TODO: Since we started supporting env variables & --set we don't strictly require a cfg file anymore and it makes sense to not require it
-        cfg_file = arguments.get("<cfg_file>")
-        cfg_conf = read_config(cfg_file)
+        target = arguments.get("<target>")
+        if target and os.path.isdir(target):
+            cfg_conf = {"tests": os.path.abspath(target)}
+        else:
+            cfg_conf = read_config(target)
         env_overrides = parse_env_overrides()
         cli_overrides = parse_cli_overrides(arguments.get("--set"))
 
@@ -205,7 +211,7 @@ def run():
             events.RUN_STARTED,
             run_id=run_id,
             version=version,
-            config_file=cfg_file,
+            config_file=target,
             test_count=len(tests),
         )
 
@@ -263,7 +269,7 @@ def run():
             events.emit(
                 events.RUN_FINISHED,
                 run_id=run_id,
-                config_file=cfg_file,
+                config_file=target,
                 num_tests=num_tests,
                 failures=failures,
                 success=result,
