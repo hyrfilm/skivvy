@@ -727,11 +727,6 @@ def test_run_test_upload_should_send_file_contents(httpserver, tmp_path):
     assert error_context is None
     assert captured["content"] == b"hello upload"
 
-#TODO: This is a known bug: https://github.com/hyrfilm/skivvy/issues/5
-@pytest.mark.xfail(
-    strict=True,
-    reason="$write_file should fail instead of silently overwriting an existing temp file",
-)
 def test_run_test_duplicate_write_file_filename_should_fail_second_test(httpserver, tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     httpserver.expect_request("/api/write-file/1").respond_with_json({"token": "alpha"})
