@@ -6,7 +6,7 @@ import re
 
 from skivvy.util import log
 
-_tmp_files = []
+_tmp_files = set()
 _natural_sort_re = re.compile(r"(\d+)")
 
 
@@ -50,9 +50,11 @@ def parse_json(filename):
 
 def write_tmp(filename, content):
     filename = os.path.join(os.getcwd(), filename)
+    if filename in _tmp_files:
+        raise ValueError(f"Temporary file already exists: {filename}")
     with open(filename, "w") as fp:
         fp.write(str(content))
-        _tmp_files.append(filename)
+    _tmp_files.add(filename)
 
 
 def cleanup_tmp_files(warn: bool = False, throw: bool = True) -> None:
@@ -65,6 +67,7 @@ def cleanup_tmp_files(warn: bool = False, throw: bool = True) -> None:
                 log.warn(f"Missing temporary file: {filename}")
             if throw:
                 missing.append(e)
+    _tmp_files.clear()
     if missing:
         raise ExceptionGroup("Missing file(s) when cleaning up:", missing)
 

@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from skivvy.util.file_util import list_files, strip_filename
+from skivvy.util.file_util import list_files, strip_filename, write_tmp, cleanup_tmp_files, _tmp_files
 
 
 def _relative_paths(base: Path, files: list[str]) -> list[str]:
@@ -58,3 +58,17 @@ def test_list_files_rejects_unknown_file_order(tmp_path):
 )
 def test_strip_filename_returns_last_path_component(raw, expected):
     assert strip_filename(raw) == expected
+
+
+def test_write_tmp_rejects_overwrite(tmp_path, monkeypatch, clean_tmp_files):
+    monkeypatch.chdir(tmp_path)
+    write_tmp("out.txt", "first")
+    with pytest.raises(ValueError, match="already exists"):
+        write_tmp("out.txt", "second")
+
+
+def test_cleanup_tmp_files_can_be_called_twice(tmp_path, monkeypatch, clean_tmp_files):
+    monkeypatch.chdir(tmp_path)
+    write_tmp("out.txt", "hello")
+    cleanup_tmp_files()
+    cleanup_tmp_files()  # must not raise
