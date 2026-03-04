@@ -11,9 +11,6 @@ class Option(NamedTuple):
     default: Any
     help: str = ""
 
-    def from_dict(self, config_dict: Dict[str, Any]):
-        return config_dict.get(self.key, self.default)
-
 
 # TODO: It would be nice if these were listed as part of the help
 # Perhaps the currently shown help is displayed when typing skivvy and these would be shown as an own section since you can use --set option but it should be mentioned that they can be specified in a config file and overridden per test as well

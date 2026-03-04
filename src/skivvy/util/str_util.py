@@ -77,12 +77,6 @@ def pretty_diff(
     return _colorize_diff(_raw_diff())
 
 
-def stylize(s):
-    for name, value in tags.items():
-        s = s.replace(value)
-    return s
-
-
 def tojsonstr(o):
     return json.dumps(o, sort_keys=True, indent=2)
 

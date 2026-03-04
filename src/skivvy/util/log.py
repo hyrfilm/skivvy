@@ -15,7 +15,6 @@ def _create_rich_handler():
         show_level=False,
         rich_tracebacks=True,
     )
-    h.terminator = ""  # important for your layout
     h.setFormatter(logging.Formatter("%(message)s"))
     return h
 

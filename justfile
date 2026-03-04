@@ -28,7 +28,7 @@ examples:
 
 # find dead code
 deadcode:
-	uv run vulture src/skivvy/
+	uv run vulture src/skivvy/ --min-confidence 80 --exclude src/skivvy/config.py
 
 # run via cli
 run *args:

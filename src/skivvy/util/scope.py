@@ -19,6 +19,7 @@ def get_current_namespace():
     return os.environ.get("SKIVVY_CURRENT_DIR", os.getcwd())
 
 
+# TODO: Unused, consider removing
 def get_all_namespaces() -> KeysView[str]:
     return _store.keys()
 
@@ -109,11 +110,3 @@ def fetch(key: str):
     return _get(key)
 
 
-def dump_all():
-    result = {}
-    for ns in get_all_namespaces():
-        result[ns] = dump(ns)
-
-
-def current():
-    return dump(get_current_namespace())
