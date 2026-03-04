@@ -55,22 +55,22 @@ def write_tmp(filename, content):
     with open(filename, "w") as fp:
         fp.write(str(content))
     _tmp_files.add(filename)
+    return filename
 
 
 def cleanup_tmp_files(warn: bool = False, throw: bool = True) -> None:
     missing = []
-    for filename in _tmp_files:
+    while len(_tmp_files) > 0:
+        filename = _tmp_files.pop()
         try:
             os.remove(filename)
         except FileNotFoundError as e:
             if warn:
-                log.warn(f"Missing temporary file: {filename}")
+                log.warning(f"Missing temporary file: {filename}")
             if throw:
                 missing.append(e)
-    _tmp_files.clear()
     if missing:
         raise ExceptionGroup("Missing file(s) when cleaning up:", missing)
-
 
 def read_file_contents(filename, binary: bool = False):
     mode = "rb" if binary else "r"

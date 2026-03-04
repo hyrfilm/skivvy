@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import pytest
@@ -67,8 +68,28 @@ def test_write_tmp_rejects_overwrite(tmp_path, monkeypatch, clean_tmp_files):
         write_tmp("out.txt", "second")
 
 
-def test_cleanup_tmp_files_can_be_called_twice(tmp_path, monkeypatch, clean_tmp_files):
+def test_cleanup_tmp_files(tmp_path, monkeypatch, clean_tmp_files):
     monkeypatch.chdir(tmp_path)
-    write_tmp("out.txt", "hello")
-    cleanup_tmp_files()
-    cleanup_tmp_files()  # must not raise
+    tmp_file = write_tmp("out.txt", "hello")
+    missing_file = write_tmp("gone.txt", "where is it?")
+
+    os.remove(missing_file)
+    # should just result in a warning
+    cleanup_tmp_files(warn=True, throw=False)
+
+    tmp_file = write_tmp("out.txt", "hello")
+    missing_file = write_tmp("gone.txt", "but it was right there!")
+    also_missing = write_tmp("poof.txt", "like it never existed")
+    os.remove(missing_file)
+    os.remove(also_missing)
+
+    try:
+        cleanup_tmp_files(warn=False, throw=True)
+    except ExceptionGroup as e:
+        # two files should have resulted in errors when trying to remove
+        assert len(e.exceptions) == 2
+
+    # all files should be gone
+    paths = [tmp_file, missing_file, missing_file]
+    for path in paths:
+        assert not os.path.isfile(path)
