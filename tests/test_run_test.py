@@ -8,7 +8,7 @@ from werkzeug.wrappers import Response
 
 from skivvy import events
 from skivvy.skivvy import run_test, run, STATUS_OK, STATUS_FAILED
-from skivvy.skivvy_config2 import Option, Settings, create_test_config
+from skivvy.config import Option, Settings, create_test_config
 from skivvy.test_runner import create_request
 from skivvy.util import file_util, log, str_util
 

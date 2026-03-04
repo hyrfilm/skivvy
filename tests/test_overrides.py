@@ -1,6 +1,6 @@
 import pytest
 
-from skivvy.skivvy_config2 import (
+from skivvy.config import (
     create_testcase,
     parse_cli_overrides,
     parse_env_overrides,

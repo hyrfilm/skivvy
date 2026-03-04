@@ -114,6 +114,14 @@ class Settings:
     MATCHER_OPTIONS = Option("matcher_options", {}, "Per-matcher configuration options")
 
 
+def read_config(config_name: str | None) -> dict:
+    if not config_name:
+        return {}
+    config_file = os.path.join(os.getcwd(), config_name)
+    with open(config_file, encoding="utf8") as fp:
+        return json.load(fp)
+
+
 def get_all_settings() -> list[Option]:
     return [
         option for _name, option in vars(Settings).items() if isinstance(option, Option)
@@ -215,8 +223,6 @@ def create_testcase(*sources: Dict[str, object] | str) -> Mapping[str, object]:
             source_dict = file_util.parse_json(source)
         elif isinstance(source, dict):
             source_dict = source
-        elif hasattr(source, "as_dict") and callable(getattr(source, "as_dict")):
-            source_dict = source.as_dict()
         else:
             source_dict = dict(source)
 

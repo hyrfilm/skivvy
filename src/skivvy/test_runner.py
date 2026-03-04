@@ -4,7 +4,7 @@ from typing import Dict, Mapping, Callable, Any
 from urllib.parse import urljoin
 
 from skivvy.brace_expansion import brace_expand_string
-from skivvy.skivvy_config2 import Settings, conf_get
+from skivvy.config import Settings, conf_get
 from skivvy.util import dict_util, log, str_util, file_util
 from skivvy.util.dict_util import get_all, subset
 

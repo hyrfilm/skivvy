@@ -20,17 +20,17 @@ import traceback
 from docopt import docopt
 
 from skivvy import __version__
-from skivvy.skivvy_config2 import (
+from skivvy.config import (
     create_testcase,
     parse_env_overrides,
     parse_cli_overrides,
+    read_config,
 )
 from . import custom_matchers, test_runner
 from . import matchers
 from . import events
 from . import sinks
 from .errors import ExpectedTestFailure
-from .skivvy_config import read_config
 from .util import file_util, http_util, dict_util, str_util
 from .util import log
 from .verify import verify
