@@ -1,16 +1,11 @@
+# Based on https://github.com/jeffkaufman/icdiff
 import difflib
 import stat
-import unicodedata
 from typing import Iterable, List, Optional, Tuple
 
 from rich.console import Console
 from rich.table import Table
 from rich.text import Text
-
-
-EXIT_CODE_SUCCESS = 0
-EXIT_CODE_DIFF = 1
-EXIT_CODE_ERROR = 2
 
 
 class RichConsoleDiff:
@@ -216,12 +211,3 @@ class RichConsoleDiff:
 
         return table
 
-    def print_table(
-        self,
-        fromlines: Iterable[str],
-        tolines: Iterable[str],
-        **kwargs,
-    ):
-        """Convenience: build and print table in one go."""
-        table = self.build_table(fromlines, tolines, **kwargs)
-        self.console.print(table)

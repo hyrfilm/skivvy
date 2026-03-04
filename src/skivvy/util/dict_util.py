@@ -48,6 +48,7 @@ def get_all(d, *keys):
     return _get(d)
 
 
+# TODO: Unused, consider removing
 @wrap_in_tuple
 def get_many(d, *keys):
     """
@@ -63,6 +64,7 @@ def filter_null_from_list(l):
     return filter(lambda x: x is not None, l)
 
 
+# TODO: Unused, consider removing
 def filter_null_from_dict(d):
     """
     removes all values from a dict that are None
