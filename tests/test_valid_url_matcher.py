@@ -11,7 +11,7 @@ class DummyResponse:
 def test_valid_url_success_uses_tls_verification_by_default(isolated_matcher_state):
     calls = {}
 
-    def fake_get(url, verify):
+    def fake_get(url, verify, **kwargs):
         calls["url"] = url
         calls["verify"] = verify
         return DummyResponse(200)
@@ -40,7 +40,7 @@ def test_valid_url_parses_prefix_and_unsafe_modifiers_order_independently(
 ):
     calls = {}
 
-    def fake_get(url, verify):
+    def fake_get(url, verify, **kwargs):
         calls["url"] = url
         calls["verify"] = verify
         return DummyResponse(202)
@@ -59,7 +59,7 @@ def test_valid_url_parses_prefix_and_unsafe_modifiers_order_independently(
 def test_valid_url_applies_matcher_options_replace_before_request(isolated_matcher_state):
     calls = {}
 
-    def fake_get(url, verify):
+    def fake_get(url, verify, **kwargs):
         calls["url"] = url
         calls["verify"] = verify
         return DummyResponse(200)
@@ -77,7 +77,7 @@ def test_valid_url_applies_matcher_options_replace_before_request(isolated_match
 
 
 def test_valid_url_reports_unexpected_status_code(isolated_matcher_state):
-    def fake_get(url, verify):
+    def fake_get(url, verify, **kwargs):
         return DummyResponse(404)
 
     original_get = matchers.requests.get
@@ -92,7 +92,7 @@ def test_valid_url_reports_unexpected_status_code(isolated_matcher_state):
 
 
 def test_valid_url_ssl_error_includes_unsafe_hint(isolated_matcher_state):
-    def fake_get(url, verify):
+    def fake_get(url, verify, **kwargs):
         raise matchers.requests.exceptions.SSLError("certificate verify failed")
 
     original_get = matchers.requests.get
@@ -108,7 +108,7 @@ def test_valid_url_ssl_error_includes_unsafe_hint(isolated_matcher_state):
 
 
 def test_valid_url_generic_request_error_has_no_tls_hint(isolated_matcher_state):
-    def fake_get(url, verify):
+    def fake_get(url, verify, **kwargs):
         raise RuntimeError("connection refused")
 
     original_get = matchers.requests.get

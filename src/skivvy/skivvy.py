@@ -21,6 +21,8 @@ from docopt import docopt
 
 from skivvy import __version__
 from skivvy.config import (
+    Settings,
+    conf_get,
     create_testcase,
     parse_env_overrides,
     parse_cli_overrides,
@@ -78,7 +80,7 @@ def run_test(filename, env_conf, cli_overrides=None):
 
         current_step = events.EXECUTE_REQUEST
         events.emit(current_step)
-        http_envelope = http_util.execute(request)
+        http_envelope = http_util.execute(request, timeout=conf_get(testcase_config, Settings.TIMEOUT))
         current_step = None
 
         actual_status = http_envelope.status_code
@@ -167,18 +169,14 @@ def run():
         # until we finalize the real logging/timing/diffs config design.
         sink_installation = sinks.install_runtime_sinks(suite_conf)
 
-        # TODO: Place these in Settings
         tests = file_util.list_files(
-            # TODO: should be required
             suite_conf["tests"],
-            # TODO: should not be required (should default to ".json")
-            suite_conf["ext"],
-            file_order=suite_conf["file_order"],
+            conf_get(suite_conf, Settings.EXT),
+            file_order=conf_get(suite_conf, Settings.FILE_ORDER),
         )
         custom_matchers.load(suite_conf)
         matchers.add_negating_matchers()
-        # TODO: Use Settings.FAIL_FAST instead of hard-coded string
-        fail_fast = suite_conf.get("fail_fast", False)
+        fail_fast = conf_get(suite_conf, Settings.FAIL_FAST)
 
         # TODO: The handling of -i/-e is a bit gnarly and not DRY, at least move the relevant parts out into one of the utils
         # include files - by inclusive filtering files that match the -i regexps

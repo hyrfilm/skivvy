@@ -134,7 +134,7 @@ def test_subscriber_failure_during_testcase_event_fails_run_test(tmp_path, clean
 
 
 def test_install_runtime_sinks_installs_console_and_optional_timing(clean_event_context):
-    install = sinks.install_runtime_sinks({"_timing": True, "_http_timing": True})
+    install = sinks.install_runtime_sinks({"timing": True, "http_timing": True})
     try:
         assert install.console_sink is not None
         assert install.timing_sink is not None
@@ -177,7 +177,7 @@ def test_install_runtime_sinks_installs_console_and_optional_timing(clean_event_
     finally:
         install.close()
 
-    install = sinks.install_runtime_sinks({"_http_timing": True})
+    install = sinks.install_runtime_sinks({"http_timing": True})
     try:
         assert install.timing_sink is None
     finally:

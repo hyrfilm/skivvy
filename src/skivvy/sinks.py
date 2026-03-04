@@ -6,6 +6,7 @@ import json
 from typing import Callable
 
 from . import events
+from .config import Settings, conf_get
 from .util import log
 from .util import str_util
 from .util.icdiff2 import RichConsoleDiff
@@ -429,8 +430,8 @@ def install_runtime_sinks(conf: dict) -> SinkInstallation:
     installation.console_sink = console_sink
     installation.sinks.append(console_sink)
 
-    if bool(conf.get("_timing", False)):
-        timing_sink = TimingSink(http_timing=bool(conf.get("_http_timing", False))).install()
+    if conf_get(conf, Settings.TIMING):
+        timing_sink = TimingSink(http_timing=bool(conf_get(conf, Settings.HTTP_TIMING))).install()
         installation.timing_sink = timing_sink
         installation.sinks.append(timing_sink)
 
