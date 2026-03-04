@@ -41,21 +41,9 @@ STATUS_FAILED = "FAILED"
 log.set_default_level("INFO")
 
 
-def configure_testcase(test_dict, conf_dict):
-    testcase = dict(conf_dict)
-    testcase.update(test_dict)
-    return testcase
-
-
 def configure_logging(testcase):
     log_level = testcase.get("log_level", "INFO")
     log.set_default_level(log_level)
-
-
-def override_default_headers(default_headers, more_headers):
-    d = dict(default_headers)
-    d.update(more_headers)
-    return d
 
 
 def run_test(filename, env_conf, cli_overrides=None):
@@ -141,15 +129,6 @@ def run_test(filename, env_conf, cli_overrides=None):
         return STATUS_FAILED, error_context
 
     return STATUS_OK, None
-
-
-def handle_upload_file(file):
-    if not file:
-        return None
-
-    key = list(file.keys())[0]
-    filename = open(list(file.values())[0], "rb")
-    return {key: filename}
 
 
 def dump_response_headers(headers_to_write, r):

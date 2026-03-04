@@ -26,6 +26,10 @@ examples:
 	uv run skivvy examples/dummyjson/dummy.json
 	uv run skivvy examples/typicode/passing.json
 
+# find dead code
+deadcode:
+	uv run vulture src/skivvy/
+
 # run via cli
 run *args:
 	uv run skivvy {{args}}

@@ -144,10 +144,6 @@ def auto_coercer_noop(s):
     return s
 
 
-def brace_expander(s, **kwargs):
-    return brace_expand_string(s, **kwargs)
-
-
 # identity function, when brace expansion is not enabled
 def brace_expander_noop(s, **_kwargs):
     return s

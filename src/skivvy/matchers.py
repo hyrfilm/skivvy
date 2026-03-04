@@ -17,7 +17,6 @@ DEFAULT_APPROXIMATE_THRESHOLD = (
     0.05  # default margin of error for a ~value to still be considered equal to another
 )
 SUCCESS_MSG = "OK"
-STORE = {}
 
 _matcher_options = {}
 
@@ -74,8 +73,6 @@ def match_regexp(expected, actual):
     except Exception as e:
         return False, "Error when parsing: %s" % (str(e))
 
-
-#import requests
 
 def match_valid_url(expected, actual):
     try:
