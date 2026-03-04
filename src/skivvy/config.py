@@ -117,9 +117,7 @@ class Settings:
 def read_config(config_name: str | None) -> dict:
     if not config_name:
         return {}
-    config_file = os.path.join(os.getcwd(), config_name)
-    with open(config_file, encoding="utf8") as fp:
-        return json.load(fp)
+    return file_util.parse_json(config_name)
 
 
 def get_all_settings() -> list[Option]:
