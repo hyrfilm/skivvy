@@ -338,6 +338,8 @@ class TimingSink(BaseSink):
     def __init__(self, http_timing: bool = False):
         super().__init__()
         self.http_timing = http_timing
+        self.run_started_ts: int = 0
+        self.run_finished_ts: int = 0
         self.test_started_ts: dict[str, int] = {}
         self.test_totals_ms: dict[str, int] = {}
         self._last_step_event: dict[str, tuple[str, int]] = {}
@@ -345,10 +347,11 @@ class TimingSink(BaseSink):
         self.http_phase_durations_ms: dict[str, list[int]] = defaultdict(list)
 
     def install(self):
+        self._connect(events.RUN_STARTED, self._on_run_started)
+        self._connect(events.RUN_FINISHED, self._on_run_finished)
+
         self._connect(events.TEST_STARTED, self._on_test_started)
         self._connect(events.TEST_FINISHED, self._on_test_finished)
-        self._connect(events.TEST_PASSED, self._on_test_finished)
-        self._connect(events.TEST_FAILED, self._on_test_finished)
         self._connect(events.CREATE_TESTCASE, self._on_step_event)
         self._connect(events.CREATE_REQUEST, self._on_step_event)
         self._connect(events.EXECUTE_REQUEST, self._on_step_event)
@@ -361,6 +364,14 @@ class TimingSink(BaseSink):
 
     def _test_key(self, kw: dict) -> str | None:
         return kw.get("test_id") or kw.get("testfile")
+
+    def _on_run_started(self, _sender, **kw):
+        self.run_started_ts = kw.get("ts", 0)
+
+    def _on_run_finished(self, _sender, **kw):
+        self.run_finished_ts = kw.get("ts", 0)
+        total_ms = self.run_finished_ts - self.run_started_ts
+        log.info(f"took={total_ms}ms")
 
     def _on_test_started(self, _sender, **kw):
         test_key = self._test_key(kw)
@@ -396,13 +407,21 @@ class TimingSink(BaseSink):
             return
         total_ms = max(0, ts - start_ts)
         self.test_totals_ms[test_key] = total_ms
-        log.info(f"[dim]timing[/dim] {test_key} total={total_ms}ms")
-        if self.http_timing and self.http_phase_durations_ms.get(test_key):
-            http_total = sum(self.http_phase_durations_ms[test_key])
-            log.info(
-                f"[dim]timing[/dim] {test_key} http_transport_total={http_total}ms"
-            )
 
+        prefix = ""
+        http_label = "http"
+        total_label = "took"
+        timings = []
+
+        if self.http_timing and self.http_phase_durations_ms.get(test_key):
+            prefix = "•"
+            total_label = "total\t"
+            http_total = sum(self.http_phase_durations_ms[test_key])
+            timings.append(f"[dim]{prefix}{http_label}\t {http_total}ms[/dim]")
+
+        timings.append(f"[dim]{prefix}{total_label} {total_ms}ms[/dim]")
+
+        log.info("\n".join(timings))
 
 @dataclass
 class SinkInstallation:
@@ -416,13 +435,6 @@ class SinkInstallation:
 
 
 def install_runtime_sinks(conf: dict) -> SinkInstallation:
-    """Install internal sinks for experimental event-driven output/timing.
-
-    TODO: Replace temporary underscore flags with a stable logging/timing/diffs config
-    schema once we finish comparing output approaches.
-    TODO: Consider exposing a public sink registry/config after the design converges.
-    """
-
     installation = SinkInstallation()
 
     console_sink = ConsoleOutputSink(conf).install()

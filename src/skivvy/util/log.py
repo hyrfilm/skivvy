@@ -25,30 +25,28 @@ _logger.propagate = False
 _logger.addHandler(_handler)
 
 
-def _log(level, msg, new_line=True):
+def _log(level, msg):
     if msg is None:
         return
     if not isinstance(msg, str):
         msg = str(msg)
-    if new_line and not msg.endswith("\n"):
-        msg += "\n"
     _logger.log(level, msg)
 
 
-def debug(msg, new_line=True):
-    _log(logging.DEBUG, msg, new_line)
+def debug(msg):
+    _log(logging.DEBUG, msg)
 
 
-def info(msg, new_line=True):
-    _log(logging.INFO, msg, new_line)
+def info(msg):
+    _log(logging.INFO, msg)
 
 
-def warning(msg, new_line=True):
-    _log(logging.WARNING, msg, new_line)
+def warning(msg):
+    _log(logging.WARNING, msg)
 
 
-def error(msg_or_err: Exception | str, new_line=True):
-    _log(logging.ERROR, msg_or_err, new_line)
+def error(msg_or_err: Exception | str):
+    _log(logging.ERROR, msg_or_err)
 
 
 def _resolve_level(level: int | str | None):
@@ -71,11 +69,11 @@ def _resolve_level(level: int | str | None):
     return resolved
 
 
-def log_at(level: int | str | None, msg, new_line=True):
+def log_at(level: int | str | None, msg):
     resolved = _resolve_level(level)
     if resolved is None:
         return
-    _log(resolved, msg, new_line)
+    _log(resolved, msg)
 
 
 def set_default_level(level):
@@ -87,8 +85,4 @@ def is_debug_enabled() -> bool:
 
 
 def render(renderable) -> None:
-    console = getattr(_handler, "console", None)
-    if console is None:
-        _log(logging.INFO, str(renderable), new_line=True)
-        return
-    console.print(renderable)
+    _handler.console.print(renderable)

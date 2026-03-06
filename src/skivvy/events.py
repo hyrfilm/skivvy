@@ -3,8 +3,9 @@ from __future__ import annotations
 import time
 import uuid
 from typing import Any
+import ordered_set
 
-from blinker import Namespace
+from blinker import Namespace, NamedSignal
 
 RUN_STARTED = "run.started"
 RUN_PASSED = "run.passed"
@@ -26,6 +27,7 @@ VERIFY_RESPONSE = "test.verify_response"
 VERIFY_RESPONSE_HEADERS = "test.verify_response_headers"
 
 _ns = Namespace()
+NamedSignal.set_class = ordered_set.OrderedSet
 
 
 class RuntimeEventListener:
