@@ -12,3 +12,4 @@ dist/
 
 coverage.xml
 playground/web/node_modules
+.vite

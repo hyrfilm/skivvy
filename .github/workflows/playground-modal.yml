@@ -2,7 +2,7 @@ name: Deploy Playground Modal Runner
 
 on:
   push:
-    branches: [master]
+    branches: [main, master]
     paths:
       - 'modal_runner.py'
       - 'playground/**'

@@ -2,7 +2,7 @@ name: Deploy Playground Web
 
 on:
   push:
-    branches: [master]
+    branches: [main, master]
     paths:
       - 'playground/**'
       - '.github/workflows/playground-pages.yml'
@@ -66,4 +66,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
