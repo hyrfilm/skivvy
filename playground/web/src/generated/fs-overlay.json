@@ -1,0 +1,108 @@
+{
+  "json": {
+    "home": {
+      "guest": {
+        "playground": {
+          "api": {
+            "fortunes.json": [
+              {
+                "id": 1,
+                "text": "A journey of a thousand miles begins with a single step.",
+                "category": "wisdom"
+              },
+              {
+                "id": 2,
+                "text": "The best time to plant a tree was 20 years ago.",
+                "category": "wisdom"
+              },
+              {
+                "id": 3,
+                "text": "There are 10 types of people in the world.",
+                "category": "humor"
+              }
+            ],
+            "fortunes": {
+              "1.json": {
+                "id": 1,
+                "text": "A journey of a thousand miles begins with a single step.",
+                "category": "wisdom"
+              },
+              "2.json": {
+                "id": 2,
+                "text": "The best time to plant a tree was 20 years ago.",
+                "category": "wisdom"
+              },
+              "3.json": {
+                "id": 3,
+                "text": "There are 10 types of people in the world.",
+                "category": "humor"
+              }
+            }
+          },
+          "cfg_diffs.json": {
+            "tests": "./tests_diffs",
+            "diff_enabled": true,
+            "diff_ndiff": true,
+            "diff_unified": false,
+            "diff_table": false,
+            "diff_full": false,
+            "diff_compact_lists": true
+          },
+          "cfg.json": {
+            "tests": "./tests"
+          },
+          "tests_diffs": {
+            "01_response_diff.json": {
+              "_comment": "Intentional response mismatch for diff demos",
+              "url": "http://127.0.0.1:8080/fortunes/1",
+              "status": 200,
+              "response": {
+                "id": 1,
+                "text": "A journey starts elsewhere.",
+                "category": "humor"
+              }
+            },
+            "02_status_diff.json": {
+              "_comment": "Intentional status mismatch for diff demos",
+              "url": "http://127.0.0.1:8080/fortunes/2",
+              "status": 201
+            }
+          },
+          "tests": {
+            "01_list_fortunes.json": {
+              "_comment": "All fortunes are returned",
+              "url": "http://127.0.0.1:8080/fortunes",
+              "status": 200,
+              "response": "$len 3"
+            },
+            "02_get_single_fortune.json": {
+              "_comment": "Get a specific fortune by id",
+              "url": "http://127.0.0.1:8080/fortunes/1",
+              "status": 200,
+              "response": {
+                "id": 1,
+                "text": "$contains journey",
+                "category": "wisdom"
+              }
+            },
+            "03_not_found.json": {
+              "_comment": "Non-existent fortune returns 404",
+              "url": "http://127.0.0.1:8080/fortunes/999",
+              "status": 404
+            }
+          }
+        }
+      }
+    }
+  },
+  "text": {
+    "home": {
+      "guest": {
+        "playground": {
+          "README.md": "# Skivvy playground\n\nWelcome — this browser playground is a small, sandbox-compatible subset of the full skivvy examples.\n\n## Start here\n\n```sh\npwd\nls\nskivvy cfg.json\nskivvy cfg_diffs.json\n```\n\n## Edit a test\n\n```sh\nnano tests/01_list_fortunes.json\nskivvy cfg.json\n```\n\n## Edit the API response\n\n```sh\nnano api/fortunes/1.json\nskivvy cfg.json\n```\n\nThe `skivvy` command uploads this workspace, starts a tiny local JSON server in the sandbox, runs the command, and prints the output back in the terminal.\n\nOther skivvy example suites exist in the repository, but this playground only includes the self-contained files that are meant to run in the browser sandbox.\n"
+        }
+      }
+    }
+  },
+  "binary": {}
+}

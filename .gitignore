@@ -11,3 +11,4 @@ dist/
 .coverage
 
 coverage.xml
+playground/web/node_modules
