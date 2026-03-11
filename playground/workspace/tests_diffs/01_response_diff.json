@@ -1,0 +1,10 @@
+{
+  "_comment": "Intentional response mismatch for diff demos",
+  "url": "http://127.0.0.1:8080/fortunes/1",
+  "status": 200,
+  "response": {
+    "id": 1,
+    "text": "A journey starts elsewhere.",
+    "category": "humor"
+  }
+}

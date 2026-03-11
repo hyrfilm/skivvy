@@ -1,0 +1,69 @@
+name: Deploy Playground Web
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'playground/**'
+      - '.github/workflows/playground-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: playground-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: playground/web/package-lock.json
+
+      - name: Validate runner URL variable
+        run: |
+          if [ -z "${{ vars.PLAYGROUND_RUNNER_URL }}" ]; then
+            echo "Missing repository variable PLAYGROUND_RUNNER_URL" >&2
+            exit 1
+          fi
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Install web dependencies
+        working-directory: playground/web
+        run: npm ci
+
+      - name: Build playground web app
+        working-directory: playground/web
+        env:
+          VITE_SKIVVY_RUNNER_URL: ${{ vars.PLAYGROUND_RUNNER_URL }}
+        run: npm run build -- --base=/${{ github.event.repository.name }}/
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: playground/web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+

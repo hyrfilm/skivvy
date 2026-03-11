@@ -1,0 +1,33 @@
+name: Deploy Playground Modal Runner
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'modal_runner.py'
+      - 'playground/**'
+      - '.github/workflows/playground-modal.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Deploy Modal runner
+        env:
+          MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
+          MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
+        run: |
+          if [ -z "$MODAL_TOKEN_ID" ] || [ -z "$MODAL_TOKEN_SECRET" ]; then
+            echo "Missing MODAL_TOKEN_ID or MODAL_TOKEN_SECRET" >&2
+            exit 1
+          fi
+          uvx modal deploy modal_runner.py
