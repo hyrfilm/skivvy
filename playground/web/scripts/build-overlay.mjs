@@ -11,10 +11,6 @@ const SOURCES = [
     fromDir: path.join(ROOT, 'overlay'),
     prefix: [],
   },
-  {
-    fromDir: path.resolve(ROOT, '..', 'workspace'),
-    prefix: ['home', 'guest', 'playground'],
-  },
 ];
 
 function setPath(tree, parts, value) {
@@ -42,6 +38,15 @@ function decodeUtf8(buffer) {
 }
 
 async function addDirectory(overlay, fromDir, prefix) {
+  try {
+    const stat = await fs.stat(fromDir);
+    if (!stat.isDirectory()) {
+      return;
+    }
+  } catch {
+    return;
+  }
+
   const files = await listFiles(fromDir);
   files.sort((left, right) => left.localeCompare(right));
 

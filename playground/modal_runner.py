@@ -15,7 +15,7 @@ REMOTE_SERVER_SCRIPT = "/opt/skivvy-playground/server.py"
 image = (
     modal.Image.from_registry("python:3.13-alpine")
     .pip_install("skivvy", "fastapi[standard]")
-    .add_local_python_source("playground", "modal_runner", copy=True)
+    .add_local_python_source("playground", copy=True)
     .add_local_file(str(SERVER_SCRIPT), remote_path=REMOTE_SERVER_SCRIPT, copy=True)
 )
 

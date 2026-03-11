@@ -4,7 +4,6 @@ on:
   push:
     branches: [main, master]
     paths:
-      - 'modal_runner.py'
       - 'playground/**'
       - '.github/workflows/playground-modal.yml'
   workflow_dispatch:
@@ -30,4 +29,4 @@ jobs:
             echo "Missing MODAL_TOKEN_ID or MODAL_TOKEN_SECRET" >&2
             exit 1
           fi
-          uvx modal deploy modal_runner.py
+          uvx modal deploy -m playground.modal_runner

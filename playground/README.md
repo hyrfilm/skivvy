@@ -16,6 +16,8 @@ That starts a local endpoint at `http://127.0.0.1:8787/run-skivvy` with permissi
 
 There is also a tiny browser app in `playground/web` that uses `nanoterm` as a library without modifying the nanoterm repo.
 
+The browser-visible playground files now live directly under `playground/web/overlay/home/guest/playground`, and `examples/dev_server` is a symlink to that same self-contained example.
+
 From `playground/web`:
 
 ```bash
@@ -108,8 +110,8 @@ Once you are happy with the local flow, the Modal wrapper uses the same request 
 Typical next commands are:
 
 ```bash
-modal serve playground/modal_runner.py
-modal deploy playground/modal_runner.py
+modal serve -m playground.modal_runner
+modal deploy -m playground.modal_runner
 ```
 
 ## GitHub Actions setup
