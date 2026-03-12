@@ -1,0 +1,16 @@
+{
+  "_comment": "POST credentials and capture the tokens — they become available to all later tests in this directory",
+  "url": "http://127.0.0.1:8080/auth/login",
+  "method": "post",
+  "body": {"username": "alice", "password": "secret"},
+  "status": 200,
+  "response": {
+    "accessToken": "$store access_token",
+    "refreshToken": "$store refresh_token",
+    "expiresIn": "$gt 0",
+    "user": {
+      "name": "$store user_name",
+      "role": "admin"
+    }
+  }
+}

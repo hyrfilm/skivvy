@@ -1,0 +1,7 @@
+{
+  "_comment": "$write_file saves a response value to disk so the next test can read it back",
+  "url": "http://127.0.0.1:8080/products/2",
+  "response": {
+    "name": "$write_file product2_name.txt"
+  }
+}

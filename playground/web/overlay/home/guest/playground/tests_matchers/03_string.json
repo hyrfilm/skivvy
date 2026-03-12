@@ -1,0 +1,9 @@
+{
+  "_comment": "$contains substring check, $regexp pattern match, $text validates printable string",
+  "url": "http://127.0.0.1:8080/products/1",
+  "response": {
+    "name": "$contains Mouse",
+    "category": "$regexp ^electro",
+    "sku": "$text"
+  }
+}

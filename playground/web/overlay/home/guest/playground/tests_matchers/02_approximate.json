@@ -1,0 +1,7 @@
+{
+  "_comment": "$~ checks approximate numeric equality (default 5% threshold)",
+  "url": "http://127.0.0.1:8080/products/1",
+  "response": {
+    "price": "$~ 30"
+  }
+}

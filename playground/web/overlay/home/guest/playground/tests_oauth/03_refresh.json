@@ -1,0 +1,10 @@
+{
+  "_comment": "Send the refresh token in the request body and capture the new access token",
+  "url": "http://127.0.0.1:8080/auth/refresh",
+  "method": "post",
+  "body": {"refreshToken": "<refresh_token>"},
+  "response": {
+    "accessToken": "$store access_token",
+    "expiresIn": 3600
+  }
+}

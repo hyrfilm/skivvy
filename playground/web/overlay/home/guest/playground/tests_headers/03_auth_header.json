@@ -1,0 +1,13 @@
+{
+  "_comment": "Combine outgoing headers with response header assertions",
+  "url": "http://127.0.0.1:8080/profile",
+  "read_headers": {
+    "Authorization": "Bearer test-token"
+  },
+  "response_headers": {
+    "Content-Type": "application/json"
+  },
+  "response": {
+    "role": "$in admin user"
+  }
+}

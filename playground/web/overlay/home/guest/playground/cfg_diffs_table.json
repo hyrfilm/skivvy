@@ -1,0 +1,9 @@
+{
+  "tests": "./tests_diffs",
+  "diff_enabled": true,
+  "diff_ndiff": false,
+  "diff_unified": false,
+  "diff_table": true,
+  "diff_full": false,
+  "diff_compact_lists": true
+}

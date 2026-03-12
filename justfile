@@ -11,9 +11,16 @@ cov:
 
 alias coverage := cov
 
-# format code
 fmt:
 	uv run black src tests
+
+alias format := fmt
+
+ruff:
+	uv run ruff check src
+	uv run ruff analyze src
+
+alias lint := ruff
 
 # Install dependencies (including dev deps)
 sync:
@@ -26,7 +33,6 @@ examples:
 	uv run skivvy examples/dummyjson/dummy.json
 	uv run skivvy examples/typicode/passing.json
 
-# find dead code
 deadcode:
 	uv run vulture src/skivvy/ --min-confidence 80 --exclude src/skivvy/config.py
 

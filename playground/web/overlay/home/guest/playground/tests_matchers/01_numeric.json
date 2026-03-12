@@ -1,0 +1,10 @@
+{
+  "_comment": "$gt, $lt, $between — numeric comparisons",
+  "url": "http://127.0.0.1:8080/products/1",
+  "status": 200,
+  "response": {
+    "id": "$gt 0",
+    "price": "$between 25 35",
+    "stock": "$lt 200"
+  }
+}

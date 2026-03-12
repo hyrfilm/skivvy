@@ -1,0 +1,1 @@
+{"data": {"users": [{"id": "1", "name": "Alice", "email": "alice@example.com", "role": "admin"}, {"id": "2", "name": "Bob", "email": "bob@example.com", "role": "user"}, {"id": "3", "name": "Carol", "email": "carol@example.com", "role": "user"}]}, "errors": null}

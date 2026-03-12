@@ -1,0 +1,7 @@
+[
+  {"id": 1, "name": "Wireless Mouse", "price": 29.99, "stock": 142, "category": "electronics", "sku": "f47ac10b-58cc-4372-a567-0e02b2c3d479", "ip": "192.168.1.100"},
+  {"id": 2, "name": "Mechanical Keyboard", "price": 89.50, "stock": 37, "category": "electronics", "sku": "6ba7b810-9dad-41d1-80b4-00c04fd430c8", "ip": "10.0.0.42"},
+  {"id": 3, "name": "USB-C Hub", "price": 45.00, "stock": 0, "category": "accessories", "sku": "550e8400-e29b-41d4-a716-446655440000", "ip": "172.16.254.5"},
+  {"id": 4, "name": "Monitor Stand", "price": 119.00, "stock": 8, "category": "furniture", "sku": "6fa459ea-ee8a-4322-8ca3-e5fc96e6cdaf", "ip": "203.0.113.50"},
+  {"id": 5, "name": "Laptop Bag", "price": 55.75, "stock": 23, "category": "accessories", "sku": "a8098c1a-f86e-4132-9f1a-00112444be1e", "ip": "198.51.100.99"}
+]

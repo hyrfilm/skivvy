@@ -1,0 +1,1 @@
+{"data": {"posts": [{"id": "1", "title": "Getting started with skivvy", "author": {"id": "1", "name": "Alice"}, "tags": ["testing", "api"]}, {"id": "2", "title": "GraphQL testing made simple", "author": {"id": "2", "name": "Bob"}, "tags": ["graphql", "testing"]}], "totalCount": 2}, "errors": null}

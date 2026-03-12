@@ -1,0 +1,12 @@
+{
+  "_comment": "Asserting 'errors' is null is a key GraphQL pattern — use $! to assert fields are absent",
+  "url": "http://127.0.0.1:8080/graphql/posts",
+  "method": "post",
+  "body": {"query": "{ posts { id title } }"},
+  "response": {
+    "errors": null,
+    "data": {
+      "totalCount": "$between 1 100"
+    }
+  }
+}

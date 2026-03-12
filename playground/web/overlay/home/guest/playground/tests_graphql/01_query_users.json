@@ -1,0 +1,12 @@
+{
+  "_comment": "GraphQL responses wrap data in a 'data' object — test the structure and the array length",
+  "url": "http://127.0.0.1:8080/graphql/users",
+  "method": "post",
+  "body": {"query": "{ users { id name email role } }"},
+  "response": {
+    "errors": null,
+    "data": {
+      "users": "$len 3"
+    }
+  }
+}
