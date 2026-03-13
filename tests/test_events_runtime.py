@@ -618,9 +618,9 @@ def test_console_sink_formatting_setting_defaults(clean_event_context):
         sink = install.console_sink
         assert sink.fixed_column_width is None
         assert sink.column_overflow == "ellipsis"
-        assert sink.passed_style == ""
+        assert sink.passed_style == "green4"
         assert sink.failed_style == "red"
-        assert sink.failed_summary is False
+        assert sink.failed_summary is True
     finally:
         install.close()
 
