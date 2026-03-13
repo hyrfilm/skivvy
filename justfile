@@ -29,9 +29,19 @@ sync:
 lock:
 	uv lock
 
+# accessing real outbound servers
 examples:
 	uv run skivvy examples/dummyjson/dummy.json
 	uv run skivvy examples/typicode/passing.json
+
+# uses the local loopback server provided used in the sandbox environment
+sandbox-examples:
+	#!/usr/bin/env bash
+	set -euo pipefail
+	cd examples/dev_server
+	python3 server.py 8080 api &
+	sleep 0.5
+	printf '%s\n' cfg.json cfg_[^d]*.json | xargs -n1 uv run skivvy
 
 deadcode:
 	uv run vulture src/skivvy/ --min-confidence 80 --exclude src/skivvy/config.py
