@@ -12,6 +12,7 @@ import requests
 from skivvy.util.scope import has, fetch, store
 from skivvy.util import file_util
 from skivvy.util import log
+from skivvy.path_tracker import PathTracker
 
 DEFAULT_APPROXIMATE_THRESHOLD = (
     0.05  # default margin of error for a ~value to still be considered equal to another
@@ -20,10 +21,91 @@ SUCCESS_MSG = "OK"
 
 _matcher_options = {}
 
+# Keyed by structural path (e.g. "response.items[].id"), where list indices are
+# replaced with []. Since a path can only hold one matcher in valid JSON, this is
+# sufficient to uniquely identify each matcher's state across a test run.
+_matcher_state = {}
 
-def set_matcher_options(opts: dict):
-    global _matcher_options
+
+def initialize_matchers(opts: dict):
+    global _matcher_options, _matcher_state
     _matcher_options = opts or {}
+    _matcher_state = {}
+
+
+_path = PathTracker()
+
+
+def push_path(segment):
+    _path.push(segment)
+
+
+def pop_path():
+    _path.pop()
+
+
+def get_path():
+    return _path.current
+
+
+def _structural_path():
+    # Collapses list indices into the preceding key with [], giving a stable
+    # grouping key across all items in a list.
+    # e.g. ["response", "items", 0, "id"] -> "response.items[].id"
+    result = []
+    for segment in get_path():
+        if isinstance(segment, int):
+            if result:
+                result[-1] = result[-1] + "[]"
+        else:
+            result.append(segment)
+    return ".".join(result)
+
+
+def _is_greater(a, b):
+    try:
+        return float(a) > float(b)
+    except (ValueError, TypeError):
+        return str(a).lower() > str(b).lower()
+
+
+def _is_less(a, b):
+    try:
+        return float(a) < float(b)
+    except (ValueError, TypeError):
+        return str(a).lower() < str(b).lower()
+
+
+def match_unique(expected, actual):
+    key = _structural_path()
+    seen = _matcher_state.get(key)
+    if seen is None:
+        _matcher_state[key] = {actual}
+        return True, SUCCESS_MSG
+    if actual in seen:
+        return False, "Duplicate value %r at %s" % (actual, key)
+    seen.add(actual)
+    return True, SUCCESS_MSG
+
+
+def _ordered_match(actual, comparator, order, relation):
+    key = _structural_path()
+    if key not in _matcher_state:
+        _matcher_state[key] = actual
+        return True, SUCCESS_MSG
+    last = _matcher_state[key]
+    if not comparator(actual, last):
+        return False, "Expected %s order but %r is not %s %r at %s" % (order, actual, relation, last, key)
+    _matcher_state[key] = actual
+    return True, SUCCESS_MSG
+
+
+def match_asc(expected, actual):
+    return _ordered_match(actual, _is_greater, "ascending", "greater than")
+
+
+def match_desc(expected, actual):
+    return _ordered_match(actual, _is_less, "descending", "less than")
 
 
 def get_matcher_options_self() -> dict:
@@ -483,4 +565,7 @@ matcher_dict = {
     "$in": match_in,
     "$regexp": match_regexp,
     "$expr": match_expression,
+    "$unique": match_unique,
+    "$asc": match_asc,
+    "$desc": match_desc,
 }
