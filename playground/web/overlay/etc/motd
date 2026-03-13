@@ -1,0 +1,11 @@
+
+  skivvy playground
+  ──────────────────────────────────────
+  integration testing for HTTP APIs
+  tests are JSON · no code required
+
+  · type 'tree' to explore the workspace
+  · edit tests under tests/ with nano
+  · edit mock api responses under api/ with nano
+  · type 'skivvy --help' to see all options
+
