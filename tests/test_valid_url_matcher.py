@@ -16,7 +16,7 @@ def test_valid_url_success_uses_tls_verification_by_default(isolated_matcher_sta
         calls["verify"] = verify
         return DummyResponse(200)
 
-    matchers.set_matcher_options({})
+    matchers.initialize_matchers({})
     original_get = matchers.requests.get
     matchers.requests.get = fake_get
     try:
@@ -64,7 +64,7 @@ def test_valid_url_applies_matcher_options_replace_before_request(isolated_match
         calls["verify"] = verify
         return DummyResponse(200)
 
-    matchers.set_matcher_options({"$valid_url": {"replace": {"^//": "http://"}}})
+    matchers.initialize_matchers({"$valid_url": {"replace": {"^//": "http://"}}})
     original_get = matchers.requests.get
     matchers.requests.get = fake_get
     try:

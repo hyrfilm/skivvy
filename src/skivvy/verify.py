@@ -33,11 +33,14 @@ def verify_dict(expected, actual, **match_options):
 
     for key in expected.keys():
         log.debug("Checking '%s'..." % key)
-        verify(expected.get(key), actual.get(key), **match_options)
+        matchers.push_path(key)
+        try:
+            _verify(expected.get(key), actual.get(key), **match_options)
+        finally:
+            matchers.pop_path()
         log.debug("Success.")
 
 
-# TODO: support strict or non-strict types of comparisons of lists
 def verify_list(expected, actual, **match_options):
     match_subsets = match_options.get("match_subsets", False)
     match_every_entry = match_options.get(Settings.MATCH_EVERY_ENTRY.key, False)
@@ -51,25 +54,32 @@ def verify_list(expected, actual, **match_options):
         if match_every_entry:
             # Every actual entry must satisfy this expected template.
             if isinstance(actual, list):
-                for actual_entry in actual:
-                    _verify_entry(expected_entry, actual_entry, **match_options)
+                for i, actual_entry in enumerate(actual):
+                    matchers.push_path(i)
+                    try:
+                        _verify_entry(expected_entry, actual_entry, **match_options)
+                    finally:
+                        matchers.pop_path()
             continue
 
         if expected_entry in actual:
             continue  # fast path: exact Python equality
 
-        # Matcher-aware search: try each actual entry using verify() semantics.
+        # Matcher-aware search: try each actual entry using _verify() semantics.
         # When match_subsets is true and both sides are dicts, use partial matching:
         # overlay expected keys onto actual so only expected keys are checked.
         found = False
         if isinstance(actual, list):
-            for actual_entry in actual:
+            for i, actual_entry in enumerate(actual):
+                matchers.push_path(i)
                 try:
                     _verify_entry(expected_entry, actual_entry, **match_options)
                     found = True
                     break
                 except VerificationFailure:
                     pass
+                finally:
+                    matchers.pop_path()
 
         if not found:
             raise VerificationFailure(
@@ -88,15 +98,15 @@ def _verify_entry(expected_entry, actual_entry, **match_options):
         and isinstance(actual_entry, dict)
     ):
         merged = {**actual_entry, **expected_entry}
-        verify(merged, actual_entry, **match_options)
+        _verify(merged, actual_entry, **match_options)
     else:
-        verify(expected_entry, actual_entry, **match_options)
+        _verify(expected_entry, actual_entry, **match_options)
 
 
 def verify_matcher(expected, actual):
     for matcher in matchers.matcher_dict.keys():
         if has_matcher_syntax(expected, matcher):
-            expected = expected[len(matcher) :]
+            expected = expected[len(matcher):]
             matcher_func = matchers.matcher_dict.get(matcher)
             result, msg = matcher_func(expected, actual)
             if not result:
@@ -105,12 +115,7 @@ def verify_matcher(expected, actual):
     return matchers.default_matcher(expected, actual)
 
 
-def verify(expected, actual, **match_options):
-    validate_variable_names = match_options.get(
-        Settings.VALIDATE_VARIABLE_NAMES.key, True
-    )
-    scope.set_validate_variable_names(validate_variable_names)
-    matchers.set_matcher_options(match_options.get(Settings.MATCHER_OPTIONS.key, {}))
+def _verify(expected, actual, **match_options):
     if is_matcher(expected):
         verify_matcher(expected, actual)
     elif type(expected) != type(actual):
@@ -126,3 +131,12 @@ def verify(expected, actual, **match_options):
         raise VerificationFailure("expected %s but was %s" % (expected, actual))
     else:
         return True
+
+
+def verify(expected, actual, **match_options):
+    validate_variable_names = match_options.get(
+        Settings.VALIDATE_VARIABLE_NAMES.key, True
+    )
+    scope.set_validate_variable_names(validate_variable_names)
+    matchers.initialize_matchers(match_options.get(Settings.MATCHER_OPTIONS.key, {}))
+    return _verify(expected, actual, **match_options)

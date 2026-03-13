@@ -70,7 +70,7 @@ def test_get_matcher_options_self_returns_options_for_calling_matcher(isolated_m
         return True, "OK"
 
     matchers.add_matcher("opts_demo", custom)
-    matchers.set_matcher_options({"$opts_demo": {"replace": {"a": "b"}}})
+    matchers.initialize_matchers({"$opts_demo": {"replace": {"a": "b"}}})
 
     result, _ = matchers.matcher_dict["$opts_demo"]("", "")
 

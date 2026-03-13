@@ -12,6 +12,7 @@ def isolated_matcher_state(monkeypatch):
     # exercise matcher registration should run against a per-test snapshot.
     monkeypatch.setattr(matchers, "matcher_dict", dict(matchers.matcher_dict))
     monkeypatch.setattr(matchers, "_matcher_options", dict(matchers._matcher_options))
+    monkeypatch.setattr(matchers, "_matcher_state", dict(matchers._matcher_state))
     yield
 
 
