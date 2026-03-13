@@ -43,6 +43,8 @@ sandbox-examples:
 	sleep 0.5
 	printf '%s\n' cfg.json cfg_[^d]*.json | xargs -n1 uv run skivvy
 
+alias sandbox := sandbox-examples
+
 deadcode:
 	uv run vulture src/skivvy/ --min-confidence 80 --exclude src/skivvy/config.py
 

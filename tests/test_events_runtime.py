@@ -589,3 +589,101 @@ def test_run_emits_run_finished_even_when_test_started_subscriber_raises(
     assert len(finished) == 1
     assert finished[0]["event"] == events.RUN_FINISHED
     assert "ts" in finished[0]
+
+
+def test_console_sink_reads_formatting_settings(clean_event_context):
+    install = sinks.install_runtime_sinks(
+        {
+            "fixed_column_width": 100,
+            "column_overflow": "crop",
+            "passed_style": "bold green",
+            "failed_style": "dim red",
+            "failed_summary": True,
+        }
+    )
+    try:
+        sink = install.console_sink
+        assert sink.fixed_column_width == 100
+        assert sink.column_overflow == "crop"
+        assert sink.passed_style == "bold green"
+        assert sink.failed_style == "dim red"
+        assert sink.failed_summary is True
+    finally:
+        install.close()
+
+
+def test_console_sink_formatting_setting_defaults(clean_event_context):
+    install = sinks.install_runtime_sinks({})
+    try:
+        sink = install.console_sink
+        assert sink.fixed_column_width is None
+        assert sink.column_overflow == "ellipsis"
+        assert sink.passed_style == ""
+        assert sink.failed_style == "red"
+        assert sink.failed_summary is False
+    finally:
+        install.close()
+
+
+def test_console_sink_result_line_pads_short_path():
+    sink = sinks.ConsoleOutputSink({"fixed_column_width": 40})
+    line = sink._result_line("a.json", "", "OK", "green")
+    path_col = 40 - sinks._STATUS_COL
+    assert line.plain == "a.json".ljust(path_col) + "OK"
+
+
+def test_console_sink_result_line_truncates_long_path():
+    sink = sinks.ConsoleOutputSink({"fixed_column_width": 40, "column_overflow": "ellipsis"})
+    path_col = 40 - sinks._STATUS_COL
+    long_path = "x" * (path_col + 10)
+    line = sink._result_line(long_path, "", "OK", "green")
+    assert line.plain.endswith("OK")
+    assert len(line.plain) == path_col + len("OK")
+
+
+def test_console_sink_failed_summary_collects_failed_tests(monkeypatch, clean_event_context):
+    monkeypatch.setattr(sinks.log, "render", lambda _: None)
+    monkeypatch.setattr(sinks.log, "info", lambda *_: None)
+    monkeypatch.setattr(sinks.log, "error", lambda *_: None)
+
+    sink = sinks.ConsoleOutputSink({"failed_summary": True}).install()
+    try:
+        events.emit(events.TEST_STARTED, testfile="tests/a.json")
+        events.emit(events.TEST_FAILED)
+        events.emit(events.TEST_FINISHED, success=False)
+        events.emit(events.TEST_STARTED, testfile="tests/b.json")
+        events.emit(events.TEST_FAILED)
+        events.emit(events.TEST_FINISHED, success=False)
+    finally:
+        sink.close()
+
+    assert sink._failed == ["tests/a.json", "tests/b.json"]
+
+
+def test_console_sink_failed_summary_renders_at_run_finished(monkeypatch):
+    rendered = []
+    monkeypatch.setattr(sinks.log, "render", rendered.append)
+    monkeypatch.setattr(sinks.log, "info", lambda *_: None)
+    monkeypatch.setattr(sinks.log, "error", lambda *_: None)
+
+    sink = sinks.ConsoleOutputSink({"failed_summary": True, "fixed_column_width": 80})
+    sink._failed = ["tests/a.json", "tests/b.json"]
+    sink._on_run_finished(None, failures=2, num_tests=3)
+
+    assert len(rendered) == 2
+    assert all(line.plain.endswith("FAILED") for line in rendered)
+    paths = [line.plain.rstrip()[: -len("FAILED")].strip() for line in rendered]
+    assert paths == ["tests/a.json", "tests/b.json"]
+
+
+def test_console_sink_failed_summary_not_rendered_when_disabled(monkeypatch):
+    rendered = []
+    monkeypatch.setattr(sinks.log, "render", rendered.append)
+    monkeypatch.setattr(sinks.log, "info", lambda *_: None)
+    monkeypatch.setattr(sinks.log, "error", lambda *_: None)
+
+    sink = sinks.ConsoleOutputSink({"failed_summary": False})
+    sink._failed = ["tests/a.json"]
+    sink._on_run_finished(None, failures=1, num_tests=1)
+
+    assert len(rendered) == 0

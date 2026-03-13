@@ -84,5 +84,9 @@ def is_debug_enabled() -> bool:
     return _logger.isEnabledFor(logging.DEBUG)
 
 
+def console_width() -> int:
+    return _handler.console.width
+
+
 def render(renderable) -> None:
     _handler.console.print(renderable)

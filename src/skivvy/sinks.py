@@ -5,6 +5,8 @@ from dataclasses import dataclass, field
 import json
 from typing import Callable
 
+from rich.text import Text
+
 from . import events
 from .config import Settings, conf_get
 from .util import log
@@ -15,6 +17,7 @@ from .util.str_util import tojsonstr
 
 Disconnect = Callable[[], None]
 _MISSING = "<missing>"
+_STATUS_COL = 25
 _OMIT = object()
 _OMITTED_MARKER_KEY = "__omitted_items__"
 _LIST_COMPACT_MIN_ACTUAL_ITEMS = 25
@@ -184,6 +187,12 @@ class ConsoleOutputSink(BaseSink):
         self.http_request_level = conf.get("http_request_level", "DEBUG")
         self.http_response_level = conf.get("http_response_level", "DEBUG")
         self.http_headers_level = conf.get("http_headers_level", "DEBUG")
+        self.fixed_column_width = conf_get(conf, Settings.FIXED_COLUMN_WIDTH)
+        self.column_overflow = conf_get(conf, Settings.COLUMN_OVERFLOW)
+        self.passed_style = conf_get(conf, Settings.PASSED_STYLE)
+        self.failed_style = conf_get(conf, Settings.FAILED_STYLE)
+        self.failed_summary = conf_get(conf, Settings.FAILED_SUMMARY)
+        self._failed: list[str] = []
 
     def install(self):
         self._connect(events.RUN_STARTED, self._on_run_started)
@@ -198,11 +207,23 @@ class ConsoleOutputSink(BaseSink):
         log.info(f"[b]skivvy[/b] [u]{kw.get('version')}[/u] | config={kw.get('config_file')}")
         log.info(f"{kw.get('test_count')} tests found.")
 
+    def _path_col_width(self):
+        return (self.fixed_column_width or log.console_width()) - _STATUS_COL
+
+    def _result_line(self, path: str, path_style: str, status: str, status_style: str) -> Text:
+        t = Text(path, style=path_style or "")
+        t.truncate(self._path_col_width(), overflow=self.column_overflow, pad=True)
+        t.append(status, style=status_style)
+        return t
+
     def _on_test_passed(self, _sender, **kw):
-        log.info(f"{kw.get('testfile')}\t[green]OK[/green]")
+        log.render(self._result_line(kw.get("testfile", ""), self.passed_style, "OK", "green"))
 
     def _on_test_failed(self, _sender, **kw):
-        log.error(f"\n\n[red]{kw.get('testfile')}\tFAILED[/red]\n")
+        testfile = kw.get("testfile", "")
+        self._failed.append(testfile)
+        log.render(Text("\n"))
+        log.render(self._result_line(testfile, self.failed_style, "FAILED", "red"))
         self._log_failure_context(kw.get("error_context") or {})
         log.error("\n")
 
@@ -210,12 +231,16 @@ class ConsoleOutputSink(BaseSink):
         failures = kw.get("failures") or 0
         num_tests = kw.get("num_tests") or 0
         if failures > 0:
-            log.info(f"{failures} testcases of {num_tests} failed. :(")
+            log.info(f"{failures} testcases of {num_tests} [red]failed.[/red] :(")
         elif num_tests == 0:
             log.info("No tests found!")
         else:
             log.info(f"All {num_tests} tests passed.")
             log.info("Lookin' good!")
+        if self.failed_summary and self._failed:
+            log.info("\nFailed tests:")
+            for testfile in self._failed:
+                log.render(self._result_line(testfile, self.failed_style, "FAILED", "red"))
 
     def _log_failure_context(self, err_context: dict):
         failed_step = err_context.get("failed_step")

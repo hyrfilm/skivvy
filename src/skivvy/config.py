@@ -113,6 +113,31 @@ class Settings:
     TIMING = Option("timing", False, "Enable timing output for each test")
     HTTP_TIMING = Option("http_timing", False, "Enable HTTP transport timing breakdown")
     TIMEOUT = Option("timeout", 30, "HTTP request timeout in seconds")
+    FIXED_COLUMN_WIDTH = Option(
+        "fixed_column_width",
+        None,
+        "Fixed column width for test result lines (default: terminal width)",
+    )
+    FAILED_SUMMARY = Option(
+        "failed_summary",
+        True,
+        "Print a summary of all failed test paths at the end of the run",
+    )
+    COLUMN_OVERFLOW = Option(
+        "column_overflow",
+        "ellipsis",
+        'How to handle test file paths that exceed the column width: "fold", "crop", "ellipsis", "ignore"',
+    )
+    PASSED_STYLE = Option(
+        "passed_style",
+        "green4",
+        'Rich style for passed test file path (e.g. "bold green", "" to disable)',
+    )
+    FAILED_STYLE = Option(
+        "failed_style",
+        "red",
+        'Rich style for failed test file path (e.g. "bold red", "" to disable)',
+    )
 
 
 def read_config(config_name: str | None) -> dict:
