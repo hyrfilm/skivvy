@@ -1,0 +1,8 @@
+{
+  "_comment": "<var> in URLs expands stored variables. $fetch checks a value equals what was stored.",
+  "url": "http://127.0.0.1:8080/products/<product_id>",
+  "response": {
+    "id": "$fetch product_id",
+    "name": "$fetch product_name"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "_comment": "$uuid validates a UUID, $valid_ip validates an IPv4 or IPv6 address",
+  "url": "http://127.0.0.1:8080/products/1",
+  "response": {
+    "sku": "$uuid",
+    "ip": "$valid_ip"
+  }
+}

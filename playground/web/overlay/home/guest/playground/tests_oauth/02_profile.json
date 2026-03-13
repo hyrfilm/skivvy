@@ -1,0 +1,11 @@
+{
+  "_comment": "Use the stored token in the Authorization header via brace expansion",
+  "url": "http://127.0.0.1:8080/profile",
+  "read_headers": {
+    "Authorization": "Bearer <access_token>"
+  },
+  "response": {
+    "name": "$fetch user_name",
+    "role": "admin"
+  }
+}

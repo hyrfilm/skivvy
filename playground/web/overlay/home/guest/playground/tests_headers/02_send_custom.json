@@ -1,0 +1,12 @@
+{
+  "_comment": "Send custom request headers with read_headers — useful for API keys, versioning, tracing",
+  "url": "http://127.0.0.1:8080/products/1",
+  "read_headers": {
+    "Accept": "application/json",
+    "X-Request-ID": "test-abc-123",
+    "X-Api-Version": "2"
+  },
+  "response": {
+    "id": 1
+  }
+}

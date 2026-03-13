@@ -1,0 +1,7 @@
+{
+  "_comment": "$in checks the value is one of the listed options",
+  "url": "http://127.0.0.1:8080/products/1",
+  "response": {
+    "category": "$in electronics accessories furniture"
+  }
+}

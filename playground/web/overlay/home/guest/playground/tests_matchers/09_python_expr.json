@@ -1,0 +1,8 @@
+{
+  "_comment": "$expr evaluates a Python expression — 'actual' is bound to the value being checked",
+  "url": "http://127.0.0.1:8080/products/1",
+  "response": {
+    "price": "$expr 0 < actual < 100",
+    "name": "$expr actual.startswith('Wireless')"
+  }
+}

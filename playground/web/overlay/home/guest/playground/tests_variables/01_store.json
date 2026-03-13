@@ -1,0 +1,8 @@
+{
+  "_comment": "$store captures a response value into a named variable for use in later tests",
+  "url": "http://127.0.0.1:8080/products/1",
+  "response": {
+    "id": "$store product_id",
+    "name": "$store product_name"
+  }
+}

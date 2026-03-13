@@ -27,6 +27,9 @@ DEFAULT_IDLE_TIMEOUT_SECONDS = 60.0
 class Handler(BaseHTTPRequestHandler):
     root = None
 
+    def do_POST(self):
+        self.do_GET()
+
     def do_GET(self):
         setattr(self.server, "last_request_ts", time.monotonic())
         path = self.path.split("?", 1)[0].split("#", 1)[0]

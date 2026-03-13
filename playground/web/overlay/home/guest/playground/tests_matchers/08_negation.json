@@ -1,0 +1,9 @@
+{
+  "_comment": "Prefix any matcher with $! to negate it",
+  "url": "http://127.0.0.1:8080/products/1",
+  "response": {
+    "stock": "$!lt 1",
+    "category": "$!contains furniture",
+    "name": "$!regexp ^Keyboard"
+  }
+}

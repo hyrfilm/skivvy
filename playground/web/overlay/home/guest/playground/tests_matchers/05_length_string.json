@@ -1,0 +1,8 @@
+{
+  "_comment": "$len_gt and $len_lt check string length bounds",
+  "url": "http://127.0.0.1:8080/products/1",
+  "response": {
+    "name": "$len_gt 5",
+    "category": "$len_lt 20"
+  }
+}

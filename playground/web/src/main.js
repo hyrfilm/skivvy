@@ -4,6 +4,17 @@ import overlayRaw from './generated/fs-overlay.json?raw';
 const PROJECT_ROOT = '/home/guest/playground';
 const WARMUP_DELAY_MS = 1500;
 
+const CATEGORIES = {
+  all:       { label: 'All',       cfg: 'cfg.json',           ops: [] },
+  basics:    { label: 'Basics',    cfg: 'cfg.json',           ops: [{ '-': 'tests_' }, { '-': 'cfg_' }] },
+  diffs:     { label: 'Diffs',     cfg: 'cfg_diffs.json',     ops: [{ '-': 'tests_' }, { '+': 'tests_diffs' }, { '-': 'cfg_' }, { '+': 'cfg_diffs' }] },
+  matchers:  { label: 'Matchers',  cfg: 'cfg_matchers.json',  ops: [{ '-': 'tests_' }, { '+': 'tests_matchers' }, { '-': 'cfg_' }, { '+': 'cfg_matchers' }] },
+  variables: { label: 'Variables', cfg: 'cfg_variables.json', ops: [{ '-': 'tests_' }, { '+': 'tests_variables' }, { '-': 'cfg_' }, { '+': 'cfg_variables' }] },
+  oauth:     { label: 'OAuth',     cfg: 'cfg_oauth.json',     ops: [{ '-': 'tests_' }, { '+': 'tests_oauth' }, { '-': 'cfg_' }, { '+': 'cfg_oauth' }] },
+  headers:   { label: 'Headers',   cfg: 'cfg_headers.json',   ops: [{ '-': 'tests_' }, { '+': 'tests_headers' }, { '-': 'cfg_' }, { '+': 'cfg_headers' }] },
+  graphql:   { label: 'GraphQL',   cfg: 'cfg_graphql.json',   ops: [{ '-': 'tests_' }, { '+': 'tests_graphql' }, { '-': 'cfg_' }, { '+': 'cfg_graphql' }] },
+};
+
 function collectFiles(fs, absolutePath, relativePath = '') {
   const node = fs.stat(absolutePath);
   if (!node) {
@@ -111,18 +122,30 @@ registry.register({
 
 const searchParams = new URLSearchParams(window.location.search);
 const replayParam = searchParams.get('replay');
+const categoryParam = searchParams.get('category') || 'all';
+const category = CATEGORIES[categoryParam] ?? CATEGORIES.all;
 const runnerUrl = import.meta.env.VITE_SKIVVY_RUNNER_URL || 'http://127.0.0.1:8787/run-skivvy';
+
+const baseOverlay = parseOverlayJson(overlayRaw);
+if (category.ops.length > 0) {
+  baseOverlay._ = { ...(baseOverlay._ ?? {}), ops: category.ops };
+}
 
 const config = defineNanoTermConfig({
   profile: {
-    startupCommands: ['motd', 'cd ~/playground', 'ls', ...(replayParam ? [`replay ${replayParam}`] : [])],
+    startupCommands: [
+      'motd',
+      'cd ~/playground',
+      'ls',
+      ...(replayParam ? [`replay ${replayParam}`] : [`skivvy ${category.cfg}`]),
+    ],
     env: {
       SKIVVY_RUNNER_URL: runnerUrl,
     },
   },
   fs: {
     backend: 'memory',
-    overlay: parseOverlayJson(overlayRaw),
+    overlay: baseOverlay,
   },
 });
 

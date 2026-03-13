@@ -1,0 +1,19 @@
+{
+  "_comment": "Deeply nested objects and array fields — author is an object, tags is an array",
+  "url": "http://127.0.0.1:8080/graphql/posts",
+  "method": "post",
+  "body": {"query": "{ posts { id title author { name } tags } }"},
+  "match_subsets": true,
+  "match_every_entry": false,
+  "response": {
+    "data": {
+      "posts": [
+        {
+          "author": {"name": "$text"},
+          "tags": "$len_gt 0"
+        }
+      ],
+      "totalCount": "$gt 0"
+    }
+  }
+}

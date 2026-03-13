@@ -1,0 +1,5 @@
+{
+  "_comment": "$len checks the exact length of an array or string",
+  "url": "http://127.0.0.1:8080/products",
+  "response": "$len 5"
+}

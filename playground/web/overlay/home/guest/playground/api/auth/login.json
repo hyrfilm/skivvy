@@ -1,0 +1,1 @@
+{"accessToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo0Mn0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c", "refreshToken": "dGhpcy1pcy1hLXJlZnJlc2gtdG9rZW4tc2lnbmVk", "expiresIn": 3600, "user": {"id": 42, "name": "Alice", "email": "alice@example.com", "role": "admin"}}

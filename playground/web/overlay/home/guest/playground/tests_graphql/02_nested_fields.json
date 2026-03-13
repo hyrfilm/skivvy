@@ -1,0 +1,16 @@
+{
+  "_comment": "match_subsets: check only the fields you care about, deep in a nested response",
+  "url": "http://127.0.0.1:8080/graphql/users",
+  "method": "post",
+  "body": {"query": "{ users { id name role } }"},
+  "match_subsets": true,
+  "response": {
+    "data": {
+      "users": [
+        {"role": "admin"},
+        {"role": "user"},
+        {"role": "user"}
+      ]
+    }
+  }
+}

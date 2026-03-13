@@ -1,0 +1,7 @@
+{
+  "_comment": "Assert a specific response header using response_headers",
+  "url": "http://127.0.0.1:8080/products/1",
+  "response_headers": {
+    "Content-Type": "$contains application/json"
+  }
+}

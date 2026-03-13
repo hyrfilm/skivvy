@@ -1,0 +1,7 @@
+{
+  "_comment": "$read_file reads a file written by a previous test and compares it to the response value",
+  "url": "http://127.0.0.1:8080/products/2",
+  "response": {
+    "name": "$read_file product2_name.txt"
+  }
+}

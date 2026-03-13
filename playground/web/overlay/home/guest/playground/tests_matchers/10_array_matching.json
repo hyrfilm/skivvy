@@ -1,0 +1,13 @@
+{
+  "_comment": "match_every_entry applies the pattern to ALL items. match_subsets checks only listed fields.",
+  "url": "http://127.0.0.1:8080/products",
+  "match_subsets": true,
+  "match_every_entry": true,
+  "response": [
+    {
+      "id": "$gt 0",
+      "price": "$gt 0",
+      "stock": "$between 0 200"
+    }
+  ]
+}
