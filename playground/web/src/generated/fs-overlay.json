@@ -1,9 +1,29 @@
 {
-  "json": {
+  "/": {
     "home": {
       "guest": {
         "playground": {
+          "__pycache__": {
+            "server.cpython-314.pyc": "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"
+          },
           "api": {
+            "auth": {
+              "login.json": {
+                "accessToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo0Mn0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+                "refreshToken": "dGhpcy1pcy1hLXJlZnJlc2gtdG9rZW4tc2lnbmVk",
+                "expiresIn": 3600,
+                "user": {
+                  "id": 42,
+                  "name": "Alice",
+                  "email": "alice@example.com",
+                  "role": "admin"
+                }
+              },
+              "refresh.json": {
+                "accessToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo0MiwiZXhwIjoxfQ.newtoken",
+                "expiresIn": 3600
+              }
+            },
             "fortunes.json": [
               {
                 "id": 1,
@@ -37,7 +57,983 @@
                 "text": "There are 10 types of people in the world.",
                 "category": "humor"
               }
+            },
+            "graphql.json": {
+              "errors": null,
+              "data": {
+                "posts": [
+                  {
+                    "id": "1",
+                    "title": "Why does my cat judge me when I eat cereal at 3am",
+                    "author": {
+                      "id": "1",
+                      "name": "GremlinMode_Dave",
+                      "reputation": -12,
+                      "badges": [
+                        "night-owl",
+                        "serial-complainer"
+                      ]
+                    },
+                    "tags": [
+                      "cats",
+                      "existential-dread",
+                      "cereal"
+                    ],
+                    "comments": [
+                      {
+                        "id": "c1",
+                        "text": "Mine does the same thing but specifically only with off-brand cheerios",
+                        "author": {
+                          "id": "2",
+                          "name": "DiscountCereal_Brenda"
+                        },
+                        "upvotes": 47,
+                        "replies": [
+                          {
+                            "id": "r1",
+                            "text": "It's because they can smell the compromise",
+                            "author": {
+                              "id": "3",
+                              "name": "PhilosophyCat99"
+                            },
+                            "upvotes": 203
+                          },
+                          {
+                            "id": "r2",
+                            "text": "I feel personally attacked by this entire thread",
+                            "author": {
+                              "id": "1",
+                              "name": "GremlinMode_Dave"
+                            },
+                            "upvotes": 18
+                          }
+                        ]
+                      },
+                      {
+                        "id": "c2",
+                        "text": "Have you tried eating cereal at 2am instead? Completely different vibe",
+                        "author": {
+                          "id": "4",
+                          "name": "TimeZoneTerry"
+                        },
+                        "upvotes": 5,
+                        "replies": []
+                      }
+                    ],
+                    "reactions": {
+                      "relatable": 842,
+                      "cursed": 31,
+                      "why": 107
+                    }
+                  },
+                  {
+                    "id": "2",
+                    "title": "The USB plugged in FIRST TRY and now I don't trust reality",
+                    "author": {
+                      "id": "5",
+                      "name": "Paranoid_Engineer_Liz",
+                      "reputation": 304,
+                      "badges": [
+                        "tech-screamer",
+                        "glitch-in-the-matrix"
+                      ]
+                    },
+                    "tags": [
+                      "usb",
+                      "conspiracy",
+                      "hardware"
+                    ],
+                    "comments": [
+                      {
+                        "id": "c3",
+                        "text": "This happened to me in 2019 and I've been in witness protection ever since",
+                        "author": {
+                          "id": "6",
+                          "name": "WitnessProtectionSteve"
+                        },
+                        "upvotes": 611,
+                        "replies": [
+                          {
+                            "id": "r3",
+                            "text": "Steve you literally just doxxed yourself",
+                            "author": {
+                              "id": "7",
+                              "name": "OpSec_Karen"
+                            },
+                            "upvotes": 1042
+                          },
+                          {
+                            "id": "r4",
+                            "text": "Classic Steve",
+                            "author": {
+                              "id": "8",
+                              "name": "Disappointed_Handler"
+                            },
+                            "upvotes": 87
+                          }
+                        ]
+                      },
+                      {
+                        "id": "c4",
+                        "text": "The USB has three states: right, wrong, and right but you didn't believe in yourself",
+                        "author": {
+                          "id": "3",
+                          "name": "PhilosophyCat99"
+                        },
+                        "upvotes": 299,
+                        "replies": [
+                          {
+                            "id": "r5",
+                            "text": "Why is the cat account the wisest person on this platform",
+                            "author": {
+                              "id": "9",
+                              "name": "HumbledByACat"
+                            },
+                            "upvotes": 455
+                          }
+                        ]
+                      }
+                    ],
+                    "reactions": {
+                      "relatable": 1203,
+                      "cursed": 88,
+                      "why": 14
+                    }
+                  },
+                  {
+                    "id": "3",
+                    "title": "My landlord 'fixed' the leak by putting a bucket under it and charging me a bucket fee",
+                    "author": {
+                      "id": "10",
+                      "name": "RentIsTheft_Megan",
+                      "reputation": 87,
+                      "badges": [
+                        "tenant-warrior",
+                        "bucket-owner"
+                      ]
+                    },
+                    "tags": [
+                      "landlords",
+                      "housing",
+                      "scam",
+                      "buckets"
+                    ],
+                    "comments": [
+                      {
+                        "id": "c5",
+                        "text": "My landlord once painted over a wasp nest and called it 'textured wall art'",
+                        "author": {
+                          "id": "11",
+                          "name": "WaspWall_Hank"
+                        },
+                        "upvotes": 934,
+                        "replies": [
+                          {
+                            "id": "r6",
+                            "text": "That's not a wall that's a biome",
+                            "author": {
+                              "id": "12",
+                              "name": "NatureIsHealing_Janet"
+                            },
+                            "upvotes": 671
+                          },
+                          {
+                            "id": "r7",
+                            "text": "I would simply not live there",
+                            "author": {
+                              "id": "13",
+                              "name": "ThanksMom_Rich"
+                            },
+                            "upvotes": -89
+                          },
+                          {
+                            "id": "r8",
+                            "text": "Rich your parents bought your condo please sit down",
+                            "author": {
+                              "id": "10",
+                              "name": "RentIsTheft_Megan"
+                            },
+                            "upvotes": 1580
+                          }
+                        ]
+                      },
+                      {
+                        "id": "c6",
+                        "text": "Is the bucket at least a nice bucket",
+                        "author": {
+                          "id": "14",
+                          "name": "BucketConnoisseur"
+                        },
+                        "upvotes": 22,
+                        "replies": [
+                          {
+                            "id": "r9",
+                            "text": "It's a repurposed cat litter container and I can prove it in court",
+                            "author": {
+                              "id": "10",
+                              "name": "RentIsTheft_Megan"
+                            },
+                            "upvotes": 310
+                          }
+                        ]
+                      }
+                    ],
+                    "reactions": {
+                      "relatable": 2105,
+                      "cursed": 340,
+                      "why": 56
+                    }
+                  },
+                  {
+                    "id": "4",
+                    "title": "I said 'you too' when the waiter said 'enjoy your meal' and I need to move cities",
+                    "author": {
+                      "id": "15",
+                      "name": "SociallyDoomed_Priya",
+                      "reputation": 56,
+                      "badges": [
+                        "awkward-hall-of-fame",
+                        "overthinker"
+                      ]
+                    },
+                    "tags": [
+                      "social-anxiety",
+                      "restaurants",
+                      "relocation"
+                    ],
+                    "comments": [
+                      {
+                        "id": "c7",
+                        "text": "I once said 'love you bye' to my dentist so at least you're not alone",
+                        "author": {
+                          "id": "16",
+                          "name": "DentistLover_Frank"
+                        },
+                        "upvotes": 1872,
+                        "replies": [
+                          {
+                            "id": "r10",
+                            "text": "Did they say it back",
+                            "author": {
+                              "id": "17",
+                              "name": "NeedClosure_Yuki"
+                            },
+                            "upvotes": 943
+                          },
+                          {
+                            "id": "r11",
+                            "text": "They did not and Frank has switched dentists four times since",
+                            "author": {
+                              "id": "16",
+                              "name": "DentistLover_Frank"
+                            },
+                            "upvotes": 2301
+                          }
+                        ]
+                      },
+                      {
+                        "id": "c8",
+                        "text": "I told a flight attendant 'you too' when she said 'have a safe flight' and I stared out the window for 6 hours straight",
+                        "author": {
+                          "id": "18",
+                          "name": "WindowSeat_Regret"
+                        },
+                        "upvotes": 788,
+                        "replies": [
+                          {
+                            "id": "r12",
+                            "text": "The window stare of shame is universal",
+                            "author": {
+                              "id": "15",
+                              "name": "SociallyDoomed_Priya"
+                            },
+                            "upvotes": 190
+                          },
+                          {
+                            "id": "r13",
+                            "text": "At least she IS flying too so technically you were correct",
+                            "author": {
+                              "id": "19",
+                              "name": "Technicality_Tom"
+                            },
+                            "upvotes": 56
+                          },
+                          {
+                            "id": "r14",
+                            "text": "Tom that is not the point and you know it",
+                            "author": {
+                              "id": "18",
+                              "name": "WindowSeat_Regret"
+                            },
+                            "upvotes": 302
+                          }
+                        ]
+                      }
+                    ],
+                    "reactions": {
+                      "relatable": 4501,
+                      "cursed": 12,
+                      "why": 8
+                    }
+                  },
+                  {
+                    "id": "5",
+                    "title": "My roommate microwaved fish at 7am and I think this is grounds for legal action",
+                    "author": {
+                      "id": "20",
+                      "name": "NoFishZone_Derek",
+                      "reputation": 201,
+                      "badges": [
+                        "nose-witness",
+                        "lease-reader"
+                      ]
+                    },
+                    "tags": [
+                      "roommates",
+                      "fish",
+                      "crimes-against-humanity"
+                    ],
+                    "comments": [
+                      {
+                        "id": "c9",
+                        "text": "7am fish is an act of war recognized by the Geneva Convention",
+                        "author": {
+                          "id": "21",
+                          "name": "InternationalLaw_Debbie"
+                        },
+                        "upvotes": 567,
+                        "replies": [
+                          {
+                            "id": "r15",
+                            "text": "I don't think that's true but I want it to be",
+                            "author": {
+                              "id": "20",
+                              "name": "NoFishZone_Derek"
+                            },
+                            "upvotes": 234
+                          },
+                          {
+                            "id": "r16",
+                            "text": "It's true I wrote the convention",
+                            "author": {
+                              "id": "21",
+                              "name": "InternationalLaw_Debbie"
+                            },
+                            "upvotes": 89
+                          }
+                        ]
+                      },
+                      {
+                        "id": "c10",
+                        "text": "I AM the roommate. It was salmon and it was delicious and I'd do it again",
+                        "author": {
+                          "id": "22",
+                          "name": "SalmonAt7_Greg"
+                        },
+                        "upvotes": -412,
+                        "replies": [
+                          {
+                            "id": "r17",
+                            "text": "GREG????",
+                            "author": {
+                              "id": "20",
+                              "name": "NoFishZone_Derek"
+                            },
+                            "upvotes": 3891
+                          },
+                          {
+                            "id": "r18",
+                            "text": "This is the crossover event of the century",
+                            "author": {
+                              "id": "9",
+                              "name": "HumbledByACat"
+                            },
+                            "upvotes": 1205
+                          },
+                          {
+                            "id": "r19",
+                            "text": "Greg you monster",
+                            "author": {
+                              "id": "23",
+                              "name": "TeamDerek"
+                            },
+                            "upvotes": 445
+                          },
+                          {
+                            "id": "r20",
+                            "text": "Tomorrow it's sardines",
+                            "author": {
+                              "id": "22",
+                              "name": "SalmonAt7_Greg"
+                            },
+                            "upvotes": -780
+                          }
+                        ]
+                      }
+                    ],
+                    "reactions": {
+                      "relatable": 1654,
+                      "cursed": 890,
+                      "why": 2034
+                    }
+                  },
+                  {
+                    "id": "6",
+                    "title": "The office thermostat is set to 'slowly perish' and no one will admit who changed it",
+                    "author": {
+                      "id": "24",
+                      "name": "Freezing_In_July_Pam",
+                      "reputation": 145,
+                      "badges": [
+                        "blanket-at-desk",
+                        "thermostat-detective"
+                      ]
+                    },
+                    "tags": [
+                      "office",
+                      "thermostat",
+                      "cold-war"
+                    ],
+                    "comments": [
+                      {
+                        "id": "c11",
+                        "text": "It's always Gary from accounting. It's ALWAYS Gary from accounting.",
+                        "author": {
+                          "id": "25",
+                          "name": "BlameGary_Coalition"
+                        },
+                        "upvotes": 723,
+                        "replies": [
+                          {
+                            "id": "r21",
+                            "text": "I'm Gary from accounting at a different company and I also did it. We can't help ourselves.",
+                            "author": {
+                              "id": "26",
+                              "name": "Gary_From_Accounting"
+                            },
+                            "upvotes": 1100
+                          },
+                          {
+                            "id": "r22",
+                            "text": "Is there a Gary support group or",
+                            "author": {
+                              "id": "27",
+                              "name": "ConcernedHR_Lois"
+                            },
+                            "upvotes": 88
+                          }
+                        ]
+                      },
+                      {
+                        "id": "c12",
+                        "text": "I brought a space heater and they said it was a 'fire hazard' as if I'm not already IN HELL",
+                        "author": {
+                          "id": "24",
+                          "name": "Freezing_In_July_Pam"
+                        },
+                        "upvotes": 1456,
+                        "replies": []
+                      }
+                    ],
+                    "reactions": {
+                      "relatable": 3200,
+                      "cursed": 45,
+                      "why": 230
+                    }
+                  },
+                  {
+                    "id": "7",
+                    "title": "My dog learned to open the fridge and honestly he's earned whatever's in there",
+                    "author": {
+                      "id": "28",
+                      "name": "Outsmarted_By_Beagle",
+                      "reputation": 430,
+                      "badges": [
+                        "dog-parent",
+                        "fridge-loser"
+                      ]
+                    },
+                    "tags": [
+                      "dogs",
+                      "defeat",
+                      "refrigerator-security"
+                    ],
+                    "comments": [
+                      {
+                        "id": "c13",
+                        "text": "My dog figured out door handles and I've just accepted I live in his house now",
+                        "author": {
+                          "id": "29",
+                          "name": "Tenant_Of_Dog"
+                        },
+                        "upvotes": 892,
+                        "replies": [
+                          {
+                            "id": "r23",
+                            "text": "You pay rent to a dog?",
+                            "author": {
+                              "id": "30",
+                              "name": "JustAskingQuestions_Neil"
+                            },
+                            "upvotes": 34
+                          },
+                          {
+                            "id": "r24",
+                            "text": "In treats yes",
+                            "author": {
+                              "id": "29",
+                              "name": "Tenant_Of_Dog"
+                            },
+                            "upvotes": 567
+                          },
+                          {
+                            "id": "r25",
+                            "text": "That's a better deal than most landlords honestly",
+                            "author": {
+                              "id": "10",
+                              "name": "RentIsTheft_Megan"
+                            },
+                            "upvotes": 1340
+                          }
+                        ]
+                      },
+                      {
+                        "id": "c14",
+                        "text": "Put a child lock on it. My toddler can't open the fridge so your dog probably can't either",
+                        "author": {
+                          "id": "31",
+                          "name": "Parenting_Expert_Nope"
+                        },
+                        "upvotes": 12,
+                        "replies": [
+                          {
+                            "id": "r26",
+                            "text": "You underestimate this beagle. He has solved problems that would stump NASA engineers.",
+                            "author": {
+                              "id": "28",
+                              "name": "Outsmarted_By_Beagle"
+                            },
+                            "upvotes": 401
+                          },
+                          {
+                            "id": "r27",
+                            "text": "My beagle defeated a child lock in 11 minutes I timed it",
+                            "author": {
+                              "id": "32",
+                              "name": "BeagleDefeatSupport"
+                            },
+                            "upvotes": 278
+                          }
+                        ]
+                      }
+                    ],
+                    "reactions": {
+                      "relatable": 1890,
+                      "cursed": 67,
+                      "why": 120
+                    }
+                  }
+                ],
+                "totalCount": 7,
+                "metadata": {
+                  "platform": "ComplaintsBoard",
+                  "motto": "Come for the misery, stay because you're on hold",
+                  "topContributors": [
+                    {
+                      "id": "10",
+                      "name": "RentIsTheft_Megan",
+                      "totalUpvotes": 5335
+                    },
+                    {
+                      "id": "3",
+                      "name": "PhilosophyCat99",
+                      "totalUpvotes": 502
+                    },
+                    {
+                      "id": "22",
+                      "name": "SalmonAt7_Greg",
+                      "totalUpvotes": -1192
+                    }
+                  ],
+                  "trendingTags": [
+                    "cereal",
+                    "usb",
+                    "buckets",
+                    "fish",
+                    "beagles"
+                  ]
+                }
+              }
+            },
+            "graphql": {
+              "posts.json": {
+                "data": {
+                  "posts": [
+                    {
+                      "id": "1",
+                      "title": "Getting started with skivvy",
+                      "author": {
+                        "id": "1",
+                        "name": "Alice"
+                      },
+                      "tags": [
+                        "testing",
+                        "api"
+                      ]
+                    },
+                    {
+                      "id": "2",
+                      "title": "GraphQL testing made simple",
+                      "author": {
+                        "id": "2",
+                        "name": "Bob"
+                      },
+                      "tags": [
+                        "graphql",
+                        "testing"
+                      ]
+                    }
+                  ],
+                  "totalCount": 2
+                },
+                "errors": null
+              },
+              "users.json": {
+                "data": {
+                  "users": [
+                    {
+                      "id": "1",
+                      "name": "Alice",
+                      "email": "alice@example.com",
+                      "role": "admin"
+                    },
+                    {
+                      "id": "2",
+                      "name": "Bob",
+                      "email": "bob@example.com",
+                      "role": "user"
+                    },
+                    {
+                      "id": "3",
+                      "name": "Carol",
+                      "email": "carol@example.com",
+                      "role": "user"
+                    }
+                  ]
+                },
+                "errors": null
+              }
+            },
+            "items.json": {
+              "results": [
+                {
+                  "id": 1,
+                  "name": "Widget42",
+                  "category": "gadgets",
+                  "price": 9.99,
+                  "in_stock": true,
+                  "rating": 4.5,
+                  "tags": [
+                    "compact",
+                    "wireless"
+                  ]
+                },
+                {
+                  "id": 2,
+                  "name": "Sprocket7",
+                  "category": "parts",
+                  "price": 3.49,
+                  "in_stock": true,
+                  "rating": 3.8,
+                  "tags": [
+                    "metal",
+                    "durable"
+                  ]
+                },
+                {
+                  "id": 3,
+                  "name": "Gizmo88",
+                  "category": "gadgets",
+                  "price": 24.99,
+                  "in_stock": false,
+                  "rating": 4.1,
+                  "tags": [
+                    "smart",
+                    "rechargeable"
+                  ]
+                },
+                {
+                  "id": 4,
+                  "name": "Doodad3",
+                  "category": "accessories",
+                  "price": 12,
+                  "in_stock": true,
+                  "rating": 4.7,
+                  "tags": [
+                    "portable",
+                    "lightweight"
+                  ]
+                },
+                {
+                  "id": 5,
+                  "name": "Thingamajig",
+                  "category": "misc",
+                  "price": 6.5,
+                  "in_stock": true,
+                  "rating": 3.2,
+                  "tags": [
+                    "universal"
+                  ]
+                }
+              ]
+            },
+            "products": {
+              "1.json": {
+                "id": 1,
+                "name": "Wireless Mouse",
+                "price": 29.99,
+                "stock": 142,
+                "category": "electronics",
+                "sku": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+                "ip": "192.168.1.100"
+              },
+              "2.json": {
+                "id": 2,
+                "name": "Mechanical Keyboard",
+                "price": 89.5,
+                "stock": 37,
+                "category": "electronics",
+                "sku": "6ba7b810-9dad-41d1-80b4-00c04fd430c8",
+                "ip": "10.0.0.42"
+              },
+              "3.json": {
+                "id": 3,
+                "name": "USB-C Hub",
+                "price": 45,
+                "stock": 0,
+                "category": "accessories",
+                "sku": "550e8400-e29b-41d4-a716-446655440000",
+                "ip": "172.16.254.5"
+              },
+              "4.json": {
+                "id": 4,
+                "name": "Monitor Stand",
+                "price": 119,
+                "stock": 8,
+                "category": "furniture",
+                "sku": "6fa459ea-ee8a-4322-8ca3-e5fc96e6cdaf",
+                "ip": "203.0.113.50"
+              },
+              "5.json": {
+                "id": 5,
+                "name": "Laptop Bag",
+                "price": 55.75,
+                "stock": 23,
+                "category": "accessories",
+                "sku": "a8098c1a-f86e-4132-9f1a-00112444be1e",
+                "ip": "198.51.100.99"
+              },
+              "index.json": [
+                {
+                  "id": 1,
+                  "name": "Wireless Mouse",
+                  "price": 29.99,
+                  "stock": 142,
+                  "category": "electronics",
+                  "sku": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+                  "ip": "192.168.1.100"
+                },
+                {
+                  "id": 2,
+                  "name": "Mechanical Keyboard",
+                  "price": 89.5,
+                  "stock": 37,
+                  "category": "electronics",
+                  "sku": "6ba7b810-9dad-41d1-80b4-00c04fd430c8",
+                  "ip": "10.0.0.42"
+                },
+                {
+                  "id": 3,
+                  "name": "USB-C Hub",
+                  "price": 45,
+                  "stock": 0,
+                  "category": "accessories",
+                  "sku": "550e8400-e29b-41d4-a716-446655440000",
+                  "ip": "172.16.254.5"
+                },
+                {
+                  "id": 4,
+                  "name": "Monitor Stand",
+                  "price": 119,
+                  "stock": 8,
+                  "category": "furniture",
+                  "sku": "6fa459ea-ee8a-4322-8ca3-e5fc96e6cdaf",
+                  "ip": "203.0.113.50"
+                },
+                {
+                  "id": 5,
+                  "name": "Laptop Bag",
+                  "price": 55.75,
+                  "stock": 23,
+                  "category": "accessories",
+                  "sku": "a8098c1a-f86e-4132-9f1a-00112444be1e",
+                  "ip": "198.51.100.99"
+                }
+              ]
+            },
+            "profile.json": {
+              "id": 42,
+              "name": "Alice",
+              "email": "alice@example.com",
+              "role": "admin",
+              "plan": "pro"
+            },
+            "users": {
+              "1": {
+                "images": {
+                  "1.json": {
+                    "width": 64,
+                    "height": 64,
+                    "format": "jpeg"
+                  },
+                  "2.json": {
+                    "width": 64,
+                    "height": 64,
+                    "format": "png"
+                  }
+                }
+              },
+              "2": {
+                "images": {
+                  "1.json": {
+                    "width": 64,
+                    "height": 64,
+                    "format": "jpeg"
+                  },
+                  "2.json": {
+                    "width": 64,
+                    "height": 64,
+                    "format": "webp"
+                  }
+                }
+              },
+              "3": {
+                "images": {
+                  "1.json": {
+                    "width": 64,
+                    "height": 64,
+                    "format": "jpeg"
+                  }
+                }
+              },
+              "4": {
+                "images": {
+                  "1.json": {
+                    "width": 64,
+                    "height": 64,
+                    "format": "jpeg"
+                  },
+                  "2.json": {
+                    "width": 64,
+                    "height": 64,
+                    "format": "png"
+                  },
+                  "3.json": {
+                    "width": 64,
+                    "height": 64,
+                    "format": "webp"
+                  }
+                }
+              },
+              "all.json": {
+                "users": [
+                  {
+                    "id": 1,
+                    "name": "Alice",
+                    "role": "admin"
+                  },
+                  {
+                    "id": 2,
+                    "name": "Bob",
+                    "role": "editor"
+                  },
+                  {
+                    "id": 3,
+                    "name": "Carol",
+                    "role": "viewer"
+                  },
+                  {
+                    "id": 4,
+                    "name": "Dave",
+                    "role": "editor"
+                  },
+                  {
+                    "id": 5,
+                    "name": "That guy",
+                    "role": "unclear - we should fire him"
+                  }
+                ],
+                "images": [
+                  {
+                    "id": "img-001",
+                    "thumbnail": "http://127.0.0.1:8080/users/1/images/1",
+                    "tag": "cute dog"
+                  },
+                  {
+                    "id": "img-002",
+                    "thumbnail": "http://127.0.0.1:8080/users/1/images/2",
+                    "tag": "cute cat"
+                  },
+                  {
+                    "id": "img-003",
+                    "thumbnail": "http://127.0.0.1:8080/users/2/images/1",
+                    "tag": "funny meme"
+                  },
+                  {
+                    "id": "img-004",
+                    "thumbnail": "http://127.0.0.1:8080/users/2/images/2",
+                    "tag": "lolcat"
+                  },
+                  {
+                    "id": "img-005",
+                    "thumbnail": "http://127.0.0.1:8080/users/3/images/1",
+                    "tag": "lol"
+                  },
+                  {
+                    "id": "img-006",
+                    "thumbnail": "http://127.0.0.1:8080/users/4/images/1",
+                    "tag": "intentionally left blank"
+                  },
+                  {
+                    "id": "img-007",
+                    "thumbnail": "http://127.0.0.1:8080/users/4/images/2",
+                    "tag": "lulz"
+                  },
+                  {
+                    "id": "img-008",
+                    "thumbnail": "http://127.0.0.1:8080/users/4/images/3"
+                  }
+                ]
+              }
             }
+          },
+          "cfg_diffs_table.json": {
+            "tests": "./tests_diffs",
+            "diff_enabled": true,
+            "diff_ndiff": false,
+            "diff_unified": false,
+            "diff_table": true,
+            "diff_full": false,
+            "diff_compact_lists": true
+          },
+          "cfg_diffs_unified.json": {
+            "tests": "./tests_diffs",
+            "diff_enabled": true,
+            "diff_ndiff": false,
+            "diff_unified": true,
+            "diff_table": false,
+            "diff_full": false,
+            "diff_compact_lists": true
           },
           "cfg_diffs.json": {
             "tests": "./tests_diffs",
@@ -48,9 +1044,37 @@
             "diff_full": false,
             "diff_compact_lists": true
           },
+          "cfg_graphql.json": {
+            "base_url": "http://127.0.0.1:8080",
+            "tests": "./tests_graphql"
+          },
+          "cfg_headers.json": {
+            "base_url": "http://127.0.0.1:8080",
+            "tests": "./tests_headers"
+          },
+          "cfg_matchers.json": {
+            "base_url": "http://127.0.0.1:8080",
+            "tests": "./tests_matchers"
+          },
+          "cfg_oauth.json": {
+            "base_url": "http://127.0.0.1:8080",
+            "tests": "./tests_oauth",
+            "brace_expansion": true
+          },
+          "cfg_readme.json": {
+            "base_url": "http://127.0.0.1:8080",
+            "tests": "./tests_readme"
+          },
+          "cfg_variables.json": {
+            "base_url": "http://127.0.0.1:8080",
+            "tests": "./tests_variables",
+            "brace_expansion": true
+          },
           "cfg.json": {
             "tests": "./tests"
           },
+          "README.md": "# Skivvy playground\n\nWelcome — this browser playground is a self-contained sandbox where you can run and edit skivvy tests live.\n\nThis directory is also exposed in the repository at `examples/dev_server`.\n\n## Quick start\n\n```sh\nls\nskivvy cfg.json\n```\n\n## Categories\n\nUse the dropdown at the top of the page to switch between example sets, or run any config file directly:\n\n| Config | What it covers |\n|---|---|\n| `cfg.json` | Basics — status codes, simple field checks |\n| `cfg_diffs.json` | Failing tests with ndiff output |\n| `cfg_diffs_unified.json` | Same failures, unified diff format |\n| `cfg_diffs_table.json` | Same failures, side-by-side table format |\n| `cfg_matchers.json` | All built-in matchers |\n| `cfg_variables.json` | $store, $fetch, brace expansion, $write_file/$read_file |\n| `cfg_oauth.json` | OAuth flow — POST login, capture token, use in header |\n| `cfg_headers.json` | Sending request headers, asserting response headers |\n| `cfg_graphql.json` | GraphQL-shaped responses, nested matching |\n\n## Edit a test\n\n```sh\nnano tests/01_list_fortunes.json\nskivvy cfg.json\n```\n\n## Edit the API response\n\n```sh\nnano api/fortunes/1.json\nskivvy cfg.json\n```\n\n## Run it locally from the repo\n\n```sh\ncd examples/dev_server\nuv run skivvy cfg.json\nuv run skivvy cfg_matchers.json\nuv run skivvy cfg_oauth.json\n```\n\nIf you want to start the JSON server yourself:\n\n```sh\ncd examples/dev_server\npython3 server.py 8080 api\n```\n\nThe `skivvy` command uploads this workspace, starts the JSON server in the sandbox, runs the command, and streams the output back into the terminal.\n",
+          "server.py": "#!/usr/bin/env python3\n\"\"\"Minimal static JSON API server. Serves .json files as API responses.\n\nUsage:\n  python server.py [port] [directory] [idle_timeout_seconds]\n  python server.py stop\n\nRoute resolution:\n  /fortunes    -> fortunes.json or fortunes/index.json\n  /fortunes/1  -> fortunes/1.json\n\"\"\"\n\nimport os\nimport signal\nimport sys\nimport time\nfrom http.server import HTTPServer, BaseHTTPRequestHandler\nfrom pathlib import Path\nfrom typing import Optional\n\nPIDFILE = Path(\"/tmp/skivvy_dev_server.pid\")\nHOST = \"127.0.0.1\"\nDEFAULT_PORT = 8080\nDEFAULT_IDLE_TIMEOUT_SECONDS = 60.0\n\n\nclass Handler(BaseHTTPRequestHandler):\n    root = None\n\n    def do_POST(self):\n        self.do_GET()\n\n    def do_GET(self):\n        setattr(self.server, \"last_request_ts\", time.monotonic())\n        path = self.path.split(\"?\", 1)[0].split(\"#\", 1)[0]\n        target = (self.root / path.lstrip(\"/\")).resolve()\n\n        if not target.is_relative_to(self.root):\n            self.respond(403, {\"error\": \"forbidden\"})\n            return\n\n        for candidate in [target, target.with_suffix(\".json\"), target / \"index.json\"]:\n            if candidate.is_file() and candidate.suffix == \".json\":\n                self.respond(200, candidate.read_bytes())\n                return\n\n        self.respond(404, {\"error\": \"not found\"})\n\n    def respond(self, status, body):\n        if isinstance(body, dict):\n            import json\n            body = json.dumps(body).encode()\n        self.send_response(status)\n        self.send_header(\"Content-Type\", \"application/json\")\n        self.send_header(\"Content-Length\", len(body))\n        self.end_headers()\n        self.wfile.write(body)\n\n    def log_message(self, fmt, *args):\n        pass\n\n\ndef stop():\n    if not PIDFILE.exists():\n        sys.exit(\"No server running (pid file not found)\")\n    pid = int(PIDFILE.read_text())\n    try:\n        os.kill(pid, signal.SIGTERM)\n        print(f\"Stopped server (pid {pid})\")\n    except ProcessLookupError:\n        print(f\"Server already stopped (stale pid {pid})\")\n    PIDFILE.unlink(missing_ok=True)\n\n\ndef _process_exists(pid: int) -> bool:\n    try:\n        os.kill(pid, 0)\n        return True\n    except ProcessLookupError:\n        return False\n\n\ndef _read_pid() -> Optional[int]:\n    if not PIDFILE.exists():\n        return None\n    try:\n        return int(PIDFILE.read_text().strip())\n    except (TypeError, ValueError):\n        return None\n\n\ndef _acquire_lock_or_exit():\n    pid = _read_pid()\n    if pid is None:\n        PIDFILE.unlink(missing_ok=True)\n        return\n    if _process_exists(pid):\n        sys.exit(f\"Server already running (pid {pid}). Stop it with: python server.py stop\")\n    PIDFILE.unlink(missing_ok=True)\n\n\ndef start(port, root, idle_timeout_seconds):\n    if not root.is_dir():\n        sys.exit(f\"Not a directory: {root}\")\n\n    _acquire_lock_or_exit()\n\n    Handler.root = root\n    server = HTTPServer((HOST, port), Handler)\n    server.timeout = 0.5\n    setattr(server, \"last_request_ts\", time.monotonic())\n    PIDFILE.write_text(str(os.getpid()))\n    print(\n        f\"Serving {root} on http://{HOST}:{port} \"\n        f\"(pid {os.getpid()}, idle_timeout={idle_timeout_seconds:.1f}s)\"\n    )\n\n    def _handle_shutdown(_signum, _frame):\n        raise KeyboardInterrupt\n\n    signal.signal(signal.SIGTERM, _handle_shutdown)\n    signal.signal(signal.SIGINT, _handle_shutdown)\n\n    try:\n        while True:\n            server.handle_request()\n            idle_for = time.monotonic() - getattr(server, \"last_request_ts\")\n            if idle_for >= idle_timeout_seconds:\n                print(f\"No requests for {idle_for:.1f}s. Shutting down.\")\n                break\n    except KeyboardInterrupt:\n        pass\n    finally:\n        server.server_close()\n        PIDFILE.unlink(missing_ok=True)\n\n\ndef main():\n    if sys.argv[1:2] == [\"stop\"]:\n        stop()\n        return\n\n    port = int(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_PORT\n    root = Path(sys.argv[2]).resolve() if len(sys.argv) > 2 else Path.cwd()\n    idle_timeout_seconds = (\n        float(sys.argv[3])\n        if len(sys.argv) > 3\n        else DEFAULT_IDLE_TIMEOUT_SECONDS\n    )\n    start(port, root, idle_timeout_seconds)\n\n\nif __name__ == \"__main__\":\n    main()\n",
           "tests_diffs": {
             "01_response_diff.json": {
               "_comment": "Intentional response mismatch for diff demos",
@@ -66,6 +1090,342 @@
               "_comment": "Intentional status mismatch for diff demos",
               "url": "http://127.0.0.1:8080/fortunes/2",
               "status": 201
+            }
+          },
+          "tests_graphql": {
+            "01_query_users.json": {
+              "_comment": "GraphQL responses wrap data in a 'data' object — test the structure and the array length",
+              "url": "http://127.0.0.1:8080/graphql/users",
+              "method": "post",
+              "body": {
+                "query": "{ users { id name email role } }"
+              },
+              "response": {
+                "errors": null,
+                "data": {
+                  "users": "$len 3"
+                }
+              }
+            },
+            "02_nested_fields.json": {
+              "_comment": "match_subsets: check only the fields you care about, deep in a nested response",
+              "url": "http://127.0.0.1:8080/graphql/users",
+              "method": "post",
+              "body": {
+                "query": "{ users { id name role } }"
+              },
+              "match_subsets": true,
+              "response": {
+                "data": {
+                  "users": [
+                    {
+                      "role": "admin"
+                    },
+                    {
+                      "role": "user"
+                    },
+                    {
+                      "role": "user"
+                    }
+                  ]
+                }
+              }
+            },
+            "03_nested_author.json": {
+              "_comment": "Deeply nested objects and array fields — author is an object, tags is an array",
+              "url": "http://127.0.0.1:8080/graphql/posts",
+              "method": "post",
+              "body": {
+                "query": "{ posts { id title author { name } tags } }"
+              },
+              "match_subsets": true,
+              "match_every_entry": false,
+              "response": {
+                "data": {
+                  "posts": [
+                    {
+                      "author": {
+                        "name": "$text"
+                      },
+                      "tags": "$len_gt 0"
+                    }
+                  ],
+                  "totalCount": "$gt 0"
+                }
+              }
+            },
+            "04_no_errors.json": {
+              "_comment": "Asserting 'errors' is null is a key GraphQL pattern — use $! to assert fields are absent",
+              "url": "http://127.0.0.1:8080/graphql/posts",
+              "method": "post",
+              "body": {
+                "query": "{ posts { id title } }"
+              },
+              "response": {
+                "errors": null,
+                "data": {
+                  "totalCount": "$between 1 100"
+                }
+              }
+            }
+          },
+          "tests_headers": {
+            "01_response_content_type.json": {
+              "_comment": "Assert a specific response header using response_headers",
+              "url": "http://127.0.0.1:8080/products/1",
+              "response_headers": {
+                "Content-Type": "$contains application/json"
+              }
+            },
+            "02_send_custom.json": {
+              "_comment": "Send custom request headers with read_headers — useful for API keys, versioning, tracing",
+              "url": "http://127.0.0.1:8080/products/1",
+              "read_headers": {
+                "Accept": "application/json",
+                "X-Request-ID": "test-abc-123",
+                "X-Api-Version": "2"
+              },
+              "response": {
+                "id": 1
+              }
+            },
+            "03_auth_header.json": {
+              "_comment": "Combine outgoing headers with response header assertions",
+              "url": "http://127.0.0.1:8080/profile",
+              "read_headers": {
+                "Authorization": "Bearer test-token"
+              },
+              "response_headers": {
+                "Content-Type": "application/json"
+              },
+              "response": {
+                "role": "$in admin user"
+              }
+            }
+          },
+          "tests_matchers": {
+            "01_numeric.json": {
+              "_comment": "$gt, $lt, $between — numeric comparisons",
+              "url": "http://127.0.0.1:8080/products/1",
+              "status": 200,
+              "response": {
+                "id": "$gt 0",
+                "price": "$between 25 35",
+                "stock": "$lt 200"
+              }
+            },
+            "02_approximate.json": {
+              "_comment": "$~ checks approximate numeric equality (default 5% threshold)",
+              "url": "http://127.0.0.1:8080/products/1",
+              "response": {
+                "price": "$~ 30"
+              }
+            },
+            "03_string.json": {
+              "_comment": "$contains substring check, $regexp pattern match, $text validates printable string",
+              "url": "http://127.0.0.1:8080/products/1",
+              "response": {
+                "name": "$contains Mouse",
+                "category": "$regexp ^electro",
+                "sku": "$text"
+              }
+            },
+            "04_length_array.json": {
+              "_comment": "$len checks the exact length of an array or string",
+              "url": "http://127.0.0.1:8080/products",
+              "response": "$len 5"
+            },
+            "05_length_string.json": {
+              "_comment": "$len_gt and $len_lt check string length bounds",
+              "url": "http://127.0.0.1:8080/products/1",
+              "response": {
+                "name": "$len_gt 5",
+                "category": "$len_lt 20"
+              }
+            },
+            "06_membership.json": {
+              "_comment": "$in checks the value is one of the listed options",
+              "url": "http://127.0.0.1:8080/products/1",
+              "response": {
+                "category": "$in electronics accessories furniture"
+              }
+            },
+            "07_validation.json": {
+              "_comment": "$uuid validates a UUID, $valid_ip validates an IPv4 or IPv6 address",
+              "url": "http://127.0.0.1:8080/products/1",
+              "response": {
+                "sku": "$uuid",
+                "ip": "$valid_ip"
+              }
+            },
+            "08_negation.json": {
+              "_comment": "Prefix any matcher with $! to negate it",
+              "url": "http://127.0.0.1:8080/products/1",
+              "response": {
+                "stock": "$!lt 1",
+                "category": "$!contains furniture",
+                "name": "$!regexp ^Keyboard"
+              }
+            },
+            "09_python_expr.json": {
+              "_comment": "$expr evaluates a Python expression — 'actual' is bound to the value being checked",
+              "url": "http://127.0.0.1:8080/products/1",
+              "response": {
+                "price": "$expr 0 < actual < 100",
+                "name": "$expr actual.startswith('Wireless')"
+              }
+            },
+            "10_array_matching.json": {
+              "_comment": "match_every_entry applies the pattern to ALL items. match_subsets checks only listed fields.",
+              "url": "http://127.0.0.1:8080/products",
+              "match_subsets": true,
+              "match_every_entry": true,
+              "response": [
+                {
+                  "id": "$gt 0",
+                  "price": "$gt 0",
+                  "stock": "$between 0 200"
+                }
+              ]
+            }
+          },
+          "tests_oauth": {
+            "01_login.json": {
+              "_comment": "POST credentials and capture the tokens — they become available to all later tests in this directory",
+              "url": "http://127.0.0.1:8080/auth/login",
+              "method": "post",
+              "body": {
+                "username": "alice",
+                "password": "secret"
+              },
+              "status": 200,
+              "response": {
+                "accessToken": "$store access_token",
+                "refreshToken": "$store refresh_token",
+                "expiresIn": "$gt 0",
+                "user": {
+                  "name": "$store user_name",
+                  "role": "admin"
+                }
+              }
+            },
+            "02_profile.json": {
+              "_comment": "Use the stored token in the Authorization header via brace expansion",
+              "url": "http://127.0.0.1:8080/profile",
+              "read_headers": {
+                "Authorization": "Bearer <access_token>"
+              },
+              "response": {
+                "name": "$fetch user_name",
+                "role": "admin"
+              }
+            },
+            "03_refresh.json": {
+              "_comment": "Send the refresh token in the request body - we don't verify the exact token we get back because it would make the test unnecessarily brittle",
+              "url": "http://127.0.0.1:8080/auth/refresh",
+              "method": "post",
+              "body": {
+                "refreshToken": "<refresh_token>"
+              },
+              "response": {
+                "accessToken": "$contains newtoken",
+                "expiresIn": 3600
+              }
+            }
+          },
+          "tests_readme": {
+            "01_widget_listing.json": {
+              "_comment": "Widget42 appears in the results — assert only what you care about",
+              "url": "/items",
+              "match_subsets": true,
+              "response": {
+                "results": [
+                  {
+                    "name": "Widget42"
+                  }
+                ]
+              }
+            },
+            "02_graphql_query.json": {
+              "_comment": "Every post has a named author and at least one tag, comments have text and upvotes, no GraphQL errors",
+              "url": "/graphql",
+              "method": "post",
+              "body": {
+                "query": "{ posts { id title author { name } tags comments { text upvotes replies { text } } reactions } totalCount }"
+              },
+              "match_subsets": true,
+              "match_every_entry": true,
+              "response": {
+                "errors": null,
+                "data": {
+                  "posts": [
+                    {
+                      "author": {
+                        "name": "$text"
+                      },
+                      "tags": "$len_gt 0",
+                      "comments": [
+                        {
+                          "text": "$text",
+                          "replies": [
+                            {
+                              "text": "$text"
+                            }
+                          ]
+                        }
+                      ],
+                      "reactions": "$len_gt 0"
+                    }
+                  ],
+                  "totalCount": "$gt 0"
+                }
+              }
+            },
+            "03_user_thumbnails.json": {
+              "_comment": "Every user's thumbnail is a live, reachable URL — every image ID is unique",
+              "url": "/users/all",
+              "match_subsets": true,
+              "match_every_entry": true,
+              "response": {
+                "images": [
+                  {
+                    "thumbnail": "$valid_url",
+                    "id": "$unique"
+                  }
+                ]
+              }
+            }
+          },
+          "tests_variables": {
+            "01_store.json": {
+              "_comment": "$store captures a response value into a named variable for use in later tests",
+              "url": "http://127.0.0.1:8080/products/1",
+              "response": {
+                "id": "$store product_id",
+                "name": "$store product_name"
+              }
+            },
+            "02_fetch_and_expand.json": {
+              "_comment": "<var> in URLs expands stored variables. $fetch checks a value equals what was stored.",
+              "url": "http://127.0.0.1:8080/products/<product_id>",
+              "response": {
+                "id": "$fetch product_id",
+                "name": "$fetch product_name"
+              }
+            },
+            "03_write_file.json": {
+              "_comment": "$write_file saves a response value to disk so the next test can read it back",
+              "url": "http://127.0.0.1:8080/products/2",
+              "response": {
+                "name": "$write_file product2_name.txt"
+              }
+            },
+            "04_read_back.json": {
+              "_comment": "$read_file reads a file written by a previous test and compares it to the response value",
+              "url": "http://127.0.0.1:8080/products/2",
+              "response": {
+                "name": "$read_file product2_name.txt"
+              }
             }
           },
           "tests": {
@@ -95,15 +1455,131 @@
       }
     }
   },
-  "text": {
-    "home": {
-      "guest": {
-        "playground": {
-          "README.md": "# Skivvy playground\n\nWelcome — this browser playground is a small, sandbox-compatible subset of the full skivvy examples.\n\nThis directory is also exposed in the repository at `examples/dev_server`.\n\n## Start here\n\n```sh\npwd\nls\nskivvy cfg.json\nskivvy cfg_diffs.json\n```\n\n## Edit a test\n\n```sh\nnano tests/01_list_fortunes.json\nskivvy cfg.json\n```\n\n## Edit the API response\n\n```sh\nnano api/fortunes/1.json\nskivvy cfg.json\n```\n\nThe `skivvy` command uploads this workspace, starts a tiny local JSON server in the sandbox, runs the command, and prints the output back in the terminal.\n\n## Run it locally from the repo\n\n```sh\ncd examples/dev_server\nuv run skivvy cfg.json\nuv run skivvy cfg_diffs.json\n```\n\nIf you want to start the tiny JSON server yourself:\n\n```sh\ncd examples/dev_server\npython3 server.py 8080 api\n```\n\nOther skivvy example suites exist in the repository, but this playground only includes the self-contained files that are meant to run in the browser sandbox.\n",
-          "server.py": "#!/usr/bin/env python3\n\"\"\"Minimal static JSON API server. Serves .json files as API responses.\n\nUsage:\n  python server.py [port] [directory] [idle_timeout_seconds]\n  python server.py stop\n\nRoute resolution:\n  /fortunes    -> fortunes.json or fortunes/index.json\n  /fortunes/1  -> fortunes/1.json\n\"\"\"\n\nimport os\nimport signal\nimport sys\nimport time\nfrom http.server import HTTPServer, BaseHTTPRequestHandler\nfrom pathlib import Path\nfrom typing import Optional\n\nPIDFILE = Path(\"/tmp/skivvy_dev_server.pid\")\nHOST = \"127.0.0.1\"\nDEFAULT_PORT = 8080\nDEFAULT_IDLE_TIMEOUT_SECONDS = 60.0\n\n\nclass Handler(BaseHTTPRequestHandler):\n    root = None\n\n    def do_GET(self):\n        setattr(self.server, \"last_request_ts\", time.monotonic())\n        path = self.path.split(\"?\", 1)[0].split(\"#\", 1)[0]\n        target = (self.root / path.lstrip(\"/\")).resolve()\n\n        if not target.is_relative_to(self.root):\n            self.respond(403, {\"error\": \"forbidden\"})\n            return\n\n        for candidate in [target, target.with_suffix(\".json\"), target / \"index.json\"]:\n            if candidate.is_file() and candidate.suffix == \".json\":\n                self.respond(200, candidate.read_bytes())\n                return\n\n        self.respond(404, {\"error\": \"not found\"})\n\n    def respond(self, status, body):\n        if isinstance(body, dict):\n            import json\n            body = json.dumps(body).encode()\n        self.send_response(status)\n        self.send_header(\"Content-Type\", \"application/json\")\n        self.send_header(\"Content-Length\", len(body))\n        self.end_headers()\n        self.wfile.write(body)\n\n    def log_message(self, fmt, *args):\n        pass\n\n\ndef stop():\n    if not PIDFILE.exists():\n        sys.exit(\"No server running (pid file not found)\")\n    pid = int(PIDFILE.read_text())\n    try:\n        os.kill(pid, signal.SIGTERM)\n        print(f\"Stopped server (pid {pid})\")\n    except ProcessLookupError:\n        print(f\"Server already stopped (stale pid {pid})\")\n    PIDFILE.unlink(missing_ok=True)\n\n\ndef _process_exists(pid: int) -> bool:\n    try:\n        os.kill(pid, 0)\n        return True\n    except ProcessLookupError:\n        return False\n\n\ndef _read_pid() -> Optional[int]:\n    if not PIDFILE.exists():\n        return None\n    try:\n        return int(PIDFILE.read_text().strip())\n    except (TypeError, ValueError):\n        return None\n\n\ndef _acquire_lock_or_exit():\n    pid = _read_pid()\n    if pid is None:\n        PIDFILE.unlink(missing_ok=True)\n        return\n    if _process_exists(pid):\n        sys.exit(f\"Server already running (pid {pid}). Stop it with: python server.py stop\")\n    PIDFILE.unlink(missing_ok=True)\n\n\ndef start(port, root, idle_timeout_seconds):\n    if not root.is_dir():\n        sys.exit(f\"Not a directory: {root}\")\n\n    _acquire_lock_or_exit()\n\n    Handler.root = root\n    server = HTTPServer((HOST, port), Handler)\n    server.timeout = 0.5\n    setattr(server, \"last_request_ts\", time.monotonic())\n    PIDFILE.write_text(str(os.getpid()))\n    print(\n        f\"Serving {root} on http://{HOST}:{port} \"\n        f\"(pid {os.getpid()}, idle_timeout={idle_timeout_seconds:.1f}s)\"\n    )\n\n    def _handle_shutdown(_signum, _frame):\n        raise KeyboardInterrupt\n\n    signal.signal(signal.SIGTERM, _handle_shutdown)\n    signal.signal(signal.SIGINT, _handle_shutdown)\n\n    try:\n        while True:\n            server.handle_request()\n            idle_for = time.monotonic() - getattr(server, \"last_request_ts\")\n            if idle_for >= idle_timeout_seconds:\n                print(f\"No requests for {idle_for:.1f}s. Shutting down.\")\n                break\n    except KeyboardInterrupt:\n        pass\n    finally:\n        server.server_close()\n        PIDFILE.unlink(missing_ok=True)\n\n\ndef main():\n    if sys.argv[1:2] == [\"stop\"]:\n        stop()\n        return\n\n    port = int(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_PORT\n    root = Path(sys.argv[2]).resolve() if len(sys.argv) > 2 else Path.cwd()\n    idle_timeout_seconds = (\n        float(sys.argv[3])\n        if len(sys.argv) > 3\n        else DEFAULT_IDLE_TIMEOUT_SECONDS\n    )\n    start(port, root, idle_timeout_seconds)\n\n\nif __name__ == \"__main__\":\n    main()\n"
+  "_": {
+    "types": {
+      "/": {
+        "home": {
+          "guest": {
+            "playground": {
+              "__pycache__": {
+                "server.cpython-314.pyc": "base64"
+              },
+              "api": {
+                "auth": {
+                  "login.json": "json",
+                  "refresh.json": "json"
+                },
+                "fortunes.json": "json",
+                "fortunes": {
+                  "1.json": "json",
+                  "2.json": "json",
+                  "3.json": "json"
+                },
+                "graphql.json": "json",
+                "graphql": {
+                  "posts.json": "json",
+                  "users.json": "json"
+                },
+                "items.json": "json",
+                "products": {
+                  "1.json": "json",
+                  "2.json": "json",
+                  "3.json": "json",
+                  "4.json": "json",
+                  "5.json": "json",
+                  "index.json": "json"
+                },
+                "profile.json": "json",
+                "users": {
+                  "1": {
+                    "images": {
+                      "1.json": "json",
+                      "2.json": "json"
+                    }
+                  },
+                  "2": {
+                    "images": {
+                      "1.json": "json",
+                      "2.json": "json"
+                    }
+                  },
+                  "3": {
+                    "images": {
+                      "1.json": "json"
+                    }
+                  },
+                  "4": {
+                    "images": {
+                      "1.json": "json",
+                      "2.json": "json",
+                      "3.json": "json"
+                    }
+                  },
+                  "all.json": "json"
+                }
+              },
+              "cfg_diffs_table.json": "json",
+              "cfg_diffs_unified.json": "json",
+              "cfg_diffs.json": "json",
+              "cfg_graphql.json": "json",
+              "cfg_headers.json": "json",
+              "cfg_matchers.json": "json",
+              "cfg_oauth.json": "json",
+              "cfg_readme.json": "json",
+              "cfg_variables.json": "json",
+              "cfg.json": "json",
+              "tests_diffs": {
+                "01_response_diff.json": "json",
+                "02_status_diff.json": "json"
+              },
+              "tests_graphql": {
+                "01_query_users.json": "json",
+                "02_nested_fields.json": "json",
+                "03_nested_author.json": "json",
+                "04_no_errors.json": "json"
+              },
+              "tests_headers": {
+                "01_response_content_type.json": "json",
+                "02_send_custom.json": "json",
+                "03_auth_header.json": "json"
+              },
+              "tests_matchers": {
+                "01_numeric.json": "json",
+                "02_approximate.json": "json",
+                "03_string.json": "json",
+                "04_length_array.json": "json",
+                "05_length_string.json": "json",
+                "06_membership.json": "json",
+                "07_validation.json": "json",
+                "08_negation.json": "json",
+                "09_python_expr.json": "json",
+                "10_array_matching.json": "json"
+              },
+              "tests_oauth": {
+                "01_login.json": "json",
+                "02_profile.json": "json",
+                "03_refresh.json": "json"
+              },
+              "tests_readme": {
+                "01_widget_listing.json": "json",
+                "02_graphql_query.json": "json",
+                "03_user_thumbnails.json": "json"
+              },
+              "tests_variables": {
+                "01_store.json": "json",
+                "02_fetch_and_expand.json": "json",
+                "03_write_file.json": "json",
+                "04_read_back.json": "json"
+              },
+              "tests": {
+                "01_list_fortunes.json": "json",
+                "02_get_single_fortune.json": "json",
+                "03_not_found.json": "json"
+              }
+            }
+          }
         }
       }
     }
-  },
-  "binary": {}
+  }
 }

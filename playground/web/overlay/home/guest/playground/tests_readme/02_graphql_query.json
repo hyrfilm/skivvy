@@ -1,0 +1,23 @@
+{
+  "_comment": "Every post has a named author and at least one tag, comments have text and upvotes, no GraphQL errors",
+  "url": "/graphql",
+  "method": "post",
+  "body": { "query": "{ posts { id title author { name } tags comments { text upvotes replies { text } } reactions } totalCount }" },
+  "match_subsets": true,
+  "match_every_entry": true,
+  "response": {
+    "errors": null,
+    "data": {
+      "posts": [{
+        "author": { "name": "$text" },
+        "tags": "$len_gt 0",
+        "comments": [{
+          "text": "$text",
+          "replies": [{ "text": "$text" }]
+        }],
+        "reactions": "$len_gt 0"
+      }],
+      "totalCount": "$gt 0"
+    }
+  }
+}

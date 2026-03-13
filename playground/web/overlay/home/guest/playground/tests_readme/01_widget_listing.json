@@ -1,0 +1,6 @@
+{
+  "_comment": "Widget42 appears in the results — assert only what you care about",
+  "url": "/items",
+  "match_subsets": true,
+  "response": { "results": [{ "name": "Widget42" }] }
+}

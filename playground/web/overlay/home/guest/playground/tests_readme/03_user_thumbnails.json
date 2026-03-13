@@ -1,0 +1,9 @@
+{
+  "_comment": "Every user's thumbnail is a live, reachable URL — every image ID is unique",
+  "url": "/users/all",
+  "match_subsets": true,
+  "match_every_entry": true,
+  "response": {
+    "images": [{ "thumbnail": "$valid_url", "id": "$unique" }]
+  }
+}

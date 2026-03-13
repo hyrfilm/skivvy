@@ -1,4 +1,4 @@
-import { createNanoTerm, defineNanoTermConfig, parseOverlayJson, registry } from 'nanoterm';
+import { createNanoTerm, defineNanoTermConfig, parseOverlayJson, parseOverlayParam, registry } from 'nanoterm';
 import overlayRaw from './generated/fs-overlay.json?raw';
 
 const PROJECT_ROOT = '/home/guest/playground';
@@ -13,6 +13,7 @@ const CATEGORIES = {
   oauth:     { label: 'OAuth',     cfg: 'cfg_oauth.json',     ops: [{ '-': 'tests_' }, { '+': 'tests_oauth' }, { '-': 'cfg_' }, { '+': 'cfg_oauth' }] },
   headers:   { label: 'Headers',   cfg: 'cfg_headers.json',   ops: [{ '-': 'tests_' }, { '+': 'tests_headers' }, { '-': 'cfg_' }, { '+': 'cfg_headers' }] },
   graphql:   { label: 'GraphQL',   cfg: 'cfg_graphql.json',   ops: [{ '-': 'tests_' }, { '+': 'tests_graphql' }, { '-': 'cfg_' }, { '+': 'cfg_graphql' }] },
+  readme:    { label: 'README',    cfg: 'cfg_readme.json',    ops: [{ '-': 'tests_' }, { '+': 'tests_readme' }, { '-': 'cfg_' }, { '+': 'cfg_readme' }] },
 };
 
 function collectFiles(fs, absolutePath, relativePath = '') {
@@ -122,12 +123,19 @@ registry.register({
 
 const searchParams = new URLSearchParams(window.location.search);
 const replayParam = searchParams.get('replay');
+const overlayParam = searchParams.get('overlay');
+const runParam = searchParams.get('run');
 const categoryParam = searchParams.get('category') || 'all';
 const category = CATEGORIES[categoryParam] ?? CATEGORIES.all;
 const runnerUrl = import.meta.env.VITE_SKIVVY_RUNNER_URL || 'http://127.0.0.1:8787/run-skivvy';
 
 const baseOverlay = parseOverlayJson(overlayRaw);
-if (category.ops.length > 0) {
+if (overlayParam) {
+  const urlOverlay = parseOverlayParam(overlayParam);
+  if (urlOverlay?._?.ops) {
+    baseOverlay._ = { ...(baseOverlay._ ?? {}), ops: urlOverlay._.ops };
+  }
+} else if (category.ops.length > 0) {
   baseOverlay._ = { ...(baseOverlay._ ?? {}), ops: category.ops };
 }
 
@@ -137,7 +145,7 @@ const config = defineNanoTermConfig({
       'motd',
       'cd ~/playground',
       'ls',
-      ...(replayParam ? [`replay ${replayParam}`] : [`skivvy ${category.cfg}`]),
+      ...(replayParam ? [`replay ${replayParam}`] : [`skivvy ${runParam ?? (overlayParam ? 'cfg.json' : category.cfg)}`]),
     ],
     env: {
       SKIVVY_RUNNER_URL: runnerUrl,

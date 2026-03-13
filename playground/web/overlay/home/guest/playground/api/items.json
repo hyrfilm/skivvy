@@ -1,0 +1,9 @@
+{
+  "results": [
+    { "id": 1, "name": "Widget42", "category": "gadgets", "price": 9.99,  "in_stock": true,  "rating": 4.5, "tags": ["compact", "wireless"] },
+    { "id": 2, "name": "Sprocket7", "category": "parts",    "price": 3.49,  "in_stock": true,  "rating": 3.8, "tags": ["metal", "durable"] },
+    { "id": 3, "name": "Gizmo88",   "category": "gadgets",  "price": 24.99, "in_stock": false, "rating": 4.1, "tags": ["smart", "rechargeable"] },
+    { "id": 4, "name": "Doodad3",   "category": "accessories", "price": 12.00, "in_stock": true, "rating": 4.7, "tags": ["portable", "lightweight"] },
+    { "id": 5, "name": "Thingamajig", "category": "misc",   "price": 6.50,  "in_stock": true,  "rating": 3.2, "tags": ["universal"] }
+  ]
+}

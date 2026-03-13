@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "overlay:build": "node ./scripts/build-overlay.mjs",
+    "overlay:build": "node ./scripts/build-overlay.mjs --fromDir ./overlay --out ./src/generated/fs-overlay.json",
     "predev": "npm run overlay:build",
     "prebuild": "npm run overlay:build",
     "prepreview": "npm run overlay:build",
@@ -12,9 +12,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "nanoterm": "^0.1.2"
+    "nanoterm": "^0.2.3"
   },
   "devDependencies": {
+    "tinyglobby": "^0.2.15",
     "vite": "^7.3.1"
   }
 }

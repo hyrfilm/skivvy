@@ -1,0 +1,19 @@
+{
+  "users": [
+    { "id": 1, "name": "Alice", "role": "admin" },
+    { "id": 2, "name": "Bob", "role": "editor" },
+    { "id": 3, "name": "Carol", "role": "viewer" },
+    { "id": 4, "name": "Dave", "role": "editor" },
+    { "id": 5, "name": "That guy", "role": "unclear - we should fire him" }
+  ],
+  "images": [
+    { "id": "img-001", "thumbnail": "http://127.0.0.1:8080/users/1/images/1", "tag": "cute dog" },
+    { "id": "img-002", "thumbnail": "http://127.0.0.1:8080/users/1/images/2", "tag": "cute cat" },
+    { "id": "img-003", "thumbnail": "http://127.0.0.1:8080/users/2/images/1", "tag": "funny meme" },
+    { "id": "img-004", "thumbnail": "http://127.0.0.1:8080/users/2/images/2", "tag": "lolcat" },
+    { "id": "img-005", "thumbnail": "http://127.0.0.1:8080/users/3/images/1", "tag": "lol" },
+    { "id": "img-006", "thumbnail": "http://127.0.0.1:8080/users/4/images/1", "tag": "intentionally left blank" },
+    { "id": "img-007", "thumbnail": "http://127.0.0.1:8080/users/4/images/2", "tag": "lulz" },
+    { "id": "img-008", "thumbnail": "http://127.0.0.1:8080/users/4/images/3" }
+  ]
+}
