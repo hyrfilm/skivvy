@@ -34,8 +34,8 @@ This works especially well with deeply nested responses like GraphQL, where you 
   }
 }
 ```
-
-Every post must have a named author and at least one tag. No GraphQL errors. You don't have to spell out the full response shape. [▶ Try it in the playground](https://hyrfilm.github.io/skivvy/?overlay=eyJfIjp7Im9wcyI6W3siLSI6InRlc3RzLyJ9LHsiLSI6InRlc3RzXyJ9LHsiLSI6ImNmZ18ifSx7IisiOiJ0ZXN0c19yZWFkbWUvMDIifSx7IisiOiJjZmdfcmVhZG1lIn1dfX0&run=cfg_readme.json)
+[▶ Try it in the playground](https://hyrfilm.github.io/skivvy/?overlay=eyJfIjp7Im9wcyI6W3siLSI6InRlc3RzLyJ9LHsiLSI6InRlc3RzXyJ9LHsiLSI6ImNmZ18ifSx7IisiOiJ0ZXN0c19yZWFkbWUvMDIifSx7IisiOiJjZmdfcmVhZG1lIn1dfX0&run=cfg_readme.json)
+Every post must have a named author and at least one tag. No GraphQL errors. You don't have to spell out the full response shape. 
 
 Matchers can reach beyond string comparison — they can enforce constraints across entire collections:
 
