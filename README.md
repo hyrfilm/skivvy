@@ -13,8 +13,9 @@ Most API testing tools push you toward one of two bad patterns: writing imperati
 ```json
 { "url": "/api/items", "response": { "results": [{ "name": "Widget42" }] } }
 ```
+[▶ Try it in the playground](https://hyrfilm.github.io/skivvy/?overlay=eyJfIjp7Im9wcyI6W3siLSI6InRlc3RzLyJ9LHsiLSI6InRlc3RzXyJ9LHsiLSI6ImNmZ18ifSx7IisiOiJ0ZXN0c19yZWFkbWUvMDEifSx7IisiOiJjZmdfcmVhZG1lIn1dfX0&run=cfg_readme.json)
 
-That's it. That's a test. [▶ Try it in the playground](https://hyrfilm.github.io/skivvy/?overlay=eyJfIjp7Im9wcyI6W3siLSI6InRlc3RzLyJ9LHsiLSI6InRlc3RzXyJ9LHsiLSI6ImNmZ18ifSx7IisiOiJ0ZXN0c19yZWFkbWUvMDEifSx7IisiOiJjZmdfcmVhZG1lIn1dfX0&run=cfg_readme.json)
+That's it. That's a test.
 
 This works especially well with deeply nested responses like GraphQL, where you can match subsets without caring about the full envelope:
 
