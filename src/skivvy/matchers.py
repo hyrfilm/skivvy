@@ -77,6 +77,7 @@ def _is_less(a, b):
 
 
 def match_unique(expected, actual):
+    """Assert actual is unique across all values at this path in the collection."""
     key = _structural_path()
     seen = _matcher_state.get(key)
     if seen is None:
@@ -101,10 +102,12 @@ def _ordered_match(actual, comparator, order, relation):
 
 
 def match_asc(expected, actual):
+    """Assert values at this path are in ascending order across the collection."""
     return _ordered_match(actual, _is_greater, "ascending", "greater than")
 
 
 def match_desc(expected, actual):
+    """Assert values at this path are in descending order across the collection."""
     return _ordered_match(actual, _is_less, "descending", "less than")
 
 
@@ -124,6 +127,7 @@ def strip_matcher_prefix(s):
 
 
 def match_expression(expected, actual):
+    """Assert a Python expression using 'actual' evaluates to True. E.g. $expr actual > 0"""
     result = eval(expected, {}, {"actual": actual})
     if result is True:
         return True, SUCCESS_MSG
@@ -135,6 +139,7 @@ def match_expression(expected, actual):
 
 
 def match_regexp(expected, actual):
+    """Assert actual matches a regular expression. E.g. $regexp ^[A-Z]{3}$"""
     try:
         expected, actual = expected.strip(), str(actual)
         log.debug("Comparing '%s' to regexp: '%s'" % (actual, expected))
@@ -157,6 +162,7 @@ def match_regexp(expected, actual):
 
 
 def match_valid_url(expected, actual):
+    """Assert actual is a reachable URL. Options: unsafe, prefix <url>. E.g. $valid_url unsafe"""
     try:
         # format:
         #   $valid_url [prefix <url>] [unsafe]
@@ -226,6 +232,7 @@ def match_valid_url(expected, actual):
 
 
 def match_text(expected, actual):
+    """Assert actual contains only printable text characters."""
     if not actual:
         return False, "Expected %s but got %s" % (expected, actual)
 
@@ -237,6 +244,7 @@ def match_text(expected, actual):
 
 
 def match_uuid(expected, actual):
+    """Assert actual is a valid UUID, optionally a specific version. E.g. $uuid or $uuid 4"""
     try:
         parsed = uuid_module.UUID(str(actual))
     except ValueError:
@@ -259,6 +267,7 @@ def match_uuid(expected, actual):
 
 
 def match_in(expected, actual):
+    """Assert actual equals one of the space-separated values. E.g. $in active inactive pending"""
     allowed = expected.strip().split()
     if str(actual) in allowed:
         return True, SUCCESS_MSG
@@ -266,6 +275,7 @@ def match_in(expected, actual):
 
 
 def match_contains(expected, actual):
+    """Assert actual contains expected as a substring. E.g. $contains hello"""
     expected = expected.strip()
     actual = str(actual)
 
@@ -301,6 +311,7 @@ def parse_threshold(expected):
 
 
 def len_match(expected, actual):
+    """Assert length of actual equals expected. Supports ~ for approximate. E.g. $len 5"""
     try:
         len(actual)
     except Exception as e:
@@ -318,6 +329,7 @@ def len_match(expected, actual):
 
 
 def len_greater_match(expected, actual):
+    """Assert length of actual is greater than expected. E.g. $len_gt 3"""
     try:
         len(actual)
     except Exception as e:
@@ -333,6 +345,7 @@ def len_greater_match(expected, actual):
 
 
 def len_less_match(expected, actual):
+    """Assert length of actual is less than expected. E.g. $len_lt 10"""
     try:
         len(actual)
     except Exception as e:
@@ -348,6 +361,7 @@ def len_less_match(expected, actual):
 
 
 def approximate_match(expected, actual):
+    """Assert actual is approximately equal to expected. Supports threshold modifier. E.g. $~ 100 or $~ 100 threshold 0.1"""
     expected = expected.strip()
     threshold, expected = parse_threshold(expected)
     expected_value = _parse_single_number(expected)
@@ -366,6 +380,7 @@ def _coerce(value):
 
 
 def greater_than_match(expected, actual):
+    """Assert actual is greater than expected number. E.g. $gt 5"""
     expected_value = _parse_single_number(expected)
     actual_value = _coerce(actual)
     if actual_value is None:
@@ -377,6 +392,7 @@ def greater_than_match(expected, actual):
 
 
 def less_than_match(expected, actual):
+    """Assert actual is less than expected number. E.g. $lt 100"""
     expected_value = _parse_single_number(expected)
     actual_value = _coerce(actual)
     if actual_value is None:
@@ -388,6 +404,7 @@ def less_than_match(expected, actual):
 
 
 def between_match(expected, actual):
+    """Assert actual is between two numbers (inclusive). E.g. $between 1 10"""
     parts = expected.strip().split()
     if len(parts) != 2:
         return False, "Expected two bounds for $between but got: %s" % expected
@@ -413,6 +430,7 @@ def between_match(expected, actual):
 
 
 def date_matcher(expected, actual):
+    """Assert actual matches expected date. Supports: today. E.g. $date today"""
     expected = expected.strip()
 
     if expected == "today":
@@ -428,6 +446,7 @@ def date_matcher(expected, actual):
 
 
 def match_valid_ip(expected, actual):
+    """Assert actual is a valid IPv4 or IPv6 address."""
     if "." in actual:
         return _match_valid_ip4(actual)
     else:
@@ -456,12 +475,14 @@ def _match_valid_ip6(actual):
 
 
 def file_writer(expected, actual):
+    """Write actual value to a named temp file. E.g. $write_file token.txt"""
     expected = expected.strip()
     file_util.write_tmp(expected, actual)
     return True, SUCCESS_MSG
 
 
 def file_reader(expected, actual):
+    """Assert actual equals the contents of a file. E.g. $read_file token.txt"""
     expected = expected.strip()
     data = file_util.read_file_contents(expected)
     data = data.strip()
@@ -477,6 +498,7 @@ def file_reader(expected, actual):
 
 
 def store_var(expected, actual):
+    """Store actual value under a name for later use. E.g. $store myToken"""
     name, value = expected.strip(), actual
     if has(name):
         return False, f"{name} is already declared in this namespace"
@@ -485,6 +507,7 @@ def store_var(expected, actual):
 
 
 def fetch_var(expected, actual):
+    """Assert actual equals a previously stored value. E.g. $fetch myToken"""
     name, value = expected.strip(), actual
     if not has(name):
         return False, f"{name} is not declared in this namespace"

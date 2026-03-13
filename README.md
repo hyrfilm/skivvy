@@ -61,10 +61,10 @@ Every user's thumbnail is a live, reachable URL. Every ID is unique across the w
 
 - **All the HTTP plumbing you'd expect** — every verb, headers, cookies, file uploads, form data, response chaining via variables and brace expansion
 - **Subset matching** — assert against deeply nested fields without specifying the full path
-- **Built-in matchers** — `$contains`, `$regexp`, `$len`, `$gt`, `$between`, `$valid_url`, `$date`, `$store`/`$fetch`, approximate values with `$~`, and more — plus automatic negation (`$!contains`) for all of them
+- **Built-in matchers** — `$contains`, `$regexp`, `$len`, `$gt`, `$between`, `$valid_url`, `$date`, `$store`/`$fetch`, approximate values with `$~`, and more — plus automatic negation (`$!contains`) for all of them ([full list](docs/matchers.md))
 - **Custom matchers** — drop a Python file with a `match(expected, actual)` function into a directory and it just works
 - **Readable diffs** — when a test fails, you see exactly what went wrong in a human-friendly format, with multiple diff styles to choose from
-- **Flexible configuration** — per-test overrides, environment configs, CLI flags, env vars, with a clear precedence order and sane defaults
+- **Flexible configuration** — per-test overrides, environment configs, CLI flags, env vars, with a clear precedence order and sane defaults ([full list](docs/settings.md))
 - **Setup & teardown** — use directory naming and include/exclude filters to control execution order
 - **Deterministic execution** — serial by default, predictable every time
 
@@ -79,5 +79,10 @@ pip install skivvy                       # or plain pip
 docker run --rm hyrfilm/skivvy:examples  # or docker
 ```
 
+
+### Reference
+
+- [Settings](docs/settings.md) — all configuration options with defaults and descriptions
+- [Matchers](docs/matchers.md) — all built-in matchers with usage examples
 
 MIT license.

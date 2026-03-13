@@ -48,6 +48,10 @@ alias sandbox := sandbox-examples
 deadcode:
 	uv run vulture src/skivvy/ --min-confidence 80 --exclude src/skivvy/config.py
 
+# Generate reference documentation
+docs:
+	uv run python scripts/generate_docs.py
+
 # run via cli
 run *args:
 	uv run skivvy {{args}}

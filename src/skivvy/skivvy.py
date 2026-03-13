@@ -2,19 +2,27 @@
 
 Usage:
     skivvy <target> [-t] [-i=regexp]... [-e=regexp]... [--set=kv]...
+    skivvy --help
+    skivvy --help-settings
+    skivvy --help-matchers
 
+Options:
+    -h --help           show this screen.
+    --help-settings     list all available settings with defaults and descriptions
+    --help-matchers     list all available matchers with descriptions
+    -v --version        show version.
+    <target>            path to a config JSON file or a test directory
+    -i=regexp           include only files matching provided regexp(s)
+    -e=regexp           exclude files matching provided regexp(s)
+    --set=kv            override a setting using key=value syntax (repeatable);
+                        environment overrides use SKIVVY_<SETTING>
+    -t                  keep temporary files (if any)
+
+Examples:
     skivvy examples/dev_server/cfg.json
     skivvy examples/dev_server/tests
 
-Options:
-    -h --help       show this screen.
-    -v --version    show version.
-    <target>        path to a config JSON file or a test directory
-    -i=regexp       include only files matching provided regexp(s)
-    -e=regexp       exclude files matching provided regexp(s)
-    --set=kv        override a setting using key=value syntax (repeatable);
-                    environment overrides use SKIVVY_<SETTING>
-    -t              keep temporary files (if any)
+    specify either a single config file, or a directory of tests
 """
 
 import json
@@ -148,6 +156,50 @@ def normalize_headers(headers: dict) -> dict:
     return {k.lower(): v for k, v in headers.items()}
 
 
+def _format_option_default(option) -> str:
+    return "" if option.default is None or option.default == "" else str(option.default)
+
+
+def print_settings_help():
+    from rich.table import Table
+    from .config import get_all_settings
+
+    table = Table(show_header=True, header_style="bold")
+    table.add_column("Setting")
+    table.add_column("Default")
+    table.add_column("Description")
+    for option in get_all_settings():
+        table.add_row(option.key, _format_option_default(option), option.help)
+    log.render(table)
+
+
+def settings_markdown() -> str:
+    from .config import get_all_settings
+
+    lines = ["| Setting | Default | Description |", "| --- | --- | --- |"]
+    for option in get_all_settings():
+        lines.append(f"| `{option.key}` | `{_format_option_default(option)}` | {option.help} |")
+    return "\n".join(lines)
+
+
+def print_matchers_help():
+    from rich.table import Table
+
+    table = Table(show_header=True, header_style="bold")
+    table.add_column("Matcher")
+    table.add_column("Description")
+    for name, func in matchers.matcher_dict.items():
+        table.add_row(name, (func.__doc__ or "").strip())
+    log.render(table)
+
+
+def matchers_markdown() -> str:
+    lines = ["| Matcher | Description |", "| --- | --- |"]
+    for name, func in matchers.matcher_dict.items():
+        lines.append(f"| `{name}` | {(func.__doc__ or '').strip()} |")
+    return "\n".join(lines)
+
+
 def run():
     run_id = events.new_run_id()
     events.reset_runtime_listener()
@@ -160,6 +212,12 @@ def run():
 
     try:
         arguments = docopt(__doc__, version=f"skivvy {version}")
+        if arguments.get("--help-settings"):
+            print_settings_help()
+            return True
+        if arguments.get("--help-matchers"):
+            print_matchers_help()
+            return True
         target = arguments.get("<target>")
         if target and os.path.isdir(target):
             cfg_conf = {"tests": os.path.abspath(target)}
