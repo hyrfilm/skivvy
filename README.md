@@ -36,8 +36,9 @@ This works especially well with deeply nested responses like GraphQL, where you 
   }
 }
 ```
-[▶ Try it in the playground](https://hyrfilm.github.io/skivvy/?overlay=eyJfIjp7Im9wcyI6W3siLSI6InRlc3RzLyJ9LHsiLSI6InRlc3RzXyJ9LHsiLSI6ImNmZ18ifSx7IisiOiJ0ZXN0c19yZWFkbWUvMDIifSx7IisiOiJjZmdfcmVhZG1lIn1dfX0&run=cfg_readme.json)
 Every post must have a named author and at least one tag. No GraphQL errors. You don't have to spell out the full response shape. 
+
+[▶ Try it in the playground](https://hyrfilm.github.io/skivvy/?overlay=eyJfIjp7Im9wcyI6W3siLSI6InRlc3RzLyJ9LHsiLSI6InRlc3RzXyJ9LHsiLSI6ImNmZ18ifSx7IisiOiJ0ZXN0c19yZWFkbWUvMDIifSx7IisiOiJjZmdfcmVhZG1lIn1dfX0&run=cfg_readme.json)
 
 Matchers can reach beyond string comparison — they can enforce constraints across entire collections:
 
@@ -51,7 +52,9 @@ Matchers can reach beyond string comparison — they can enforce constraints acr
 }
 ```
 
-Every user's thumbnail is a live, reachable URL. Every ID is unique across the whole list. Two invariants over an arbitrarily large dataset, in a few lines of JSON. [▶ Try it in the playground](https://hyrfilm.github.io/skivvy/?overlay=eyJfIjp7Im9wcyI6W3siLSI6InRlc3RzLyJ9LHsiLSI6InRlc3RzXyJ9LHsiLSI6ImNmZ18ifSx7IisiOiJ0ZXN0c19yZWFkbWUvMDMifSx7IisiOiJjZmdfcmVhZG1lIn1dfX0&run=cfg_readme.json)
+Every user's thumbnail is a live, reachable URL. Every ID is unique across the whole list. Two invariants over an arbitrarily large dataset, in a few lines of JSON.
+
+[▶ Try it in the playground](https://hyrfilm.github.io/skivvy/?overlay=eyJfIjp7Im9wcyI6W3siLSI6InRlc3RzLyJ9LHsiLSI6InRlc3RzXyJ9LHsiLSI6ImNmZ18ifSx7IisiOiJ0ZXN0c19yZWFkbWUvMDMifSx7IisiOiJjZmdfcmVhZG1lIn1dfX0&run=cfg_readme.json)
 
 ### What you get
 
