@@ -1,4 +1,5 @@
 # skivvy
+[Try it out in the browser](https://hyrfilm.github.io/skivvy)
 
 **Integration testing for HTTP APIs. Tests are JSON. No code required.**
 
@@ -67,13 +68,16 @@ Every user's thumbnail is a live, reachable URL. Every ID is unique across the w
 - **Setup & teardown** — use directory naming and include/exclude filters to control execution order
 - **Deterministic execution** — serial by default, predictable every time
 
+Check out the [playground](https://hyrfilm.github.io/skivvy/) for trying it from the comfort of your browser. It provides a basic unix shell, and allows you to edit and run test suites that examplify the list above. It also contains a running server, with responses you can edit as well.
+
 ### Install
 
-```
-uvx skivvy --version        # no install needed with uv
-pipx run skivvy --version    # or pipx
-pip install skivvy           # or plain pip
+```bash
+uvx skivvy --version                     # no install needed with uv
+pipx run skivvy --version                # or pipx
+pip install skivvy                       # or plain pip
 docker run --rm hyrfilm/skivvy:examples  # or docker
 ```
+
 
 MIT license.
