@@ -82,7 +82,7 @@
     <script>
       (function () {
         var params = new URLSearchParams(window.location.search);
-        var p = params.get('overlay') ? '' : (params.get('category') || 'all');
+        var p = params.get('overlay') ? '' : (params.get('category') || 'basics');
         var sel = document.getElementById('category-select');
         if (p) sel.value = p;
         sel.addEventListener('change', function () {
