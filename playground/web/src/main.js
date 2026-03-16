@@ -12,7 +12,7 @@ const CATEGORIES = {
   oauth:     { label: 'OAuth',     cfg: 'cfg_oauth.json',     ops: [{ '-': 'tests_' }, { '+': 'tests_oauth' }, { '-': 'cfg_' }, { '+': 'cfg_oauth' }] },
   headers:   { label: 'Headers',   cfg: 'cfg_headers.json',   ops: [{ '-': 'tests_' }, { '+': 'tests_headers' }, { '-': 'cfg_' }, { '+': 'cfg_headers' }] },
   graphql:   { label: 'GraphQL',   cfg: 'cfg_graphql.json',   ops: [{ '-': 'tests_' }, { '+': 'tests_graphql' }, { '-': 'cfg_' }, { '+': 'cfg_graphql' }] },
-  readme:    { label: 'README',    cfg: 'cfg_readme.json',    ops: [{ '-': 'tests_' }, { '+': 'tests_readme' }, { '-': 'cfg_' }, { '+': 'cfg_readme' }] },
+  readme:    { label: 'README',    cfg: 'cfg_readme.json',    ops: [{ '-': 'tests_' }, { '+': 'tests_readme' }, { '-': 'cfg_' }, { '+': 'cfg_readme' }], args: '--set=http_request_level=INFO --set=http_response_level=INFO' },
 };
 
 function collectFiles(fs, absolutePath, relativePath = '') {
@@ -140,8 +140,8 @@ if (overlayParam) {
 
 const config = defineNanoTermConfig({
   profile: {
-    startupCommands: ['motd', 'cd ~/playground', 'ls'],
-    pendingInput: commandParam ?? `skivvy ${runParam ?? (overlayParam ? 'cfg.json' : category.cfg)}`,
+    startupCommands: ['cd ~/playground', 'ls'],
+    pendingInput: commandParam ?? `skivvy ${runParam ?? (overlayParam ? 'cfg.json' : (category.args ? `${category.cfg} ${category.args}` : category.cfg))}`,
     env: {
       SKIVVY_RUNNER_URL: runnerUrl,
     },
