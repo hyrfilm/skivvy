@@ -1,3 +1,7 @@
+# Settings Reference
+
+[README](../README.md) · [Matchers Reference](matchers.md)
+
 | Setting | Default | Description |
 | --- | --- | --- |
 | `log_level` | `INFO` | Logging level |

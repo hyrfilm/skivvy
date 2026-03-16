@@ -66,7 +66,6 @@
     <div id="toolbar">
       <label for="category-select">Examples:</label>
       <select id="category-select">
-        <option value="all">All — run every example at once</option>
         <option value="basics">Basics — simple request/response tests</option>
         <option value="diffs">Diffs — readable output when a test fails</option>
         <option value="matchers">Matchers — $gt, $between, $valid_url, $unique, ...</option>
@@ -89,6 +88,7 @@
           var url = new URL(window.location.href);
           url.searchParams.set('category', sel.value);
           url.searchParams.delete('overlay');
+          url.searchParams.delete('command');
           url.searchParams.delete('run');
           window.location.href = url.toString();
         });

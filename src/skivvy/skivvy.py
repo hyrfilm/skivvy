@@ -160,6 +160,15 @@ def _format_option_default(option) -> str:
     return "" if option.default is None or option.default == "" else str(option.default)
 
 
+def _reference_doc_header(title: str, sibling_label: str, sibling_path: str) -> list[str]:
+    return [
+        f"# {title}",
+        "",
+        f"[README](../README.md) · [{sibling_label}]({sibling_path})",
+        "",
+    ]
+
+
 def print_settings_help():
     from rich.table import Table
     from .config import get_all_settings
@@ -176,7 +185,11 @@ def print_settings_help():
 def settings_markdown() -> str:
     from .config import get_all_settings
 
-    lines = ["| Setting | Default | Description |", "| --- | --- | --- |"]
+    lines = [
+        *_reference_doc_header("Settings Reference", "Matchers Reference", "matchers.md"),
+        "| Setting | Default | Description |",
+        "| --- | --- | --- |",
+    ]
     for option in get_all_settings():
         lines.append(f"| `{option.key}` | `{_format_option_default(option)}` | {option.help} |")
     return "\n".join(lines)
@@ -194,7 +207,11 @@ def print_matchers_help():
 
 
 def matchers_markdown() -> str:
-    lines = ["| Matcher | Description |", "| --- | --- |"]
+    lines = [
+        *_reference_doc_header("Matchers Reference", "Settings Reference", "settings.md"),
+        "| Matcher | Description |",
+        "| --- | --- |",
+    ]
     for name, func in matchers.matcher_dict.items():
         lines.append(f"| `{name}` | {(func.__doc__ or '').strip()} |")
     return "\n".join(lines)

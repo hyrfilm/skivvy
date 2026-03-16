@@ -1,3 +1,7 @@
+# Matchers Reference
+
+[README](../README.md) · [Settings Reference](settings.md)
+
 | Matcher | Description |
 | --- | --- |
 | `$store` | Store actual value under a name for later use. E.g. $store myToken |
