@@ -5,7 +5,6 @@ const PROJECT_ROOT = '/home/guest/playground';
 const WARMUP_DELAY_MS = 1500;
 
 const CATEGORIES = {
-  all:       { label: 'All',       cfg: 'cfg.json',           ops: [] },
   basics:    { label: 'Basics',    cfg: 'cfg.json',           ops: [{ '-': 'tests_' }, { '-': 'cfg_' }] },
   diffs:     { label: 'Diffs',     cfg: 'cfg_diffs.json',     ops: [{ '-': 'tests_' }, { '+': 'tests_diffs' }, { '-': 'cfg_' }, { '+': 'cfg_diffs' }] },
   matchers:  { label: 'Matchers',  cfg: 'cfg_matchers.json',  ops: [{ '-': 'tests_' }, { '+': 'tests_matchers' }, { '-': 'cfg_' }, { '+': 'cfg_matchers' }] },
@@ -122,11 +121,11 @@ registry.register({
 });
 
 const searchParams = new URLSearchParams(window.location.search);
-const replayParam = searchParams.get('replay');
+const commandParam = searchParams.get('command');
 const overlayParam = searchParams.get('overlay');
 const runParam = searchParams.get('run');
-const categoryParam = searchParams.get('category') || 'all';
-const category = CATEGORIES[categoryParam] ?? CATEGORIES.all;
+const categoryParam = searchParams.get('category') || 'basics';
+const category = CATEGORIES[categoryParam] ?? CATEGORIES.basics;
 const runnerUrl = import.meta.env.VITE_SKIVVY_RUNNER_URL || 'http://127.0.0.1:8787/run-skivvy';
 
 const baseOverlay = parseOverlayJson(overlayRaw);
@@ -141,12 +140,8 @@ if (overlayParam) {
 
 const config = defineNanoTermConfig({
   profile: {
-    startupCommands: [
-      'motd',
-      'cd ~/playground',
-      'ls',
-      ...(replayParam ? [`replay ${replayParam}`] : [`skivvy ${runParam ?? (overlayParam ? 'cfg.json' : category.cfg)}`]),
-    ],
+    startupCommands: ['motd', 'cd ~/playground', 'ls'],
+    pendingInput: commandParam ?? `skivvy ${runParam ?? (overlayParam ? 'cfg.json' : category.cfg)}`,
     env: {
       SKIVVY_RUNNER_URL: runnerUrl,
     },

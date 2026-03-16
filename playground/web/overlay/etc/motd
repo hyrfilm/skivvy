@@ -1,11 +1,10 @@
 
   skivvy playground
   ──────────────────────────────────────
-  integration testing for HTTP APIs
-  tests are JSON · no code required
+  · local HTTP server running at 8080 (somehow. by way of magic ✨)
+  · test it with the skivvy command
+  · everything here is in [9mthe matrix[29m memory, so don't worry about breaking anything
+  · refresh to reset, or use snapshot to create a shareable link
 
-  · type 'tree' to explore the workspace
-  · edit tests under tests/ with nano
-  · edit mock api responses under api/ with nano
-  · type 'skivvy --help' to see all options
-
+  · help: skivvy --help — usual terminal commands like tree, nano, and cat work too
+  · or just hang around — try pong, or zork

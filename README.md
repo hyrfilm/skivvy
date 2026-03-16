@@ -16,7 +16,7 @@ Most API testing tools push you toward one of two bad patterns: writing imperati
 ```
 That's it. That's a test.
 
-[▶ Try it in the playground](https://hyrfilm.github.io/skivvy/?overlay=eyJfIjp7Im9wcyI6W3siLSI6InRlc3RzLyJ9LHsiLSI6InRlc3RzXyJ9LHsiLSI6ImNmZ18ifSx7IisiOiJ0ZXN0c19yZWFkbWUvMDEifSx7IisiOiJjZmdfcmVhZG1lIn1dfX0&run=cfg_readme.json)
+[▶ Try it in the playground](https://hyrfilm.github.io/skivvy/?overlay=eyJfIjp7Im9wcyI6W3siLSI6InRlc3RzLyJ9LHsiLSI6InRlc3RzXyJ9LHsiLSI6ImNmZ18ifSx7IisiOiJ0ZXN0c19yZWFkbWUvMDEifSx7IisiOiJjZmdfcmVhZG1lIn1dfX0&command=skivvy%20cfg_readme.json%20--set%3Dhttp_request_level%3DINFO%20--set%3Dhttp_response_level%3DINFO)
 
 
 This works especially well with deeply nested responses like GraphQL, where you can match subsets without caring about the full envelope:
@@ -39,7 +39,7 @@ This works especially well with deeply nested responses like GraphQL, where you 
 ```
 Every post must have a named author and at least one tag. No GraphQL errors. You don't have to spell out the full response shape. 
 
-[▶ Try it in the playground](https://hyrfilm.github.io/skivvy/?overlay=eyJfIjp7Im9wcyI6W3siLSI6InRlc3RzLyJ9LHsiLSI6InRlc3RzXyJ9LHsiLSI6ImNmZ18ifSx7IisiOiJ0ZXN0c19yZWFkbWUvMDIifSx7IisiOiJjZmdfcmVhZG1lIn1dfX0&run=cfg_readme.json)
+[▶ Try it in the playground](https://hyrfilm.github.io/skivvy/?overlay=eyJfIjp7Im9wcyI6W3siLSI6InRlc3RzLyJ9LHsiLSI6InRlc3RzXyJ9LHsiLSI6ImNmZ18ifSx7IisiOiJ0ZXN0c19yZWFkbWUvMDIifSx7IisiOiJjZmdfcmVhZG1lIn1dfX0&command=skivvy%20cfg_readme.json%20--set%3Dhttp_request_level%3DINFO%20--set%3Dhttp_response_level%3DINFO)
 
 Matchers can reach beyond string comparison — they can enforce constraints across entire collections:
 
@@ -55,7 +55,7 @@ Matchers can reach beyond string comparison — they can enforce constraints acr
 
 Every user's thumbnail is a live, reachable URL. Every ID is unique across the whole list. Two invariants over an arbitrarily large dataset, in a few lines of JSON.
 
-[▶ Try it in the playground](https://hyrfilm.github.io/skivvy/?overlay=eyJfIjp7Im9wcyI6W3siLSI6InRlc3RzLyJ9LHsiLSI6InRlc3RzXyJ9LHsiLSI6ImNmZ18ifSx7IisiOiJ0ZXN0c19yZWFkbWUvMDMifSx7IisiOiJjZmdfcmVhZG1lIn1dfX0&run=cfg_readme.json)
+[▶ Try it in the playground](https://hyrfilm.github.io/skivvy/?overlay=eyJfIjp7Im9wcyI6W3siLSI6InRlc3RzLyJ9LHsiLSI6InRlc3RzXyJ9LHsiLSI6ImNmZ18ifSx7IisiOiJ0ZXN0c19yZWFkbWUvMDMifSx7IisiOiJjZmdfcmVhZG1lIn1dfX0&command=skivvy%20cfg_readme.json%20--set%3Dhttp_request_level%3DINFO%20--set%3Dhttp_response_level%3DINFO)
 
 ### What you get
 
@@ -84,5 +84,6 @@ docker run --rm hyrfilm/skivvy:examples  # or docker
 
 - [Settings](docs/settings.md) — all configuration options with defaults and descriptions
 - [Matchers](docs/matchers.md) — all built-in matchers with usage examples
+- CLI help also includes `skivvy --help-settings` and `skivvy --help-matchers` if you want to explore available knobs before enabling more logging
 
 MIT license.
