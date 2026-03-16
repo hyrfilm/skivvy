@@ -1,7 +1,7 @@
 # skivvy
 [Try it out in the browser](https://hyrfilm.github.io/skivvy)
 
-**Declarative integration testing for HTTP APIs. Tests are JSON files. No code required.**
+**Declarative integration testing for HTTP APIs.**
 
 Skivvy is a tiny, opinionated CLI tool that lets you write API tests as plain JSON files and run them from the terminal. No JS hooks. No GUI. No snapshots. You declare what you expect, and skivvy tells you if reality disagrees — with readable diffs when it does.
 
