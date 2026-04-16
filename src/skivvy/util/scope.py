@@ -58,10 +58,10 @@ def _put(name, value):
 def do_variable_validation(name):
     if not _validate_variable_names:
         return True, ""
-    
+
     msg = (
         f"Invalid variable name '{name}'. Variable names must start with a letter and "
-        f"only use: \"{_allowed_key_chars_pretty}\". "
+        f'only use: "{_allowed_key_chars_pretty}". '
         'Set "validate_variable_names": false to disable this check (*not* recommended).'
     )
     if not isinstance(name, str):
@@ -108,5 +108,3 @@ def fetch(key: str):
     if not has(key, normalize=False):
         raise ValueError(f"Variable {key} is undeclared")
     return _get(key)
-
-

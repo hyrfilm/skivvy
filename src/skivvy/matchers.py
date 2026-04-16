@@ -96,7 +96,13 @@ def _ordered_match(actual, comparator, order, relation):
         return True, SUCCESS_MSG
     last = _matcher_state[key]
     if not comparator(actual, last):
-        return False, "Expected %s order but %r is not %s %r at %s" % (order, actual, relation, last, key)
+        return False, "Expected %s order but %r is not %s %r at %s" % (
+            order,
+            actual,
+            relation,
+            last,
+            key,
+        )
     _matcher_state[key] = actual
     return True, SUCCESS_MSG
 
@@ -205,7 +211,10 @@ def match_valid_url(expected, actual):
         else:
             log.debug("Failure.")
             # use status code here, not the URL
-            return False, "Expected %s but got %s" % (valid_status_codes, response.status_code)
+            return False, "Expected %s but got %s" % (
+                valid_status_codes,
+                response.status_code,
+            )
 
     except Exception as e:
         log.debug("Failure.")
@@ -238,7 +247,11 @@ def match_text(expected, actual):
 
     for c in str(actual):
         if not c.isprintable():
-            return False, "Expected printable text but got non-printable character %r in: %s" % (c, actual)
+            return (
+                False,
+                "Expected printable text but got non-printable character %r in: %s"
+                % (c, actual),
+            )
 
     return True, SUCCESS_MSG
 
@@ -261,7 +274,11 @@ def match_uuid(expected, actual):
         except ValueError:
             return False, "Could not determine UUID version for %s" % actual
         if actual_version != required:
-            return False, "Expected UUID v%d but got v%d: %s" % (required, actual_version, actual)
+            return False, "Expected UUID v%d but got v%d: %s" % (
+                required,
+                actual_version,
+                actual,
+            )
 
     return True, SUCCESS_MSG
 
@@ -560,7 +577,9 @@ def add_negating_matchers():
         negated_name = "!" + matcher_name
         if "$" + negated_name in matcher_dict:
             continue
-        negating_matchers.append((negated_name, negating_matcher(matcher_name, matcher_func)))
+        negating_matchers.append(
+            (negated_name, negating_matcher(matcher_name, matcher_func))
+        )
 
     for name, func in negating_matchers:
         add_matcher(name, func)

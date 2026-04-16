@@ -109,32 +109,38 @@ def test_match_subsets_empty_object_can_be_skipped(httpserver):
 
 
 def test_brace_expansion_warnings_non_strict_returns_unexpanded_url():
-    testcase = create_test_config({
-        "base_url": f"http://{FAKE_SERVER}:{FAKE_PORT}",
-        "url": "<undefined_brace_expansion_var>/api/data",
-        "method": "get",
-        "brace_expansion": True,
-        "brace_expansion_warnings": True,
-        "brace_expansion_strict": False,
-    })
+    testcase = create_test_config(
+        {
+            "base_url": f"http://{FAKE_SERVER}:{FAKE_PORT}",
+            "url": "<undefined_brace_expansion_var>/api/data",
+            "method": "get",
+            "brace_expansion": True,
+            "brace_expansion_warnings": True,
+            "brace_expansion_strict": False,
+        }
+    )
     request, _ = create_request(testcase)
     assert "<undefined_brace_expansion_var>" in request["url"]
 
 
 def test_brace_expansion_strict_raises_on_undefined_variable():
-    testcase = create_test_config({
-        "base_url": f"http://{FAKE_SERVER}:{FAKE_PORT}",
-        "url": "<undefined_brace_expansion_var>/api/data",
-        "method": "get",
-        "brace_expansion": True,
-        "brace_expansion_warnings": False,
-        "brace_expansion_strict": True,
-    })
+    testcase = create_test_config(
+        {
+            "base_url": f"http://{FAKE_SERVER}:{FAKE_PORT}",
+            "url": "<undefined_brace_expansion_var>/api/data",
+            "method": "get",
+            "brace_expansion": True,
+            "brace_expansion_warnings": False,
+            "brace_expansion_strict": True,
+        }
+    )
     with pytest.raises(ValueError):
         create_request(testcase)
 
 
-def test_run_test_supports_brace_expansion_from_environment(httpserver, tmp_path, monkeypatch):
+def test_run_test_supports_brace_expansion_from_environment(
+    httpserver, tmp_path, monkeypatch
+):
     monkeypatch.setenv("USER_ID", "123")
     httpserver.expect_request("/api/123").respond_with_json({"ok": True})
 
@@ -162,16 +168,16 @@ def test_matcher_options_valid_url_protocol_relative(httpserver):
         "./tests/fixtures/testcases/matcher_options_valid_url.json",
         {
             **default_cfg,
-            "matcher_options": {
-                "$valid_url": {"replace": {"^//": "http://"}}
-            },
+            "matcher_options": {"$valid_url": {"replace": {"^//": "http://"}}},
         },
     )
     assert status is STATUS_OK
     assert error_context is None
 
 
-def test_run_loads_and_uses_custom_matcher_from_matchers_directory(httpserver, tmp_path):
+def test_run_loads_and_uses_custom_matcher_from_matchers_directory(
+    httpserver, tmp_path
+):
     httpserver.expect_request("/api/custom-matcher").respond_with_json({"n": 4})
 
     matchers_dir = tmp_path / "matchers"
@@ -283,7 +289,9 @@ def test_run_test_verifies_response_headers_case_insensitively(httpserver, tmp_p
     assert error_context is None
 
 
-def test_run_test_response_headers_mismatch_populates_error_context(httpserver, tmp_path):
+def test_run_test_response_headers_mismatch_populates_error_context(
+    httpserver, tmp_path
+):
     httpserver.expect_request("/api/headers-mismatch").respond_with_json(
         {"ok": True},
         headers={"x-trace-id": "actual-trace"},
@@ -302,11 +310,15 @@ def test_run_test_response_headers_mismatch_populates_error_context(httpserver, 
 
     assert status is STATUS_FAILED
     assert error_context is not None
-    assert error_context["expected"]["response_headers"]["X-Trace-Id"] == "expected-trace"
+    assert (
+        error_context["expected"]["response_headers"]["X-Trace-Id"] == "expected-trace"
+    )
     assert error_context["actual"]["response_headers"]["x-trace-id"] == "actual-trace"
 
 
-def test_run_test_write_headers_then_read_headers_roundtrip(httpserver, tmp_path, monkeypatch):
+def test_run_test_write_headers_then_read_headers_roundtrip(
+    httpserver, tmp_path, monkeypatch
+):
     monkeypatch.chdir(tmp_path)
 
     httpserver.expect_request("/api/login").respond_with_json(
@@ -473,7 +485,9 @@ def test_run_applies_include_then_exclude_filters_in_order(httpserver, tmp_path)
     assert call_counts == {"target": 1, "drop": 0}
 
 
-def test_run_with_t_keeps_temp_files_created_by_write_headers(httpserver, tmp_path, monkeypatch):
+def test_run_with_t_keeps_temp_files_created_by_write_headers(
+    httpserver, tmp_path, monkeypatch
+):
     monkeypatch.chdir(tmp_path)
     clear_tmp_file_registry()
 
@@ -507,13 +521,17 @@ def test_run_with_t_keeps_temp_files_created_by_write_headers(httpserver, tmp_pa
         result = run_cli_with_args(cfg_file, "-t")
         assert result is True
         assert (tmp_path / "headers.json").is_file()
-        assert json.loads((tmp_path / "headers.json").read_text()) == {"X-Token": "abc123"}
+        assert json.loads((tmp_path / "headers.json").read_text()) == {
+            "X-Token": "abc123"
+        }
     finally:
         file_util.cleanup_tmp_files(warn=False, throw=False)
         clear_tmp_file_registry()
 
 
-def test_run_without_t_cleans_up_temp_files_created_by_write_headers(httpserver, tmp_path, monkeypatch):
+def test_run_without_t_cleans_up_temp_files_created_by_write_headers(
+    httpserver, tmp_path, monkeypatch
+):
     monkeypatch.chdir(tmp_path)
     clear_tmp_file_registry()
 
@@ -552,7 +570,9 @@ def test_run_without_t_cleans_up_temp_files_created_by_write_headers(httpserver,
         clear_tmp_file_registry()
 
 
-def test_run_test_status_only_passes_for_204_without_response_body(httpserver, tmp_path):
+def test_run_test_status_only_passes_for_204_without_response_body(
+    httpserver, tmp_path
+):
     httpserver.expect_request("/api/no-content").respond_with_data("", status=204)
     testcase_file = write_json_file(
         tmp_path / "no_content.json",
@@ -592,9 +612,13 @@ def test_run_test_sends_query_params_end_to_end(httpserver, tmp_path):
     assert error_context is None
 
 
-def test_run_test_inline_headers_override_headers_loaded_from_file(httpserver, tmp_path, monkeypatch):
+def test_run_test_inline_headers_override_headers_loaded_from_file(
+    httpserver, tmp_path, monkeypatch
+):
     monkeypatch.chdir(tmp_path)
-    write_json_file(tmp_path / "headers.json", {"X-Auth": "from-file", "X-Other": "keep"})
+    write_json_file(
+        tmp_path / "headers.json", {"X-Auth": "from-file", "X-Other": "keep"}
+    )
 
     captured = {}
 
@@ -607,7 +631,9 @@ def test_run_test_inline_headers_override_headers_loaded_from_file(httpserver, t
             content_type="application/json",
         )
 
-    httpserver.expect_request("/api/with-read-headers").respond_with_handler(headers_handler)
+    httpserver.expect_request("/api/with-read-headers").respond_with_handler(
+        headers_handler
+    )
 
     testcase_file = write_json_file(
         tmp_path / "header_override.json",
@@ -640,7 +666,9 @@ def test_run_test_sends_form_payload_end_to_end(httpserver, tmp_path):
             content_type="application/json",
         )
 
-    httpserver.expect_request("/api/login-form", method="POST").respond_with_handler(form_handler)
+    httpserver.expect_request("/api/login-form", method="POST").respond_with_handler(
+        form_handler
+    )
 
     testcase_file = write_json_file(
         tmp_path / "form_payload.json",
@@ -660,7 +688,10 @@ def test_run_test_sends_form_payload_end_to_end(httpserver, tmp_path):
     assert error_context is None
     assert captured == {"username": "alice", "password": "s3cr3t"}
 
-def test_run_test_form_payload_does_not_default_to_json_content_type(httpserver, tmp_path):
+
+def test_run_test_form_payload_does_not_default_to_json_content_type(
+    httpserver, tmp_path
+):
     captured = {}
 
     def form_header_handler(request):
@@ -671,9 +702,9 @@ def test_run_test_form_payload_does_not_default_to_json_content_type(httpserver,
             content_type="application/json",
         )
 
-    httpserver.expect_request("/api/form-content-type", method="POST").respond_with_handler(
-        form_header_handler
-    )
+    httpserver.expect_request(
+        "/api/form-content-type", method="POST"
+    ).respond_with_handler(form_header_handler)
 
     testcase_file = write_json_file(
         tmp_path / "form_content_type.json",
@@ -692,6 +723,7 @@ def test_run_test_form_payload_does_not_default_to_json_content_type(httpserver,
     assert error_context is None
     assert not captured["content_type"].lower().startswith("application/json")
 
+
 # TODO: Known bug, fix - https://github.com/hyrfilm/skivvy/issues/39
 def test_run_test_upload_should_send_file_contents(httpserver, tmp_path):
     upload_file = tmp_path / "payload.txt"
@@ -708,7 +740,9 @@ def test_run_test_upload_should_send_file_contents(httpserver, tmp_path):
             content_type="application/json",
         )
 
-    httpserver.expect_request("/api/upload", method="POST").respond_with_handler(upload_handler)
+    httpserver.expect_request("/api/upload", method="POST").respond_with_handler(
+        upload_handler
+    )
 
     testcase_file = write_json_file(
         tmp_path / "upload.json",
@@ -727,7 +761,10 @@ def test_run_test_upload_should_send_file_contents(httpserver, tmp_path):
     assert error_context is None
     assert captured["content"] == b"hello upload"
 
-def test_run_test_duplicate_write_file_filename_should_fail_second_test(httpserver, tmp_path, monkeypatch):
+
+def test_run_test_duplicate_write_file_filename_should_fail_second_test(
+    httpserver, tmp_path, monkeypatch
+):
     monkeypatch.chdir(tmp_path)
     httpserver.expect_request("/api/write-file/1").respond_with_json({"token": "alpha"})
     httpserver.expect_request("/api/write-file/2").respond_with_json({"token": "beta"})
@@ -822,7 +859,9 @@ def test_emit_enriches_with_runtime_listener_context(clean_event_context):
     disconnect = _connect(events.CREATE_REQUEST, lambda _s, **kw: captured.append(kw))
     try:
         events.emit(events.RUN_STARTED, run_id="abc")
-        events.emit(events.TEST_STARTED, testfile="tests/case.json", test_id="tests/case.json")
+        events.emit(
+            events.TEST_STARTED, testfile="tests/case.json", test_id="tests/case.json"
+        )
         events.emit(events.CREATE_REQUEST)
     finally:
         disconnect()
@@ -837,7 +876,9 @@ def test_emit_clears_test_context_after_test_finished(clean_event_context):
     disconnect = _connect(events.CREATE_TESTCASE, lambda _s, **kw: captured.append(kw))
     try:
         events.emit(events.RUN_STARTED, run_id="abc")
-        events.emit(events.TEST_STARTED, testfile="tests/case.json", test_id="tests/case.json")
+        events.emit(
+            events.TEST_STARTED, testfile="tests/case.json", test_id="tests/case.json"
+        )
         events.emit(events.TEST_FINISHED, success=True)
         events.emit(events.CREATE_TESTCASE)
     finally:
@@ -881,7 +922,12 @@ def test_run_test_emits_step_events_on_success(httpserver):
         events.VERIFY_STATUS,
     ]
     disconnects = [
-        _connect(signal_name, lambda _s, signal_name=signal_name, **kw: captured.append((signal_name, kw)))
+        _connect(
+            signal_name,
+            lambda _s, signal_name=signal_name, **kw: captured.append(
+                (signal_name, kw)
+            ),
+        )
         for signal_name in step_events
     ]
     try:
@@ -959,7 +1005,10 @@ def test_run_test_emits_steps_in_order_before_failure(httpserver):
         events.VERIFY_RESPONSE,
     ]
     disconnects = [
-        _connect(signal_name, lambda _s, signal_name=signal_name, **kw: captured.append(signal_name))
+        _connect(
+            signal_name,
+            lambda _s, signal_name=signal_name, **kw: captured.append(signal_name),
+        )
         for signal_name in step_events
     ]
     try:

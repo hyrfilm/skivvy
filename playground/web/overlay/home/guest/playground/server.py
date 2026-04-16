@@ -49,6 +49,7 @@ class Handler(BaseHTTPRequestHandler):
     def respond(self, status, body):
         if isinstance(body, dict):
             import json
+
             body = json.dumps(body).encode()
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
@@ -95,7 +96,9 @@ def _acquire_lock_or_exit():
         PIDFILE.unlink(missing_ok=True)
         return
     if _process_exists(pid):
-        sys.exit(f"Server already running (pid {pid}). Stop it with: python server.py stop")
+        sys.exit(
+            f"Server already running (pid {pid}). Stop it with: python server.py stop"
+        )
     PIDFILE.unlink(missing_ok=True)
 
 
@@ -143,9 +146,7 @@ def main():
     port = int(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_PORT
     root = Path(sys.argv[2]).resolve() if len(sys.argv) > 2 else Path.cwd()
     idle_timeout_seconds = (
-        float(sys.argv[3])
-        if len(sys.argv) > 3
-        else DEFAULT_IDLE_TIMEOUT_SECONDS
+        float(sys.argv[3]) if len(sys.argv) > 3 else DEFAULT_IDLE_TIMEOUT_SECONDS
     )
     start(port, root, idle_timeout_seconds)
 

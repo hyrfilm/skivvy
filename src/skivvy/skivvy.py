@@ -92,7 +92,9 @@ def run_test(filename, env_conf, cli_overrides=None):
 
         current_step = events.EXECUTE_REQUEST
         events.emit(current_step)
-        http_envelope = http_util.execute(request, timeout=conf_get(testcase_config, Settings.TIMEOUT))
+        http_envelope = http_util.execute(
+            request, timeout=conf_get(testcase_config, Settings.TIMEOUT)
+        )
         current_step = None
 
         actual_status = http_envelope.status_code
@@ -160,7 +162,9 @@ def _format_option_default(option) -> str:
     return "" if option.default is None or option.default == "" else str(option.default)
 
 
-def _reference_doc_header(title: str, sibling_label: str, sibling_path: str) -> list[str]:
+def _reference_doc_header(
+    title: str, sibling_label: str, sibling_path: str
+) -> list[str]:
     return [
         f"# {title}",
         "",
@@ -186,12 +190,16 @@ def settings_markdown() -> str:
     from .config import get_all_settings
 
     lines = [
-        *_reference_doc_header("Settings Reference", "Matchers Reference", "matchers.md"),
+        *_reference_doc_header(
+            "Settings Reference", "Matchers Reference", "matchers.md"
+        ),
         "| Setting | Default | Description |",
         "| --- | --- | --- |",
     ]
     for option in get_all_settings():
-        lines.append(f"| `{option.key}` | `{_format_option_default(option)}` | {option.help} |")
+        lines.append(
+            f"| `{option.key}` | `{_format_option_default(option)}` | {option.help} |"
+        )
     return "\n".join(lines)
 
 
@@ -208,7 +216,9 @@ def print_matchers_help():
 
 def matchers_markdown() -> str:
     lines = [
-        *_reference_doc_header("Matchers Reference", "Settings Reference", "settings.md"),
+        *_reference_doc_header(
+            "Matchers Reference", "Settings Reference", "settings.md"
+        ),
         "| Matcher | Description |",
         "| --- | --- |",
     ]
@@ -269,7 +279,9 @@ def run():
             incl_patterns = [".*"]
         incl_patterns = str_util.compile_regexps(incl_patterns)
         tests = [
-            testfile for testfile in tests if str_util.matches_any(testfile, incl_patterns)
+            testfile
+            for testfile in tests
+            if str_util.matches_any(testfile, incl_patterns)
         ]
 
         # exclude files - by removing any files that match the -i regexps (default is [] so no files would be excluded)

@@ -106,7 +106,7 @@ def _verify_entry(expected_entry, actual_entry, **match_options):
 def verify_matcher(expected, actual):
     for matcher in matchers.matcher_dict.keys():
         if has_matcher_syntax(expected, matcher):
-            expected = expected[len(matcher):]
+            expected = expected[len(matcher) :]
             matcher_func = matchers.matcher_dict.get(matcher)
             result, msg = matcher_func(expected, actual)
             if not result:

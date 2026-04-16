@@ -4,6 +4,7 @@ from typing import NamedTuple, Dict, Any, ChainMap, Mapping
 
 from skivvy.util import file_util
 
+
 # TODO: Allow for specifying one of N option eg "DEBUG" "INFO" etc
 # TODO: For a large chunk of the settings we could easily provide some validation for dev ergonomics (booleans, lists, dicts) and also allow judgemental coercion only where it's really useful (boolean MIGHT fit that scenario, so that you can override something with an env variable and it might make more sense to allow 1/0... maybe?)
 class Option(NamedTuple):
@@ -67,7 +68,9 @@ class Settings:
         "When subset matching, skip verification for empty arrays",
     )
     MATCH_EVERY_ENTRY = Option(
-        "match_every_entry", False, "Require every actual array entry to match the expected template"
+        "match_every_entry",
+        False,
+        "Require every actual array entry to match the expected template",
     )
     MATCH_FALSINESS = Option(
         "match_falsiness", True, "Match falsy values in verification"
@@ -186,9 +189,7 @@ def parse_cli_overrides(raw_overrides: list[str] | str | None) -> dict[str, obje
         key, sep, value = raw.partition("=")
         key = key.strip()
         if sep != "=" or key == "":
-            raise ValueError(
-                f'Invalid --set value "{raw}". Expected format: key=value'
-            )
+            raise ValueError(f'Invalid --set value "{raw}". Expected format: key=value')
         if key not in known_settings:
             available = ", ".join(sorted(known_settings.keys()))
             raise ValueError(

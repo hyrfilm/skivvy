@@ -72,7 +72,9 @@ def test_emit_propagates_subscriber_exception(clean_event_context):
         disconnect()
 
 
-def test_run_test_emits_step_events_on_success(httpserver, tmp_path, clean_event_context):
+def test_run_test_emits_step_events_on_success(
+    httpserver, tmp_path, clean_event_context
+):
     httpserver.expect_request("/api/ok").respond_with_json({"ok": True})
     testcase_file = write_json_file(
         tmp_path / "ok.json",
@@ -89,7 +91,12 @@ def test_run_test_emits_step_events_on_success(httpserver, tmp_path, clean_event
         events.VERIFY_RESPONSE,
     ]
     disconnects = [
-        _connect(signal_name, lambda _s, signal_name=signal_name, **kw: captured.append((signal_name, kw)))
+        _connect(
+            signal_name,
+            lambda _s, signal_name=signal_name, **kw: captured.append(
+                (signal_name, kw)
+            ),
+        )
         for signal_name in step_events
     ]
     try:
@@ -107,7 +114,9 @@ def test_run_test_emits_step_events_on_success(httpserver, tmp_path, clean_event
     assert seen_steps == step_events
 
 
-def test_subscriber_failure_during_testcase_event_fails_run_test(tmp_path, clean_event_context):
+def test_subscriber_failure_during_testcase_event_fails_run_test(
+    tmp_path, clean_event_context
+):
     testcase_file = write_json_file(
         tmp_path / "boom.json",
         {"url": "/api/will-not-run", "method": "get", "status": 200},
@@ -133,7 +142,9 @@ def test_subscriber_failure_during_testcase_event_fails_run_test(tmp_path, clean
     assert err["failed_step"] == events.CREATE_TESTCASE
 
 
-def test_install_runtime_sinks_installs_console_and_optional_timing(clean_event_context):
+def test_install_runtime_sinks_installs_console_and_optional_timing(
+    clean_event_context,
+):
     install = sinks.install_runtime_sinks({"timing": True, "http_timing": True})
     try:
         assert install.console_sink is not None
@@ -439,7 +450,9 @@ def test_console_sink_http_logging_uses_individual_levels(monkeypatch):
     assert not any("http response" in msg for _level, msg, _ in emitted)
 
 
-def test_run_emits_run_passed_then_finished_with_timestamps(httpserver, tmp_path, clean_event_context):
+def test_run_emits_run_passed_then_finished_with_timestamps(
+    httpserver, tmp_path, clean_event_context
+):
     httpserver.expect_request("/api/pass").respond_with_json({"ok": True})
 
     tests_dir = tmp_path / "tests"
@@ -463,7 +476,9 @@ def test_run_emits_run_passed_then_finished_with_timestamps(httpserver, tmp_path
     discs = [
         _connect(events.RUN_STARTED, lambda _s, **kw: seen.append(("run.started", kw))),
         _connect(events.RUN_PASSED, lambda _s, **kw: seen.append(("run.passed", kw))),
-        _connect(events.RUN_FINISHED, lambda _s, **kw: seen.append(("run.finished", kw))),
+        _connect(
+            events.RUN_FINISHED, lambda _s, **kw: seen.append(("run.finished", kw))
+        ),
     ]
     try:
         assert run_cli_with_args(cfg_file, "-t") is True
@@ -492,7 +507,9 @@ def test_run_accepts_test_directory_target(httpserver, tmp_path, clean_event_con
     seen = []
     discs = [
         _connect(events.RUN_STARTED, lambda _s, **kw: seen.append(("run.started", kw))),
-        _connect(events.RUN_FINISHED, lambda _s, **kw: seen.append(("run.finished", kw))),
+        _connect(
+            events.RUN_FINISHED, lambda _s, **kw: seen.append(("run.finished", kw))
+        ),
     ]
     try:
         assert (
@@ -539,7 +556,9 @@ def test_run_emits_run_failed_then_finished(httpserver, tmp_path, clean_event_co
     discs = [
         _connect(events.RUN_STARTED, lambda _s, **kw: seen.append(("run.started", kw))),
         _connect(events.RUN_FAILED, lambda _s, **kw: seen.append(("run.failed", kw))),
-        _connect(events.RUN_FINISHED, lambda _s, **kw: seen.append(("run.finished", kw))),
+        _connect(
+            events.RUN_FINISHED, lambda _s, **kw: seen.append(("run.finished", kw))
+        ),
     ]
     try:
         assert run_cli_with_args(cfg_file, "-t") is False
@@ -633,7 +652,9 @@ def test_console_sink_result_line_pads_short_path():
 
 
 def test_console_sink_result_line_truncates_long_path():
-    sink = sinks.ConsoleOutputSink({"fixed_column_width": 40, "column_overflow": "ellipsis"})
+    sink = sinks.ConsoleOutputSink(
+        {"fixed_column_width": 40, "column_overflow": "ellipsis"}
+    )
     path_col = 40 - sinks._STATUS_COL
     long_path = "x" * (path_col + 10)
     line = sink._result_line(long_path, "", "OK", "green")
@@ -641,7 +662,9 @@ def test_console_sink_result_line_truncates_long_path():
     assert len(line.plain) == path_col + len("OK")
 
 
-def test_console_sink_failed_summary_collects_failed_tests(monkeypatch, clean_event_context):
+def test_console_sink_failed_summary_collects_failed_tests(
+    monkeypatch, clean_event_context
+):
     monkeypatch.setattr(sinks.log, "render", lambda _: None)
     monkeypatch.setattr(sinks.log, "info", lambda *_: None)
     monkeypatch.setattr(sinks.log, "error", lambda *_: None)

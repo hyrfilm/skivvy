@@ -71,6 +71,7 @@ def cleanup_tmp_files(warn: bool = False, throw: bool = True) -> None:
     if missing:
         raise ExceptionGroup("Missing file(s) when cleaning up:", missing)
 
+
 def read_file_contents(filename, binary: bool = False):
     mode = "rb" if binary else "r"
     kwargs = {} if binary else {"encoding": "utf8"}

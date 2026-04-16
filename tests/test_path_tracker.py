@@ -11,6 +11,7 @@ def reset_path(monkeypatch):
 
 # --- PathTracker class ---
 
+
 def test_starts_empty():
     tracker = PathTracker()
     assert tracker.current == []
@@ -44,7 +45,6 @@ def test_current_returns_copy():
     assert snapshot == ["a"]
 
 
-
 def test_nested_dict_and_list_traversal():
     # Simulates traversing {"response": {"items": [{"id": "..."}]}}
     tracker = PathTracker()
@@ -69,6 +69,7 @@ def test_nested_dict_and_list_traversal():
 
 
 # --- Module-level functions ---
+
 
 def test_push_path_and_get_path():
     matchers.push_path("a")

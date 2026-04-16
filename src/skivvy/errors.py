@@ -4,4 +4,3 @@ class ExpectedTestFailure(Exception):
 
 class VerificationFailure(ExpectedTestFailure):
     """Raised when expected and actual verification does not match."""
-

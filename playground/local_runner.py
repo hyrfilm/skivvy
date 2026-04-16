@@ -29,7 +29,9 @@ class Handler(BaseHTTPRequestHandler):
         try:
             body = json.loads(raw.decode("utf-8")) if raw else {}
         except json.JSONDecodeError:
-            self._send_json(400, {"output": "invalid JSON body\n", "exitCode": 2, "durationMs": 0})
+            self._send_json(
+                400, {"output": "invalid JSON body\n", "exitCode": 2, "durationMs": 0}
+            )
             return
 
         self._send_json(200, run_request(body))
@@ -53,7 +55,9 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run the skivvy playground endpoint locally")
+    parser = argparse.ArgumentParser(
+        description="Run the skivvy playground endpoint locally"
+    )
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8787)
     args = parser.parse_args()
@@ -65,4 +69,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

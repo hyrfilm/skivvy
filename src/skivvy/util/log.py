@@ -5,6 +5,7 @@ from rich.logging import RichHandler
 
 _logger = logging.getLogger(__name__)
 
+
 def _create_rich_handler():
     console = Console()
     h = RichHandler(

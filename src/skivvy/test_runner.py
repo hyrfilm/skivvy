@@ -171,14 +171,18 @@ def load_headers(source: Any) -> dict[str, str]:
         return dict(source)
     if isinstance(source, str):
         return file_util.parse_json(source)
-    raise TypeError("read_headers must be a string (path) or mapping (got %s)" % type(source))
+    raise TypeError(
+        "read_headers must be a string (path) or mapping (got %s)" % type(source)
+    )
 
 
 def header_exists(headers: dict[str, str], name: str) -> bool:
     return any(k.lower() == name.lower() for k in headers.keys())
 
 
-def maybe_add_content_type(headers: dict[str, str], request_config: Mapping[str, Any]) -> None:
+def maybe_add_content_type(
+    headers: dict[str, str], request_config: Mapping[str, Any]
+) -> None:
     has_json_body = conf_get(request_config, Settings.BODY) is not None
     has_upload = conf_get(request_config, Settings.UPLOAD)
     # Only auto-add the configured content type for JSON-style bodies.

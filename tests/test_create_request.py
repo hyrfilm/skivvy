@@ -38,7 +38,6 @@ def test_brace_expansion_with_files_and_variables():
     store("number", "23")
     store("access_token", "fidelio")
 
-
     # same thing as above, but now we are using the (mostly legacy) way
     # of retrieving variables from a file in our fixture dir
     test_config = {
@@ -57,7 +56,10 @@ def test_brace_expansion_with_files_and_variables():
         "method": "POST",
         "url": "https://api.example.com/666/hail-satan",
         "body": {"lucky": 23},
-        "headers": {"Authorization": "Bearer fidelio", 'Content-Type': 'application/json'},
+        "headers": {
+            "Authorization": "Bearer fidelio",
+            "Content-Type": "application/json",
+        },
     }
 
     assert complete_dict == {
@@ -67,7 +69,10 @@ def test_brace_expansion_with_files_and_variables():
         "auto_coercion": True,
         "body": {"lucky": 23},
         "brace_expansion": True,
-        "headers": {"Authorization": "Bearer fidelio", 'Content-Type': 'application/json'},
+        "headers": {
+            "Authorization": "Bearer fidelio",
+            "Content-Type": "application/json",
+        },
     }
 
 

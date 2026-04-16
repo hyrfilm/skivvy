@@ -30,7 +30,9 @@ def test_fetch_matcher_fails_for_undeclared_name(isolated_scope_namespace):
         verify("$fetch missing_token", "abc123")
 
 
-def test_write_file_and_read_file_matchers_round_trip(tmp_path, monkeypatch, clean_tmp_files):
+def test_write_file_and_read_file_matchers_round_trip(
+    tmp_path, monkeypatch, clean_tmp_files
+):
     monkeypatch.chdir(tmp_path)
 
     assert matchers.file_writer(" token.txt ", "abc123") == (True, matchers.SUCCESS_MSG)

@@ -13,6 +13,7 @@ def reset_matchers(monkeypatch):
 
 # --- $unique ---
 
+
 def test_unique_passes_for_distinct_values():
     matchers.push_path("items")
     matchers.push_path(0)
@@ -57,6 +58,7 @@ def test_unique_integration_fails_on_duplicate():
 
 
 # --- $asc ---
+
 
 def test_asc_passes_for_ascending_numbers():
     matchers.push_path("items")
@@ -114,6 +116,7 @@ def test_asc_integration_fails_on_out_of_order():
 
 
 # --- $desc ---
+
 
 def test_desc_passes_for_descending_numbers():
     matchers.push_path("items")

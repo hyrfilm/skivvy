@@ -65,7 +65,9 @@ def test_custom_matcher_wrong_signature_fails_to_load(tmp_path):
         """,
     )
 
-    with pytest.raises(AssertionError, match="Expected 'match' to take exactly 2 parameters"):
+    with pytest.raises(
+        AssertionError, match="Expected 'match' to take exactly 2 parameters"
+    ):
         custom_matchers.CustomMatcher(str(source))
 
 
@@ -97,11 +99,15 @@ def test_custom_matcher_exception_is_wrapped(tmp_path):
 
     matcher = custom_matchers.CustomMatcher(str(source))
 
-    with pytest.raises(Exception, match="Custom matcher threw unexpected execption: boom"):
+    with pytest.raises(
+        Exception, match="Custom matcher threw unexpected execption: boom"
+    ):
         matcher.match("x", "y")
 
 
-def test_load_registers_custom_matchers_from_directory(tmp_path, isolated_matcher_state):
+def test_load_registers_custom_matchers_from_directory(
+    tmp_path, isolated_matcher_state
+):
     plugins_dir = tmp_path / "plugins"
     plugins_dir.mkdir()
     write_matcher_file(

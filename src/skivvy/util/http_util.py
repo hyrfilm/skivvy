@@ -78,7 +78,9 @@ def initialize_session(session=None):
     _session = session or requests.Session()
 
 
-def execute(request: dict[str, object], timeout: int | float | None = None) -> HttpEnvelope:
+def execute(
+    request: dict[str, object], timeout: int | float | None = None
+) -> HttpEnvelope:
     method, payload = prepare_request_data(request)
     payload = prepare_upload_files(payload)
     r = do_request(method, timeout=timeout, **payload)

@@ -56,7 +56,9 @@ def test_valid_url_parses_prefix_and_unsafe_modifiers_order_independently(
     assert calls == {"url": "http://api.example.test/health", "verify": False}
 
 
-def test_valid_url_applies_matcher_options_replace_before_request(isolated_matcher_state):
+def test_valid_url_applies_matcher_options_replace_before_request(
+    isolated_matcher_state,
+):
     calls = {}
 
     def fake_get(url, verify, **kwargs):

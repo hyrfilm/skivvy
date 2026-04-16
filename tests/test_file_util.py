@@ -3,7 +3,13 @@ from pathlib import Path
 
 import pytest
 
-from skivvy.util.file_util import list_files, strip_filename, write_tmp, cleanup_tmp_files, _tmp_files
+from skivvy.util.file_util import (
+    list_files,
+    strip_filename,
+    write_tmp,
+    cleanup_tmp_files,
+    _tmp_files,
+)
 
 
 def _relative_paths(base: Path, files: list[str]) -> list[str]:

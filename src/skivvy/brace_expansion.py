@@ -41,7 +41,7 @@ def env_resolver(variable_name):
     if not is_env_variable_name(variable_name):
         return None
 
-    env_name = variable_name[len(prefix):]
+    env_name = variable_name[len(prefix) :]
     if env_name == "":
         return None
     return os.environ.get(env_name)

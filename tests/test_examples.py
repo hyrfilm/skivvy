@@ -6,10 +6,12 @@ from skivvy.util import file_util
 
 # TODO: This a ugly and slow and bad and hacky since we're hitting the actual end-points but blabla fix laterrrz
 
+
 def test_jsonplaceholder_examples():
     cfg_file = "examples/typicode/default.json"
     result = run_examples(cfg_file)
     assert result, f"Example config {cfg_file} failed"
+
 
 def test_dummyjson_examples():
     cfg_file = "examples/dummyjson/dummy.json"

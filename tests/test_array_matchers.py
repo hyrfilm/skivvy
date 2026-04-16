@@ -1,10 +1,12 @@
 """Tests for matcher syntax used inside array elements."""
+
 import pytest
 
 from skivvy.verify import verify
 
 
 # --- Matchers on plain values inside arrays ---
+
 
 def test_matcher_on_scalar_in_array_passes():
     # $between matcher applied to a scalar element in an array
@@ -35,6 +37,7 @@ def test_contains_matcher_on_string_no_match_fails():
 
 
 # --- Matchers on dict fields inside arrays (without match_subsets) ---
+
 
 def test_matcher_in_dict_field_in_array_passes():
     # Any element with id between 1 and 3 — no match_subsets needed
@@ -78,6 +81,7 @@ def test_multiple_matcher_entries_fails_if_one_has_no_match():
 
 # --- Matchers in dict fields inside arrays with match_subsets ---
 
+
 def test_matcher_in_dict_field_with_match_subsets_passes():
     # With match_subsets, expected dict is partial — extra actual fields are allowed
     verify(
@@ -97,6 +101,7 @@ def test_matcher_in_dict_field_with_match_subsets_fails_when_no_match():
 
 
 # --- match_every_entry: template must hold for all actual entries ---
+
 
 def test_match_every_entry_passes_when_all_match():
     verify(
@@ -194,6 +199,7 @@ def test_match_every_entry_empty_array_can_be_skipped():
 
 
 # --- Regression: existing exact and subset matching still works ---
+
 
 def test_exact_scalar_in_array_still_works():
     verify([1, 2], [1, 2, 3])

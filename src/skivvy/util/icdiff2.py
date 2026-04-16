@@ -210,4 +210,3 @@ class RichConsoleDiff:
             table.add_row(left, right)
 
         return table
-

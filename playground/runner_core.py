@@ -15,7 +15,9 @@ SERVER_PORT = 8080
 SERVER_IDLE_TIMEOUT_SECONDS = 60
 SERVER_STARTUP_TIMEOUT_SECONDS = 3.0
 RUN_TIMEOUT_SECONDS = 25
-DEFAULT_SERVER_SCRIPT = Path(__file__).resolve().parent.parent / "examples" / "dev_server" / "server.py"
+DEFAULT_SERVER_SCRIPT = (
+    Path(__file__).resolve().parent.parent / "examples" / "dev_server" / "server.py"
+)
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 PROJECT_SRC = Path(__file__).resolve().parent.parent / "src"
 
@@ -115,7 +117,9 @@ def _start_server(workspace_dir: Path, server_script: Path) -> subprocess.Popen:
 
 
 def _should_start_server(workspace_dir: Path) -> bool:
-    return (workspace_dir / "api").is_dir() or (workspace_dir / "examples" / "dev_server" / "api").is_dir()
+    return (workspace_dir / "api").is_dir() or (
+        workspace_dir / "examples" / "dev_server" / "api"
+    ).is_dir()
 
 
 def _stop_server(server: subprocess.Popen | None) -> None:
@@ -163,7 +167,11 @@ def _run_command(command_text: str, cwd: str, workspace_dir: Path) -> tuple[str,
             "COLORTERM": "truecolor",
             "FORCE_COLOR": "1",
             "COLUMNS": "120",
-            **({"PYTHONPATH": os.pathsep.join(pythonpath_parts)} if pythonpath_parts else {}),
+            **(
+                {"PYTHONPATH": os.pathsep.join(pythonpath_parts)}
+                if pythonpath_parts
+                else {}
+            ),
         },
     )
     return completed.stdout, completed.returncode
@@ -194,7 +202,9 @@ def run_request(body: dict, server_script: Path | None = None) -> dict:
 
         validated_cwd = _validate_cwd(cwd)
         _write_workspace(files, workspace_dir)
-        working_dir = workspace_dir / validated_cwd if validated_cwd != "." else workspace_dir
+        working_dir = (
+            workspace_dir / validated_cwd if validated_cwd != "." else workspace_dir
+        )
         if not working_dir.is_dir():
             return {
                 "output": f"request cwd does not exist: {cwd}\n",
@@ -202,7 +212,9 @@ def run_request(body: dict, server_script: Path | None = None) -> dict:
                 "durationMs": int((time.monotonic() - started_at) * 1000),
             }
         if _should_start_server(workspace_dir):
-            server = _start_server(workspace_dir, server_script or DEFAULT_SERVER_SCRIPT)
+            server = _start_server(
+                workspace_dir, server_script or DEFAULT_SERVER_SCRIPT
+            )
         output, exit_code = _run_command(command_text, validated_cwd, workspace_dir)
         return {
             "output": output,

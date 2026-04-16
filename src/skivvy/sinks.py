@@ -41,8 +41,14 @@ def _project_item_to_expected_surface(template: object, item: object) -> object:
         projected = {}
         for key, expected_value in template.items():
             projected[key] = item.get(key, _MISSING)
-            if key in item and isinstance(expected_value, dict) and isinstance(item[key], dict):
-                projected[key] = _project_item_to_expected_surface(expected_value, item[key])
+            if (
+                key in item
+                and isinstance(expected_value, dict)
+                and isinstance(item[key], dict)
+            ):
+                projected[key] = _project_item_to_expected_surface(
+                    expected_value, item[key]
+                )
         return projected
     return item
 
@@ -204,20 +210,26 @@ class ConsoleOutputSink(BaseSink):
         return self
 
     def _on_run_started(self, _sender, **kw):
-        log.info(f"[b]skivvy[/b] [u]{kw.get('version')}[/u] | config={kw.get('config_file')}")
+        log.info(
+            f"[b]skivvy[/b] [u]{kw.get('version')}[/u] | config={kw.get('config_file')}"
+        )
         log.info(f"{kw.get('test_count')} tests found.")
 
     def _path_col_width(self):
         return (self.fixed_column_width or log.console_width()) - _STATUS_COL
 
-    def _result_line(self, path: str, path_style: str, status: str, status_style: str) -> Text:
+    def _result_line(
+        self, path: str, path_style: str, status: str, status_style: str
+    ) -> Text:
         t = Text(path, style=path_style or "")
         t.truncate(self._path_col_width(), overflow=self.column_overflow, pad=True)
         t.append(status, style=status_style)
         return t
 
     def _on_test_passed(self, _sender, **kw):
-        log.render(self._result_line(kw.get("testfile", ""), self.passed_style, "OK", "green"))
+        log.render(
+            self._result_line(kw.get("testfile", ""), self.passed_style, "OK", "green")
+        )
 
     def _on_test_failed(self, _sender, **kw):
         testfile = kw.get("testfile", "")
@@ -240,7 +252,9 @@ class ConsoleOutputSink(BaseSink):
         if self.failed_summary and self._failed:
             log.info("\nFailed tests:")
             for testfile in self._failed:
-                log.render(self._result_line(testfile, self.failed_style, "FAILED", "red"))
+                log.render(
+                    self._result_line(testfile, self.failed_style, "FAILED", "red")
+                )
 
     def _log_failure_context(self, err_context: dict):
         failed_step = err_context.get("failed_step")
@@ -448,6 +462,7 @@ class TimingSink(BaseSink):
 
         log.info("\n".join(timings))
 
+
 @dataclass
 class SinkInstallation:
     sinks: list[BaseSink] = field(default_factory=list)
@@ -468,7 +483,9 @@ def install_runtime_sinks(conf: dict) -> SinkInstallation:
     installation.sinks.append(console_sink)
 
     if conf_get(conf, Settings.TIMING):
-        timing_sink = TimingSink(http_timing=bool(conf_get(conf, Settings.HTTP_TIMING))).install()
+        timing_sink = TimingSink(
+            http_timing=bool(conf_get(conf, Settings.HTTP_TIMING))
+        ).install()
         installation.timing_sink = timing_sink
         installation.sinks.append(timing_sink)
 

@@ -62,7 +62,9 @@ def test_add_negating_matchers_is_idempotent(minimal_registry):
     assert "$!!fail" not in matchers.matcher_dict
 
 
-def test_get_matcher_options_self_returns_options_for_calling_matcher(isolated_matcher_state):
+def test_get_matcher_options_self_returns_options_for_calling_matcher(
+    isolated_matcher_state,
+):
     seen = {}
 
     def custom(expected, actual):
